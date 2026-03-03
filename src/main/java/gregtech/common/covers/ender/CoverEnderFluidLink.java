@@ -6,6 +6,7 @@ import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.CoverableView;
 import gregtech.api.mui.GTGuiTextures;
+import gregtech.api.mui.widget.EnumButtonRow;
 import gregtech.api.util.FluidTankSwitchShim;
 import gregtech.api.util.GTTransferUtils;
 import gregtech.api.util.virtualregistry.EntryTypes;
@@ -14,7 +15,7 @@ import gregtech.api.util.virtualregistry.entries.VirtualTank;
 import gregtech.client.renderer.pipe.cover.CoverRenderer;
 import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
-import gregtech.common.covers.CoverPump;
+import gregtech.common.covers.IOMode;
 import gregtech.common.covers.filter.FluidFilterContainer;
 import gregtech.common.mui.widget.GTFluidSlot;
 
@@ -30,6 +31,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
+import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.factory.GuiData;
 import com.cleanroommc.modularui.value.sync.EnumSyncValue;
@@ -44,7 +46,7 @@ public class CoverEnderFluidLink extends CoverAbstractEnderLink<VirtualTank>
 
     public static final int TRANSFER_RATE = 8000; // mB/t
 
-    protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.IMPORT;
+    protected IOMode pumpMode = IOMode.IMPORT;
     private final FluidTankSwitchShim linkedTank;
     protected final FluidFilterContainer fluidFilter;
 
@@ -108,19 +110,19 @@ public class CoverEnderFluidLink extends CoverAbstractEnderLink<VirtualTank>
         IFluidHandler fluidHandler = getCoverableView().getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY,
                 getAttachedSide());
         if (fluidHandler == null) return;
-        if (pumpMode == CoverPump.PumpMode.IMPORT) {
+        if (pumpMode == IOMode.IMPORT) {
             GTTransferUtils.transferFluids(fluidHandler, activeEntry, TRANSFER_RATE, fluidFilter::test);
-        } else if (pumpMode == CoverPump.PumpMode.EXPORT) {
+        } else if (pumpMode == IOMode.EXPORT) {
             GTTransferUtils.transferFluids(activeEntry, fluidHandler, TRANSFER_RATE, fluidFilter::test);
         }
     }
 
-    public void setPumpMode(CoverPump.PumpMode pumpMode) {
+    public void setPumpMode(IOMode pumpMode) {
         this.pumpMode = pumpMode;
         markDirty();
     }
 
-    public CoverPump.PumpMode getPumpMode() {
+    public IOMode getPumpMode() {
         return pumpMode;
     }
 
@@ -153,33 +155,32 @@ public class CoverEnderFluidLink extends CoverAbstractEnderLink<VirtualTank>
     protected Flow createWidgets(GuiData data, PanelSyncManager syncManager) {
         getFluidFilterContainer().setMaxTransferSize(1);
 
-        var pumpMode = new EnumSyncValue<>(CoverPump.PumpMode.class, this::getPumpMode, this::setPumpMode);
+        EnumSyncValue<IOMode> pumpMode = new EnumSyncValue<>(IOMode.class, this::getPumpMode, this::setPumpMode);
         syncManager.syncValue("pump_mode", pumpMode);
 
         return super.createWidgets(data, syncManager)
                 .child(getFluidFilterContainer().initUI(data, syncManager))
-                .child(new EnumRowBuilder<>(CoverPump.PumpMode.class)
-                        .value(pumpMode)
-                        .overlay(GTGuiTextures.CONVEYOR_MODE_OVERLAY)
-                        .lang("cover.pump.mode")
+                .child(EnumButtonRow.builder(pumpMode)
+                        .overlays(GTGuiTextures.CONVEYOR_MODE_OVERLAY)
+                        .rowDescription(IKey.lang("cover.pump.mode"))
                         .build());
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tagCompound) {
+    public void writeToNBT(@NotNull NBTTagCompound tagCompound) {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("PumpMode", pumpMode.ordinal());
         tagCompound.setTag("Filter", fluidFilter.serializeNBT());
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
+    public void readFromNBT(@NotNull NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
-        this.pumpMode = CoverPump.PumpMode.values()[tagCompound.getInteger("PumpMode")];
+        this.pumpMode = IOMode.values()[tagCompound.getInteger("PumpMode")];
         this.fluidFilter.deserializeNBT(tagCompound.getCompoundTag("Filter"));
     }
 
-    public <T> T getCapability(Capability<T> capability, T defaultValue) {
+    public <T> T getCapability(@NotNull Capability<T> capability, T defaultValue) {
         if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(this.activeEntry);
         }

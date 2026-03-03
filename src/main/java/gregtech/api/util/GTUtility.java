@@ -71,6 +71,7 @@ import org.jetbrains.annotations.Range;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -1149,6 +1150,7 @@ public class GTUtility {
         return map.get(key.toWildcard());
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean areFluidStacksEqual(@Nullable FluidStack a, @Nullable FluidStack b) {
         if (a == b) return true;
         if (a == null) return false;
@@ -1192,5 +1194,9 @@ public class GTUtility {
             }
             default -> throw new IllegalStateException("Unexpected facing: " + frontFace);
         }
+    }
+
+    public static <T> @NotNull List<T> unmodifiableOrEmpty(@Nullable List<T> sourceList) {
+        return sourceList == null ? Collections.emptyList() : Collections.unmodifiableList(sourceList);
     }
 }
