@@ -1179,7 +1179,6 @@ public class GTUtility {
         return map.get(key.toWildcard());
     }
 
-<<<<<<< HEAD
     public static boolean isItemChargableWithEU(@NotNull ItemStack stack, int tier) {
         IElectricItem euItem = stack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
         if (euItem != null) {
