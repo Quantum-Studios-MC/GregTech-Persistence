@@ -382,9 +382,9 @@ public class ToolEventHandlers {
             float pulse = 0.2F +
                     (float) Math.sin((float) (System.currentTimeMillis() % (Math.PI * 800)) / 800) / 2;
             if (tile instanceof MetaTileEntityHolder) {
-                rColour = boxR * pulse * 2.5F;
-                gColour = boxG * pulse * 2.5F;
-                bColour = boxB * pulse * 2.5F;
+                rColour = Math.min(1.0f, boxR * pulse * 2.5F);
+                gColour = Math.min(1.0f, boxG * pulse * 2.5F);
+                bColour = Math.min(1.0f, boxB * pulse * 2.5F);
             } else {
                 rColour = gColour = bColour = pulse;
             }
