@@ -5,6 +5,7 @@ import gregtech.api.metatileentity.ITieredMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.pipenet.block.BlockPipe;
+import gregtech.api.pipenet.block.material.TileEntityMaterialPipeBase;
 import gregtech.api.pipenet.tile.TileEntityPipeBase;
 import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.BlockCompressed;
@@ -131,10 +132,14 @@ public final class BlockHighlightRenderer {
 
     public static int getCableColor(World world, BlockPos pos) {
         TileEntity te = world.getTileEntity(pos);
-        if (!(te instanceof TileEntityCable cable)) return 0x808080;
-        long voltage = cable.getMaxVoltage();
-        int tier = GTUtility.getTierByVoltage(voltage);
-        if (tier >= 0 && tier < TIER_COLORS.length) return TIER_COLORS[tier];
+        if (te instanceof TileEntityCable cable) {
+            long voltage = cable.getMaxVoltage();
+            int tier = GTUtility.getTierByVoltage(voltage);
+            if (tier >= 0 && tier < TIER_COLORS.length) return TIER_COLORS[tier];
+        }
+        if (te instanceof TileEntityMaterialPipeBase<?, ?> materialPipe) {
+            return materialPipe.getPipeMaterial().getMaterialRGB();
+        }
         return 0x808080;
     }
 }

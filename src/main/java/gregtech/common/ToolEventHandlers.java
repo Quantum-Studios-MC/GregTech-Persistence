@@ -376,6 +376,12 @@ public class ToolEventHandlers {
                 boxG = ((c >> 8) & 0xFF) / 255.0f;
                 boxB = (c & 0xFF) / 255.0f;
                 boxA = 0.55F;
+            } else if (tile instanceof TileEntityPipeBase) {
+                int c = BlockHighlightRenderer.getCableColor(player.world, pos);
+                boxR = ((c >> 16) & 0xFF) / 255.0f;
+                boxG = ((c >> 8) & 0xFF) / 255.0f;
+                boxB = (c & 0xFF) / 255.0f;
+                boxA = 0.55F;
             }
             RenderGlobal.drawSelectionBoundingBox(box, boxR, boxG, boxB, boxA);
 
@@ -385,6 +391,14 @@ public class ToolEventHandlers {
                 rColour = Math.min(1.0f, boxR * pulse * 2.5F);
                 gColour = Math.min(1.0f, boxG * pulse * 2.5F);
                 bColour = Math.min(1.0f, boxB * pulse * 2.5F);
+            } else if (tile instanceof TileEntityPipeBase) {
+                int c = BlockHighlightRenderer.getCableColor(player.world, pos);
+                float pR = ((c >> 16) & 0xFF) / 255.0f;
+                float pG = ((c >> 8) & 0xFF) / 255.0f;
+                float pB = (c & 0xFF) / 255.0f;
+                rColour = Math.min(1.0f, pR * pulse * 2.5F);
+                gColour = Math.min(1.0f, pG * pulse * 2.5F);
+                bColour = Math.min(1.0f, pB * pulse * 2.5F);
             } else {
                 rColour = gColour = bColour = pulse;
             }

@@ -5,6 +5,7 @@ import gregtech.api.cover.CoverBase;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.CoverableView;
+import gregtech.api.mui.GTGuis;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.util.GTLog;
 import gregtech.api.util.GTUtility;
@@ -150,6 +151,9 @@ public class CoverFluidFilter extends CoverBase implements CoverWithUI {
 
     @Override
     public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
+        if (!fluidFilterContainer.hasFilter() || getFilter() == BaseFilter.ERROR_FILTER) {
+            return GTGuis.errorPanel();
+        }
         return getFilter().createPanel(guiSyncManager)
                 .size(176, 212).padding(7)
                 .child(CoverWithUI.createTitleRow(getFilterContainer().getFilterStack()))
@@ -190,7 +194,9 @@ public class CoverFluidFilter extends CoverBase implements CoverWithUI {
                                 .alignX(1f)))
                 .child(new Rectangle().setColor(UI_TEXT_COLOR).asWidget()
                         .height(1).widthRel(0.95f).margin(0, 4))
-                .child(getFilter().createWidgets(manager));
+                .child(getFilter() != BaseFilter.ERROR_FILTER ?
+                        getFilter().createWidgets(manager) :
+                        IKey.str("No filter installed").asWidget());
     }
 
     @Override
