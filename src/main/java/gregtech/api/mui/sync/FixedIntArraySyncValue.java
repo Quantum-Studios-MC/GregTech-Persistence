@@ -25,6 +25,10 @@ public class FixedIntArraySyncValue extends ValueSyncHandler<int[]> {
     private final Supplier<int[]> getter;
     private final @Nullable Consumer<int[]> setter;
 
+    public FixedIntArraySyncValue(@NotNull Supplier<int[]> getter) {
+        this(getter, null);
+    }
+
     public FixedIntArraySyncValue(@NotNull Supplier<int[]> getter, @Nullable Consumer<int[]> setter) {
         this.getter = Objects.requireNonNull(getter);
         this.setter = setter;
