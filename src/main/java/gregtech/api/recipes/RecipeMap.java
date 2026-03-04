@@ -128,6 +128,7 @@ public class RecipeMap<R extends RecipeBuilder<R>> {
     private final Map<ResourceLocation, RecipeBuildAction<R>> recipeBuildActions = new Object2ObjectOpenHashMap<>();
     protected @Nullable SoundEvent sound;
     private @Nullable RecipeMap<?> smallRecipeMap;
+    private @Nullable JEITooltipCustomizer jeiTooltipCustomizer;
 
     /**
      * Create and register new instance of RecipeMap with specified properties.
@@ -233,6 +234,22 @@ public class RecipeMap<R extends RecipeBuilder<R>> {
     public RecipeMap<R> setSound(SoundEvent sound) {
         this.sound = sound;
         return this;
+    }
+
+    public RecipeMap<R> setJEITooltipCustomizer(@NotNull JEITooltipCustomizer customizer) {
+        this.jeiTooltipCustomizer = customizer;
+        return this;
+    }
+
+    public @Nullable JEITooltipCustomizer getJEITooltipCustomizer() {
+        return jeiTooltipCustomizer;
+    }
+
+    @FunctionalInterface
+    public interface JEITooltipCustomizer {
+
+        void customizeTooltip(Recipe recipe, int slotIndex, boolean isInput, boolean isFluid,
+                              Object ingredient, List<String> tooltip);
     }
 
     public RecipeMap<R> setChanceFunction(@NotNull ChanceBoostFunction function) {

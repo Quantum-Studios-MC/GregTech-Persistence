@@ -1577,5 +1577,14 @@ public final class RecipeMaps {
                     .generator()
                     .build();
 
+    @ZenProperty
+    public static final RecipeMap<SimpleRecipeBuilder> TEST_LARGE_OUTPUT_RECIPES = new RecipeMapBuilder<>(
+            "test_large_output", new SimpleRecipeBuilder())
+                    .itemInputs(1)
+                    .itemOutputs(99)
+                    .uiBuilder(b -> b.progressBar(GTGuiTextures.PROGRESS_BAR_ARROW))
+                    .sound(GTSoundEvents.FURNACE)
+                    .build();
+
     private RecipeMaps() {}
 }

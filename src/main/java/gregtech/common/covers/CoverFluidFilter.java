@@ -166,7 +166,7 @@ public class CoverFluidFilter extends CoverBase implements CoverWithUI {
             return GTGuis.errorPanel();
         }
         return getFilter().createPanel(guiSyncManager)
-                .size(176, 212).padding(7)
+                .size(176, 176).padding(7)
                 .child(CoverWithUI.createTitleRow(getFilterContainer().getFilterStack()))
                 .child(createUI(guiData, guiSyncManager))
                 .child(SlotGroupWidget.playerInventory(false).bottom(7).left(7));
@@ -179,7 +179,7 @@ public class CoverFluidFilter extends CoverBase implements CoverWithUI {
         manager.syncValue("filtering_mode", filteringMode);
         this.fluidFilterContainer.setMaxTransferSize(1);
 
-        return Flow.column().widthRel(1f).align(Alignment.TopLeft).top(22).coverChildrenHeight()
+        return Flow.column().widthRel(1f).margin(0).top(22).coverChildrenHeight()
                 .child(new EnumRowBuilder<>(FluidFilterMode.class)
                         .value(filteringMode)
                         .lang("cover.filter.mode.title")
@@ -202,9 +202,9 @@ public class CoverFluidFilter extends CoverBase implements CoverWithUI {
                         .child(IKey.lang("cover.filter.allow_flow.label")
                                 .asWidget()
                                 .height(18)
-                                .alignX(1f)))
+                                .width(85)))
                 .child(new Rectangle().setColor(UI_TEXT_COLOR).asWidget()
-                        .height(1).widthRel(0.95f).margin(0, 4))
+                        .height(1).widthRel(1f).margin(0, 4))
                 .child(getFilter() != BaseFilter.ERROR_FILTER ?
                         getFilter().createWidgets(manager) :
                         IKey.str("No filter installed").asWidget());

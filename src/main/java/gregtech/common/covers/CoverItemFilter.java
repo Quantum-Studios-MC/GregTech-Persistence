@@ -169,7 +169,7 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
             return GTGuis.errorPanel();
         }
         return getFilter().createPanel(guiSyncManager)
-                .size(176, 212).padding(7)
+                .size(176, 176).padding(7)
                 .child(CoverWithUI.createTitleRow(getFilterContainer().getFilterStack()))
                 .child(createUI(guiData, guiSyncManager))
                 .child(SlotGroupWidget.playerInventory(false).bottom(7).left(7));
@@ -183,8 +183,7 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
 
         return Flow.column()
                 .widthRel(1f)
-                // .align(Alignment.TopLeft)
-                .margin(7, 0)
+                .margin(0)
                 .top(22)
                 .coverChildrenHeight()
                 .child(new EnumRowBuilder<>(ItemFilterMode.class)
@@ -209,12 +208,12 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
                         .child(IKey.lang("cover.filter.allow_flow.label")
                                 .asWidget()
                                 .height(18)
-                                .alignX(1f)))
+                                .width(85)))
                 .child(new Rectangle().setColor(UI_TEXT_COLOR).asWidget()
-                        .height(1).widthRel(0.95f).margin(0, 4))
+                        .height(1).widthRel(1f).margin(0, 4))
                 .child(getFilter() != BaseFilter.ERROR_FILTER ?
-                        getFilter().createWidgets(manager).left(0) :
-                        IKey.str("No filter installed").asWidget().left(0));
+                        getFilter().createWidgets(manager) :
+                        IKey.str("No filter installed").asWidget());
     }
 
     @Override

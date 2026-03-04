@@ -84,6 +84,51 @@ public class MachineRecipeLoader {
         registerStoneBricksRecipes();
         registerNBTRemoval();
         ConvertHatchToHatch();
+        registerTestLargeOutputRecipes();
+    }
+
+    private static void registerTestLargeOutputRecipes() {
+        var builder = TEST_LARGE_OUTPUT_RECIPES.recipeBuilder()
+                .inputs(new ItemStack(Items.DIAMOND))
+                .duration(200)
+                .EUt(VA[LV]);
+
+        Material[] mats = {
+                Iron, Gold, Copper, Tin, Silver,
+                Lead, Nickel, Zinc, Aluminium, Platinum,
+                Tungsten, Titanium, Chrome, Manganese, Cobalt,
+                Steel, Bronze, Brass, Electrum, Invar,
+                Cupronickel, RedAlloy, TinAlloy, SolderingAlloy,
+                BatteryAlloy, RoseGold, SterlingSilver, BlackBronze,
+                BismuthBronze, BlackSteel, BlueSteel, RedSteel,
+                StainlessSteel, TungstenSteel, Osmium, Iridium,
+                Palladium, Vanadium, Niobium, Yttrium,
+                Gallium, Cadmium, Indium, Caesium, Barium,
+                Lanthanum, Cerium, Neodymium, Samarium,
+                Europium, Ruthenium, Rhodium, Molybdenum,
+                Antimony, Beryllium, Bismuth, Lithium,
+                Magnesium, Thorium, Uranium238, Plutonium241,
+                WroughtIron, Potin, Kanthal, Nichrome,
+                VanadiumSteel, Magnalium, TungstenCarbide, Ultimet,
+                Ruridit, HSSG, HSSE, HSSS,
+                Naquadah, NaquadahAlloy, NaquadahEnriched, Naquadria,
+                Tritanium, Duranium, Trinium, Neutronium,
+                Darmstadtium
+        };
+
+        int count = 0;
+        for (Material mat : mats) {
+            if (count >= 99) break;
+            builder.output(dust, mat);
+            count++;
+        }
+
+        while (count < 99) {
+            builder.outputs(new ItemStack(Items.IRON_NUGGET, count));
+            count++;
+        }
+
+        builder.buildAndRegister();
     }
 
     private static void registerBendingCompressingRecipes() {

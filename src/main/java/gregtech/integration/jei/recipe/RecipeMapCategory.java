@@ -78,8 +78,15 @@ public class RecipeMapCategory implements IRecipeCategory<GTRecipeWrapper> {
                 (exportFluids = new FluidTankList(false, exportFluidTanks)), 0)
                 .build(new BlankUIHolder(), Minecraft.getMinecraft().player);
         this.modularUI.initWidgets();
-        this.backgroundDrawable = guiHelper.createBlankDrawable(modularUI.getWidth(),
-                modularUI.getHeight() * 2 / 3 + recipeMap.getRecipeMapUI().getPropertyHeightShift());
+        int bgWidth = modularUI.getWidth();
+        int bgHeight = modularUI.getHeight() * 2 / 3 + recipeMap.getRecipeMapUI().getPropertyHeightShift();
+        int totalSlots = recipeMap.getMaxInputs() + recipeMap.getMaxOutputs() +
+                recipeMap.getMaxFluidInputs() + recipeMap.getMaxFluidOutputs();
+        if (totalSlots > 12) {
+            bgWidth = modularUI.getWidth();
+            bgHeight = modularUI.getHeight();
+        }
+        this.backgroundDrawable = guiHelper.createBlankDrawable(bgWidth, bgHeight);
         gtCategories.put(category, this);
         recipeMapCategories.compute(recipeMap, (k, v) -> {
             if (v == null) v = new ArrayList<>();

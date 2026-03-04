@@ -183,6 +183,11 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
 
         addIngredientTooltips(tooltip, notConsumed, input, entry, recipe.getChancedOutputs().getChancedOutputLogic());
         addIngredientTooltips(tooltip, notConsumed, input, ingredient, null);
+
+        RecipeMap.JEITooltipCustomizer customizer = recipeMap.getJEITooltipCustomizer();
+        if (customizer != null) {
+            customizer.customizeTooltip(recipe, slotIndex, input, false, ingredient, tooltip);
+        }
     }
 
     public void addFluidTooltip(int slotIndex, boolean input, Object ingredient, List<String> tooltip) {
@@ -203,6 +208,11 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
         addIngredientTooltips(tooltip, notConsumed, input, entry,
                 recipe.getChancedFluidOutputs().getChancedOutputLogic());
         addIngredientTooltips(tooltip, notConsumed, input, ingredient, null);
+
+        RecipeMap.JEITooltipCustomizer customizer = recipeMap.getJEITooltipCustomizer();
+        if (customizer != null) {
+            customizer.customizeTooltip(recipe, slotIndex, input, true, ingredient, tooltip);
+        }
     }
 
     public void addIngredientTooltips(@NotNull Collection<String> tooltip, boolean notConsumed, boolean input,

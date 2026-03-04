@@ -2474,6 +2474,7 @@ recipemap.gas_turbine.name=Gas Fuels
 recipemap.steam_turbine.name=Steam Fuels
 recipemap.semi_fluid_generator.name=Semi Fluid Fuels
 recipemap.plasma_generator.name=Plasma Fuels
+recipemap.test_large_output.name=Test Large Output
 recipemap.circuit_assembler.name=Circuit Assembler
 recipemap.mass_fabricator.name=Mass Fabricator
 recipemap.materialtree.name=Material Tree
