@@ -198,18 +198,24 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
         return builder;
     }
 
+    public static final int LARGE_JEI_OUTPUT_COLS = 9;
+    public static final int LARGE_JEI_MAX_OUTPUT_ROWS = 5;
+    public static final int LARGE_JEI_MAX_VISIBLE_OUTPUTS = LARGE_JEI_OUTPUT_COLS * LARGE_JEI_MAX_OUTPUT_ROWS;
+
     @Deprecated
     @ApiStatus.ScheduledForRemoval(inVersion = "2.9")
     protected ModularUI.Builder createLargeJeiUITemplate(IItemHandlerModifiable importItems,
                                                          IItemHandlerModifiable exportItems,
                                                          FluidTankList importFluids, FluidTankList exportFluids,
                                                          int yOffset) {
-        int outputCols = 9;
+        int outputCols = LARGE_JEI_OUTPUT_COLS;
 
         int inputItemCount = importItems.getSlots();
         int outputItemCount = exportItems.getSlots();
         int inputFluidCount = importFluids.getTanks();
         int outputFluidCount = exportFluids.getTanks();
+
+        int visibleOutputItems = Math.min(outputItemCount, LARGE_JEI_MAX_VISIBLE_OUTPUTS);
 
         int[] inputGrid = determineSlotsGrid(inputItemCount);
         int inputItemCols = inputGrid[0];
@@ -218,7 +224,7 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
         int inputFluidCols = inputFluidGrid[0];
         int inputFluidRows = inputFluidGrid[1];
 
-        int outputItemRows = outputItemCount > 0 ? (int) Math.ceil((double) outputItemCount / outputCols) : 0;
+        int visibleOutputItemRows = visibleOutputItems > 0 ? (int) Math.ceil((double) visibleOutputItems / outputCols) : 0;
         int outputFluidCols = Math.min(outputCols, Math.max(1, outputFluidCount));
         int outputFluidRows = outputFluidCount > 0 ? (int) Math.ceil((double) outputFluidCount / outputFluidCols) : 0;
 
@@ -233,9 +239,9 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
         inputSectionHeight = Math.max(inputSectionHeight, 18);
         int topRowHeight = Math.max(inputSectionHeight, 20);
 
-        int outputSectionHeight = (outputItemRows + outputFluidRows) * 18;
+        int outputSectionHeight = (visibleOutputItemRows + outputFluidRows) * 18;
 
-        int infoHeight = 40;
+        int infoHeight = 46;
         int padding = 4;
         int totalHeight = topRowHeight + padding + outputSectionHeight + padding + infoHeight + yOffset;
 
@@ -266,13 +272,13 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
 
         int outputStartY = topY + topRowHeight + padding;
         int outputStartX = (totalWidth - outputCols * 18) / 2;
-        for (int i = 0; i < outputItemCount; i++) {
+        for (int i = 0; i < visibleOutputItems; i++) {
             int col = i % outputCols;
             int row = i / outputCols;
             addSlot(builder, outputStartX + col * 18, outputStartY + row * 18, i,
                     exportItems, exportFluids, false, true);
         }
-        int fluidOutputStartY = outputStartY + outputItemRows * 18;
+        int fluidOutputStartY = outputStartY + visibleOutputItemRows * 18;
         for (int i = 0; i < outputFluidCount; i++) {
             int col = i % outputFluidCols;
             int row = i / outputFluidCols;

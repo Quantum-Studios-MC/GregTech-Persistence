@@ -12,6 +12,8 @@ import gregtech.api.gui.widgets.TankWidget;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.category.GTRecipeCategory;
+import gregtech.api.recipes.Recipe;
+import gregtech.integration.jei.recipe.GTRecipeWrapper;
 import gregtech.api.recipes.properties.impl.ResearchProperty;
 import gregtech.api.recipes.properties.impl.ResearchPropertyData;
 import gregtech.api.util.AssemblyLineManager;
@@ -233,6 +235,26 @@ public class RecipeMapCategory implements IRecipeCategory<GTRecipeWrapper> {
         fluidStackGroup.addTooltipCallback(recipeWrapper::addFluidTooltip);
         itemStackGroup.set(ingredients);
         fluidStackGroup.set(ingredients);
+
+        int maxVisible = gregtech.api.recipes.ui.RecipeMapUI.LARGE_JEI_MAX_VISIBLE_OUTPUTS;
+        Recipe recipe = recipeWrapper.getRecipe();
+        List<ItemStack> allOutputs = new ArrayList<>(recipe.getOutputs());
+        for (var entry : recipe.getChancedOutputs().getChancedEntries()) {
+            allOutputs.add(entry.getIngredient());
+        }
+        if (allOutputs.size() > maxVisible) {
+            int pages = (int) Math.ceil((double) allOutputs.size() / maxVisible);
+            int currentPage = GTRecipeWrapper.getCurrentPage(recipe, pages);
+            int baseSlotIndex = importItems.getSlots();
+            for (int slot = 0; slot < maxVisible; slot++) {
+                int outputIndex = currentPage * maxVisible + slot;
+                if (outputIndex < allOutputs.size()) {
+                    itemStackGroup.set(baseSlotIndex + slot, allOutputs.get(outputIndex).copy());
+                } else {
+                    itemStackGroup.set(baseSlotIndex + slot, ItemStack.EMPTY);
+                }
+            }
+        }
     }
 
     @Override
