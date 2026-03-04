@@ -5,8 +5,11 @@ import gregtech.api.metatileentity.ITieredMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.pipenet.block.BlockPipe;
+import gregtech.api.pipenet.tile.TileEntityPipeBase;
+import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.BlockCompressed;
 import gregtech.common.blocks.BlockFrame;
+import gregtech.common.pipelike.cable.tile.TileEntityCable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -76,7 +79,7 @@ public final class BlockHighlightRenderer {
         if (state.getBlock() instanceof BlockMachine) {
             color = getMachineColor(world, pos);
         } else {
-            color = 0x808080;
+            color = getCableColor(world, pos);
         }
         event.setCanceled(true);
         drawColoredOutline(event, player, state, world, pos, color, 0.5f);
@@ -123,6 +126,15 @@ public final class BlockHighlightRenderer {
             int tier = tiered.getTier();
             if (tier >= 0 && tier < TIER_COLORS.length) return TIER_COLORS[tier];
         }
+        return 0x808080;
+    }
+
+    public static int getCableColor(World world, BlockPos pos) {
+        TileEntity te = world.getTileEntity(pos);
+        if (!(te instanceof TileEntityCable cable)) return 0x808080;
+        long voltage = cable.getMaxVoltage();
+        int tier = GTUtility.getTierByVoltage(voltage);
+        if (tier >= 0 && tier < TIER_COLORS.length) return TIER_COLORS[tier];
         return 0x808080;
     }
 }
