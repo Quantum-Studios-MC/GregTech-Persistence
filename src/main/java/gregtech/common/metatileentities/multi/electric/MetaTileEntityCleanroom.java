@@ -294,7 +294,7 @@ public class MetaTileEntityCleanroom extends MultiblockWithDisplayBase
 
         // build each row of the structure
         StringBuilder borderBuilder = new StringBuilder();     // BBBBB
-        StringBuilder wallBuilder = new StringBuilder();       // BXXXB
+        StringBuilder wallBuilder = new StringBuilder();       // EXXXE
         StringBuilder insideBuilder = new StringBuilder();     // X X
         StringBuilder roofBuilder = new StringBuilder();       // BFFFB
         StringBuilder controllerBuilder = new StringBuilder(); // BFSFB
@@ -304,7 +304,7 @@ public class MetaTileEntityCleanroom extends MultiblockWithDisplayBase
         for (int i = 0; i < lDist; i++) {
             borderBuilder.append("B");
             if (i == 0) {
-                wallBuilder.append("B");
+                wallBuilder.append("E");
                 insideBuilder.append("X");
                 roofBuilder.append("B");
                 controllerBuilder.append("B");
@@ -330,7 +330,7 @@ public class MetaTileEntityCleanroom extends MultiblockWithDisplayBase
         for (int i = 0; i < rDist; i++) {
             borderBuilder.append("B");
             if (i == rDist - 1) {
-                wallBuilder.append("B");
+                wallBuilder.append("E");
                 insideBuilder.append("X");
                 roofBuilder.append("B");
                 controllerBuilder.append("B");
@@ -345,7 +345,7 @@ public class MetaTileEntityCleanroom extends MultiblockWithDisplayBase
         }
 
         // build each slice of the structure
-        String[] wall = new String[hDist + 1]; // "BBBBB", "BXXXB", "BXXXB", "BXXXB", "BBBBB"
+        String[] wall = new String[hDist + 1]; // "BBBBB", "EXXXE", "EXXXE", "EXXXE", "BBBBB"
         Arrays.fill(wall, wallBuilder.toString());
         wall[0] = borderBuilder.toString();
         wall[wall.length - 1] = borderBuilder.toString();
@@ -367,6 +367,7 @@ public class MetaTileEntityCleanroom extends MultiblockWithDisplayBase
         TraceabilityPredicate wallPredicate = states(getCasingState(), getGlassState());
         TraceabilityPredicate basePredicate = autoAbilities().or(abilities(MultiblockAbility.INPUT_ENERGY)
                 .setMinGlobalLimited(1).setMaxGlobalLimited(3));
+        TraceabilityPredicate sidePredicate = wallPredicate.or(basePredicate);
 
         // layer the slices one behind the next
         return FactoryBlockPattern.start()
@@ -377,8 +378,8 @@ public class MetaTileEntityCleanroom extends MultiblockWithDisplayBase
                 .aisle(wall)
                 .where('S', selfPredicate())
                 .where('B', states(getCasingState()).or(basePredicate))
-                .where('X', wallPredicate.or(basePredicate)
-                        .or(doorPredicate().setMaxGlobalLimited(8))
+                .where('E', sidePredicate)
+                .where('X', sidePredicate.or(doorPredicate().setMaxGlobalLimited(8))
                         .or(abilities(MultiblockAbility.PASSTHROUGH_HATCH).setMaxGlobalLimited(30)))
                 .where('K', wallPredicate) // the block beneath the controller must only be a casing for structure
                                            // dimension checks
