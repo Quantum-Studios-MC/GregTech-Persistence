@@ -279,18 +279,34 @@ public class RecipeMapCategory implements IRecipeCategory<GTRecipeWrapper> {
     }
 
     public static int calcMaxVisibleOutputs(Recipe recipe) {
-        // Calculate max visible outputs based on total outputs and input density
+        // Calculate max visible outputs with adaptive layout for many outputs
         int totalOutputs = recipe.getOutputs().size() + recipe.getChancedOutputs().getChancedEntries().size();
-        int baseCols = 9;
-        int baseRows = 5;
-        // Check if this recipe has many inputs/fluids that would compress outputs
         int inputCount = recipe.getInputs().size();
         int fluidInputCount = recipe.getFluidInputs().size();
+        
+        // Adjust based on input density
         if (inputCount + fluidInputCount >= 8) {
-            baseRows = 2; // Severely limited
+            return Math.min(totalOutputs, 3 * 12); // 3 cols x 12 rows = 36 slots, severely limited
         } else if (inputCount + fluidInputCount >= 6) {
-            baseRows = 3; // Limited
+            // For many outputs, use narrow layout: 3-5 cols
+            if (totalOutputs > 54) {
+                return Math.min(totalOutputs, 3 * 20); // 3 cols x 20 rows = 60 slots
+            } else if (totalOutputs > 36) {
+                return Math.min(totalOutputs, 5 * 16); // 5 cols x 16 rows = 80 slots
+            } else {
+                return Math.min(totalOutputs, 6 * 12); // 6 cols x 12 rows = 72 slots
+            }
+        } else {
+            // Normal to many outputs: use narrower columns for more rows
+            if (totalOutputs > 54) {
+                return Math.min(totalOutputs, 3 * 20); // 3 cols (tall narrow list)
+            } else if (totalOutputs > 36) {
+                return Math.min(totalOutputs, 5 * 16); // 5 cols (moderately narrow)
+            } else if (totalOutputs > 18) {
+                return Math.min(totalOutputs, 6 * 15); // 6 cols (slightly narrow)
+            } else {
+                return Math.min(totalOutputs, 9 * 5); // 9 cols x 5 rows (standard)
+            }
         }
-        return Math.min(totalOutputs, baseCols * baseRows);
     }
 }

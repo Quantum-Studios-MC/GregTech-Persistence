@@ -208,8 +208,6 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
                                                          IItemHandlerModifiable exportItems,
                                                          FluidTankList importFluids, FluidTankList exportFluids,
                                                          int yOffset) {
-        int outputCols = LARGE_JEI_OUTPUT_COLS;
-
         int inputItemCount = importItems.getSlots();
         int outputItemCount = exportItems.getSlots();
         int inputFluidCount = importFluids.getTanks();
@@ -222,6 +220,16 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
         int inputFluidCols = inputFluidGrid[0];
         int inputFluidRows = inputFluidGrid[1];
 
+        // For recipes with MANY outputs, use fewer columns (narrow vertical layout like a scrollable list)
+        int outputCols = LARGE_JEI_OUTPUT_COLS;
+        if (outputItemCount > 54) {
+            outputCols = 3; // Tall narrow list for many outputs
+        } else if (outputItemCount > 36) {
+            outputCols = 5; // Moderately narrow
+        } else if (outputItemCount > 18) {
+            outputCols = 6; // Slightly narrower than standard
+        }
+
         // Dynamically reduce output rows if inputs/fluids take up significant space
         int totalInputRows = Math.max(inputItemRows, inputFluidRows);
         int maxOutputRows = LARGE_JEI_MAX_OUTPUT_ROWS;
@@ -230,6 +238,11 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
         } else if (totalInputRows >= 2) {
             maxOutputRows = 3; // Only 27 output slots (3x9)
         }
+        // Allow more rows if using narrower columns
+        if (outputCols < 9) {
+            maxOutputRows = Math.min(20, 200 / 18); // Up to ~20 rows for narrow layouts
+        }
+        
         int maxVisibleOutputs = Math.min(outputItemCount, outputCols * maxOutputRows);
         int visibleOutputItemRows = maxVisibleOutputs > 0 ? (int) Math.ceil((double) maxVisibleOutputs / outputCols) : 0;
         
