@@ -339,6 +339,15 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
         if (recipeTier >= GTValues.V.length - 1) return;
 
         java.util.List<long[]> ocTiers = new java.util.ArrayList<>();
+        
+        for (int tier = Math.max(0, recipeTier - 1); tier <= recipeTier; tier++) {
+            long newEUt = recipeEUt * (long) Math.pow(0.25, recipeTier - tier);
+            int newDuration = (int) (recipeDuration * Math.pow(2.0, recipeTier - tier));
+            if (newEUt >= GTValues.V[tier] && newDuration >= 1) {
+                ocTiers.add(new long[]{tier, newEUt, newDuration});
+            }
+        }
+        
         ocTiers.add(new long[]{recipeTier, recipeEUt, recipeDuration});
         long eut = recipeEUt;
         int duration = recipeDuration;
