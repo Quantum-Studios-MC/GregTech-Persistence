@@ -3,6 +3,8 @@ package gregtech.common.covers;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverableView;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -169,5 +171,10 @@ public class CoverItemVoiding extends CoverConveyor {
         public int getSlotLimit(int slot) {
             return 64;
         }
+    }
+
+    @Override
+    protected CoverRenderer buildRenderer() {
+        return new CoverRendererBuilder(Textures.ITEM_VOIDING).build();
     }
 }

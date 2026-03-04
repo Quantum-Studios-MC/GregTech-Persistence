@@ -4,6 +4,7 @@ import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.metatileentity.ITieredMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.pipenet.block.BlockPipe;
 import gregtech.common.blocks.BlockCompressed;
 import gregtech.common.blocks.BlockFrame;
 
@@ -69,9 +70,14 @@ public final class BlockHighlightRenderer {
         World world = player.world;
         IBlockState state = world.getBlockState(pos);
 
-        if (!(state.getBlock() instanceof BlockMachine)) return false;
+        if (!(state.getBlock() instanceof BlockMachine) && !(state.getBlock() instanceof BlockPipe)) return false;
 
-        int color = getMachineColor(world, pos);
+        int color;
+        if (state.getBlock() instanceof BlockMachine) {
+            color = getMachineColor(world, pos);
+        } else {
+            color = 0x808080;
+        }
         event.setCanceled(true);
         drawColoredOutline(event, player, state, world, pos, color, 0.5f);
         return true;

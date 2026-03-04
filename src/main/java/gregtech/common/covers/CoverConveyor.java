@@ -11,6 +11,8 @@ import gregtech.api.cover.CoverableView;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.util.GTTransferUtils;
 import gregtech.api.util.ItemStackHashStrategy;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.client.renderer.texture.cube.SimpleSidedCubeRenderer;
 import gregtech.common.covers.filter.ItemFilterContainer;
@@ -758,6 +760,11 @@ public class CoverConveyor extends CoverBase implements CoverWithUI, ITickable, 
 
     @Override
     protected CoverRenderer buildRenderer() {
-        return null;
+        CoverRenderer exportRenderer = new CoverRendererBuilder(Textures.CONVEYOR_OVERLAY).build();
+        CoverRenderer importRenderer = new CoverRendererBuilder(Textures.CONVEYOR_OVERLAY_INVERTED).build();
+        return (quads, facing, renderPlate, renderBackside, renderLayer, data) -> {
+            CoverRenderer active = conveyorMode == ConveyorMode.EXPORT ? exportRenderer : importRenderer;
+            active.addQuads(quads, facing, renderPlate, renderBackside, renderLayer, data);
+        };
     }
 }

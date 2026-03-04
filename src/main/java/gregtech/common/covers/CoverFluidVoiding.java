@@ -4,6 +4,8 @@ import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverableView;
 import gregtech.api.util.GTTransferUtils;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.common.covers.filter.FluidFilterContainer;
 
@@ -137,5 +139,10 @@ public class CoverFluidVoiding extends CoverPump {
             }
             return 0;
         }
+    }
+
+    @Override
+    protected CoverRenderer buildRenderer() {
+        return new CoverRendererBuilder(Textures.FLUID_VOIDING).build();
     }
 }

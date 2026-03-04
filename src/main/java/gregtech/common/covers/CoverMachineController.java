@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -352,6 +353,6 @@ public class CoverMachineController extends CoverBase implements CoverWithUI {
 
     @Override
     protected CoverRenderer buildRenderer() {
-        return null;
+        return new CoverRendererBuilder(Textures.MACHINE_CONTROLLER_OVERLAY).build();
     }
 }

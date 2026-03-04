@@ -4,6 +4,8 @@ import gregtech.api.capability.GregtechDataCodes;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverableView;
 import gregtech.api.mui.GTGuiTextures;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.common.covers.filter.SmartItemFilter;
 import gregtech.common.pipelike.itempipe.net.ItemNetHandler;
@@ -260,5 +262,15 @@ public class CoverRoboticArm extends CoverConveyor {
         this.transferMode = TransferMode.VALUES[tagCompound.getInteger("TransferMode")];
         this.itemFilterContainer.setMaxTransferSize(this.transferMode.maxStackSize);
         super.readFromNBT(tagCompound);
+    }
+
+    @Override
+    protected CoverRenderer buildRenderer() {
+        CoverRenderer exportRenderer = new CoverRendererBuilder(Textures.ARM_OVERLAY).build();
+        CoverRenderer importRenderer = new CoverRendererBuilder(Textures.ARM_OVERLAY_INVERTED).build();
+        return (quads, facing, renderPlate, renderBackside, renderLayer, data) -> {
+            CoverRenderer active = conveyorMode == ConveyorMode.EXPORT ? exportRenderer : importRenderer;
+            active.addQuads(quads, facing, renderPlate, renderBackside, renderLayer, data);
+        };
     }
 }

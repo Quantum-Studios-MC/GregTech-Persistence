@@ -234,7 +234,6 @@ public class MultiblockUIFactory {
      */
     public @NotNull ModularPanel buildUI(PosGuiData guiData, PanelSyncManager panelSyncManager) {
         var panel = GTGuis.createPanel(mte, width, height)
-                .name("root_panel")
                 .childIf(!disableDisplay, () -> createScreen(panelSyncManager));
 
         // TODO createExtras() hook for overrides?

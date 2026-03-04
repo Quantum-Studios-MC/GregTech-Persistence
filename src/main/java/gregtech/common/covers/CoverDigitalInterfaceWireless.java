@@ -4,6 +4,8 @@ import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverableView;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.util.FacingPos;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.common.items.behaviors.CoverDigitalInterfaceWirelessPlaceBehaviour;
 import gregtech.common.metatileentities.multi.electric.centralmonitor.MetaTileEntityCentralMonitor;
@@ -109,5 +111,11 @@ public class CoverDigitalInterfaceWireless extends CoverDigitalInterface {
     public void renderCover(CCRenderState ccRenderState, Matrix4 translation, IVertexOperation[] ops, Cuboid6 cuboid6,
                             BlockRenderLayer blockRenderLayer) {
         Textures.COVER_INTERFACE_WIRELESS.renderSided(getAttachedSide(), cuboid6, ccRenderState, ops, translation);
+    }
+
+    @Override
+    public @NotNull CoverRenderer getRenderer() {
+        if (renderer == null) renderer = new CoverRendererBuilder(Textures.COVER_INTERFACE_WIRELESS).build();
+        return renderer;
     }
 }

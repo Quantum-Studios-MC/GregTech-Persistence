@@ -37,6 +37,7 @@ import com.cleanroommc.modularui.widget.ParentWidget;
 import org.jetbrains.annotations.NotNull;
 
 import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 
 import java.util.UUID;
 
@@ -193,6 +194,6 @@ public class CoverEnderFluidLink extends CoverAbstractEnderLink<VirtualTank>
 
     @Override
     protected CoverRenderer buildRenderer() {
-        return null;
+        return new CoverRendererBuilder(Textures.ENDER_FLUID_LINK).build();
     }
 }

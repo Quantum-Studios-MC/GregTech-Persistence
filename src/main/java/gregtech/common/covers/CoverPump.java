@@ -10,6 +10,8 @@ import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.CoverableView;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.util.GTTransferUtils;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.client.renderer.texture.cube.SimpleSidedCubeRenderer;
 import gregtech.common.covers.filter.FluidFilterContainer;
@@ -505,6 +507,11 @@ public class CoverPump extends CoverBase implements CoverWithUI, ITickable, ICon
 
     @Override
     protected CoverRenderer buildRenderer() {
-        return null;
+        CoverRenderer exportRenderer = new CoverRendererBuilder(Textures.PUMP_OVERLAY).build();
+        CoverRenderer importRenderer = new CoverRendererBuilder(Textures.PUMP_OVERLAY_INVERTED).build();
+        return (quads, facing, renderPlate, renderBackside, renderLayer, data) -> {
+            CoverRenderer active = pumpMode == PumpMode.EXPORT ? exportRenderer : importRenderer;
+            active.addQuads(quads, facing, renderPlate, renderBackside, renderLayer, data);
+        };
     }
 }

@@ -56,6 +56,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.MouseEvent;
@@ -346,8 +347,19 @@ public class ClientProxy extends CommonProxy {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onGuiMouseInput(GuiScreenEvent.MouseInputEvent.Pre event) {
+        int dwheel = org.lwjgl.input.Mouse.getEventDWheel();
+        if (dwheel != 0 && (org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_LCONTROL) ||
+                org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_RCONTROL))) {
+            gregtech.integration.jei.recipe.GTRecipeWrapper.handleOCScroll(dwheel);
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onMouseEvent(@NotNull MouseEvent event) {
-        if (event.getDwheel() != 0 && org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_LCONTROL)) {
+        if (event.getDwheel() != 0 && (org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_LCONTROL) ||
+                org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_RCONTROL))) {
             gregtech.integration.jei.recipe.GTRecipeWrapper.handleOCScroll(event.getDwheel());
             event.setCanceled(true);
             return;

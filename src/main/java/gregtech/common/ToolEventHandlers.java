@@ -397,8 +397,15 @@ public class ToolEventHandlers {
             }
             RenderGlobal.drawSelectionBoundingBox(box, boxR, boxG, boxB, boxA);
 
-            rColour = gColour = bColour = 0.2F +
+            float pulse = 0.2F +
                     (float) Math.sin((float) (System.currentTimeMillis() % (Math.PI * 800)) / 800) / 2;
+            if (tile instanceof MetaTileEntityHolder) {
+                rColour = boxR * pulse * 2.5F;
+                gColour = boxG * pulse * 2.5F;
+                bColour = boxB * pulse * 2.5F;
+            } else {
+                rColour = gColour = bColour = pulse;
+            }
 
             if (tile instanceof TileEntityPipeBase) {
                 TileEntityPipeBase<?, ?> tepb = (TileEntityPipeBase<?, ?>) tile;

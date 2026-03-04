@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +122,6 @@ public class CoverStorage extends CoverBase implements CoverWithUI {
 
     @Override
     protected CoverRenderer buildRenderer() {
-        return null;
+        return new CoverRendererBuilder(Textures.STORAGE).build();
     }
 }

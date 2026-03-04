@@ -48,6 +48,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 
 import java.io.IOException;
 
@@ -278,6 +279,6 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
 
     @Override
     protected CoverRenderer buildRenderer() {
-        return null;
+        return new CoverRendererBuilder(texture).build();
     }
 }
