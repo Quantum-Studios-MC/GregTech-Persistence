@@ -25,10 +25,12 @@ import com.cleanroommc.modularui.factory.SidedPosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.value.sync.SyncHandlers;
-import com.cleanroommc.modularui.widgets.ItemSlot;
+import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.cleanroommc.modularui.widgets.layout.Grid;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,5 +117,10 @@ public class CoverStorage extends CoverBase implements CoverWithUI {
     public void readFromNBT(@NotNull NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
         this.storageHandler.deserializeNBT(tagCompound.getCompoundTag("Storage"));
+    }
+
+    @Override
+    protected CoverRenderer buildRenderer() {
+        return null;
     }
 }

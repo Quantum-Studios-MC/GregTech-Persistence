@@ -70,6 +70,9 @@ public class CoverFluidRegulator extends CoverPump {
                     this.fluidFilterContainer.getTransferSize());
             case TRANSFER_EXACT -> doTransferExact(transferLimit, sourceHandler, destHandler,
                     fluidFilterContainer::test, this.fluidFilterContainer.getTransferSize());
+            case RETAIN_EXACT -> doKeepExact(transferLimit, sourceHandler, destHandler,
+                    fluidFilterContainer::test,
+                    this.fluidFilterContainer.getTransferSize());
         };
     }
 
@@ -282,6 +285,7 @@ public class CoverFluidRegulator extends CoverPump {
             case TRANSFER_ANY -> 1;
             case TRANSFER_EXACT -> maxFluidTransferRate;
             case KEEP_EXACT -> Integer.MAX_VALUE;
+            case RETAIN_EXACT -> Integer.MAX_VALUE;
         };
     }
 

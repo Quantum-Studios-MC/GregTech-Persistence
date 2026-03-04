@@ -13,6 +13,7 @@ import gregtech.api.util.GTTransferUtils;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.client.renderer.texture.cube.SimpleSidedCubeRenderer;
 import gregtech.common.covers.filter.FluidFilterContainer;
+import gregtech.common.covers.IOMode;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.EntityPlayer;
@@ -53,6 +54,7 @@ import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import org.jetbrains.annotations.NotNull;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
 import org.jetbrains.annotations.Nullable;
 
 public class CoverPump extends CoverBase implements CoverWithUI, ITickable, IControllable {
@@ -115,6 +117,14 @@ public class CoverPump extends CoverBase implements CoverWithUI, ITickable, ICon
 
     public PumpMode getPumpMode() {
         return pumpMode;
+    }
+
+    public IOMode getIoMode() {
+        return pumpMode.isImport() ? IOMode.IMPORT : IOMode.EXPORT;
+    }
+
+    public void setIoMode(IOMode mode) {
+        setPumpMode(mode.isImport() ? PumpMode.IMPORT : PumpMode.EXPORT);
     }
 
     public void setBucketMode(BucketMode bucketMode) {
@@ -437,6 +447,14 @@ public class CoverPump extends CoverBase implements CoverWithUI, ITickable, ICon
         public String getName() {
             return localeName;
         }
+
+        public boolean isFullBuckets() {
+            return this == BUCKET;
+        }
+
+        public int fromMilliBuckets(int milliBuckets) {
+            return this == BUCKET ? milliBuckets / 1000 : milliBuckets;
+        }
     }
 
     private class CoverableFluidHandlerWrapper extends FluidHandlerDelegate {
@@ -483,5 +501,10 @@ public class CoverPump extends CoverBase implements CoverWithUI, ITickable, ICon
             }
             return super.drain(maxDrain, doDrain);
         }
+    }
+
+    @Override
+    protected CoverRenderer buildRenderer() {
+        return null;
     }
 }

@@ -263,7 +263,13 @@ public class MetaTileEntityMaintenanceHatch extends MetaTileEntityMultiblockPart
 
             if (item instanceof ItemGTToolbelt toolbelt) {
                 stacks.remove(index);
-                toolbelt.iterateSlots(stack, stacks::add);
+                int slotCount = toolbelt.getSlotCount(stack);
+                for (int i = 0; i < slotCount; i++) {
+                    ItemStack toolStack = toolbelt.getToolInSlot(stack, i);
+                    if (!toolStack.isEmpty()) {
+                        stacks.add(toolStack);
+                    }
+                }
                 continue;
             }
 

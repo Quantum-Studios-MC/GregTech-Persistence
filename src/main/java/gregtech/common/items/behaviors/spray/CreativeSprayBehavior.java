@@ -34,7 +34,7 @@ import codechicken.lib.raytracer.RayTracer;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.drawable.GuiTextures;
 import com.cleanroommc.modularui.drawable.ItemDrawable;
-import com.cleanroommc.modularui.factory.HandGuiData;
+import com.cleanroommc.modularui.factory.PlayerInventoryGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.BoolValue;
@@ -66,7 +66,7 @@ public class CreativeSprayBehavior extends AbstractSprayBehavior implements Item
     private static final String KEY_RGB_COLOR = "rgbColor";
 
     @Override
-    public ModularPanel buildUI(HandGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
+    public ModularPanel buildUI(PlayerInventoryGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
         ItemStack usedStack = guiData.getUsedItemStack();
         IntSyncValue colorSync = SyncHandlers.intNumber(() -> getColorOrdinal(usedStack),
                 newColor -> setColorOrdinal(usedStack, newColor));

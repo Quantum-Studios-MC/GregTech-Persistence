@@ -11,6 +11,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fluids.FluidStack;
 
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.widget.Widget;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -54,6 +57,18 @@ public abstract class BaseFilter implements IItemComponent {
         throw new IllegalStateException();
     }
 
+    public @NotNull ModularPanel createPanel(PanelSyncManager syncManager) {
+        return getUI().createPanel(getContainerStack(), syncManager);
+    }
+
+    public @NotNull Widget<?> createWidgets(PanelSyncManager syncManager) {
+        return getUI().createWidgets(getContainerStack(), syncManager);
+    }
+
+    public @NotNull ModularPanel createPopupPanel(PanelSyncManager syncManager) {
+        return getUI().createPopupPanel(getContainerStack(), syncManager, getContainerStack().getTranslationKey());
+    }
+
     public final ItemStack getContainerStack() {
         return this.getFilterReader().getContainer();
     }
@@ -61,8 +76,8 @@ public abstract class BaseFilter implements IItemComponent {
     public static @NotNull BaseFilter getFilterFromStack(ItemStack stack) {
         if (stack.getItem() instanceof MetaItem<?>metaItem) {
             return Optional.ofNullable(metaItem.getItem(stack))
-                    .map(MetaItem.MetaValueItem::getFilterBehavior)
-                    .map(BaseFilter::copy)
+                    .map(MetaItem.MetaValueItem::getFilterFactory)
+                    .map(factory -> factory.create(stack))
                     .orElse(ERROR_FILTER);
         }
         return ERROR_FILTER;

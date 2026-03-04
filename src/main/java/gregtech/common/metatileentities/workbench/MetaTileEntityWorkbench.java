@@ -323,7 +323,7 @@ public class MetaTileEntityWorkbench extends MetaTileEntity implements IMetaTile
                 .build();
     }
 
-    public IWidget createCraftingOutput(PosGuiData guiData, PanelSyncManager syncManager) {
+    public IWidget createCraftingOutput(MetaTileEntityGuiData guiData, PanelSyncManager syncManager) {
         var amountCrafted = new IntSyncValue(this::getItemsCrafted, this::setItemsCrafted);
         syncManager.syncValue("amount_crafted", amountCrafted);
 

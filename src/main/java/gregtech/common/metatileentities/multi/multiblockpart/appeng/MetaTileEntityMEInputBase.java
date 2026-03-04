@@ -34,6 +34,7 @@ import appeng.api.storage.data.IAEStack;
 import com.cleanroommc.modularui.api.IPanelHandler;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.drawable.ItemDrawable;
+import gregtech.api.mui.MetaTileEntityGuiData;
 import com.cleanroommc.modularui.factory.PosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
@@ -154,7 +155,7 @@ public abstract class MetaTileEntityMEInputBase<AEStackType extends IAEStack<AES
     protected abstract @NotNull AESyncHandler<AEStackType> createAESyncHandler();
 
     @Override
-    public ModularPanel buildUI(PosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
+    public ModularPanel buildUI(MetaTileEntityGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
         ModularPanel mainPanel = GTGuis.createPanel(this, 176, 18 + 18 * 4 + 94);
         final boolean isStocking = getAEHandler().isStocking();
 

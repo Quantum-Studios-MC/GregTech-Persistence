@@ -10,7 +10,7 @@ import com.cleanroommc.modularui.api.drawable.IDrawable;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.GuiTextures;
-import com.cleanroommc.modularui.factory.HandGuiData;
+import com.cleanroommc.modularui.factory.PlayerInventoryGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.SecondaryPanel;
 import com.cleanroommc.modularui.screen.UISettings;
@@ -31,7 +31,7 @@ import java.util.List;
 public class SettingsApp implements ITerminalApp {
 
     @Override
-    public IWidget buildWidgets(HandGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings,
+    public IWidget buildWidgets(PlayerInventoryGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings,
                                 ModularPanel panel) {
         var backgroundSelectPanel = IPanelHandler.simple(panel,
                 backgroundSelectWidget(), true);

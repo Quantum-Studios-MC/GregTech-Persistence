@@ -25,7 +25,12 @@ import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.metatileentity.interfaces.ISyncedTileEntity;
 import gregtech.api.metatileentity.registry.MTERegistry;
 import gregtech.api.mui.IMetaTileEntityGuiHolder;
+import gregtech.api.mui.MetaTileEntityGuiData;
 import gregtech.api.mui.factory.MetaTileEntityGuiFactory;
+
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.api.util.GTLog;
 import gregtech.api.util.GTTransferUtils;
@@ -120,7 +125,7 @@ import static gregtech.api.capability.GregtechDataCodes.*;
  * {@link IMetaTileEntityGuiHolder} on your MetaTileEntity class. Opening the UI on right clicks is handled
  * automatically.
  */
-public abstract class MetaTileEntity implements ISyncedTileEntity, CoverHolder, IVoidable {
+public abstract class MetaTileEntity implements ISyncedTileEntity, CoverHolder, IVoidable, IMetaTileEntityGuiHolder {
 
     public static final IndexedCuboid6 FULL_CUBE_COLLISION = new IndexedCuboid6(null, Cuboid6.full);
 
@@ -484,6 +489,15 @@ public abstract class MetaTileEntity implements ISyncedTileEntity, CoverHolder, 
         return createUI(entityPlayer);
     }
 
+    public boolean usesMui2() {
+        return false;
+    }
+
+    @Override
+    public @NotNull ModularPanel buildUI(MetaTileEntityGuiData data, PanelSyncManager syncManager, UISettings settings) {
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " has not been ported to MUI2");
+    }
+
     public final void onCoverLeftClick(EntityPlayer playerIn, CuboidRayTraceResult result) {
         Cover cover = getCoverAtSide(result.sideHit);
         if (cover == null || !cover.onLeftClick(playerIn, result)) {
@@ -509,18 +523,15 @@ public abstract class MetaTileEntity implements ISyncedTileEntity, CoverHolder, 
         }
 
         if (!playerIn.isSneaking()) {
-            if (this instanceof IMetaTileEntityGuiHolder guiHolder) {
-                if (guiHolder.shouldOpenUI()) {
-                    if (!world.isRemote) {
-                        MetaTileEntityGuiFactory.open((EntityPlayerMP) playerIn,
-                                (MetaTileEntity & IMetaTileEntityGuiHolder) this);
-                        if (!hasOwner()) {
-                            setOwner(playerIn);
-                        }
+            if (usesMui2() && shouldOpenUI()) {
+                if (!world.isRemote) {
+                    MetaTileEntityGuiFactory.open((EntityPlayerMP) playerIn, this);
+                    if (!hasOwner()) {
+                        setOwner(playerIn);
                     }
-
-                    return true;
                 }
+
+                return true;
             } else if (openGUIOnRightClick()) {
                 if (!world.isRemote) {
                     MetaTileEntityUIFactory.INSTANCE.openUI(getHolder(), (EntityPlayerMP) playerIn);

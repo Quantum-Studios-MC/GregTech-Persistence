@@ -37,6 +37,8 @@ import com.cleanroommc.modularui.widgets.layout.Flow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -346,5 +348,10 @@ public class CoverMachineController extends CoverBase implements CoverWithUI {
         public String getName() {
             return localeName;
         }
+    }
+
+    @Override
+    protected CoverRenderer buildRenderer() {
+        return null;
     }
 }

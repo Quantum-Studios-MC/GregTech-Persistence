@@ -55,6 +55,7 @@ public class GTSoundEvents {
     // Misc
     public static SoundEvent DEFAULT_ALARM;
     public static SoundEvent CLICK;
+    public static SoundEvent SUS_RECORD;
 
     public static void register() {
         FORGE_HAMMER = soundManager.registerSound("tick.forge_hammer");
@@ -100,5 +101,6 @@ public class GTSoundEvents {
 
         DEFAULT_ALARM = soundManager.registerSound("alarm");
         CLICK = soundManager.registerSound("click");
+        SUS_RECORD = soundManager.registerSound("record.sus");
     }
 }

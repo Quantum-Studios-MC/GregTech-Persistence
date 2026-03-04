@@ -37,6 +37,7 @@ import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.Rectangle;
 import com.cleanroommc.modularui.factory.SidedPosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.utils.Color;
 import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
@@ -47,6 +48,8 @@ import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
 
 import java.io.IOException;
 
@@ -145,12 +148,12 @@ public class CoverFluidFilter extends CoverBase implements CoverWithUI {
     }
 
     @Override
-    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager) {
+    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
         return getFilter().createPanel(guiSyncManager)
                 .size(176, 212).padding(7)
                 .child(CoverWithUI.createTitleRow(getFilterContainer().getFilterStack()))
                 .child(createUI(guiData, guiSyncManager))
-                .child(SlotGroupWidget.playerInventory().bottom(7).left(7));
+                .child(SlotGroupWidget.playerInventory(false).bottom(7).left(7));
     }
 
     @Override
@@ -267,5 +270,10 @@ public class CoverFluidFilter extends CoverBase implements CoverWithUI {
             var f = super.drain(maxDrain, false);
             return drain(f, doDrain);
         }
+    }
+
+    @Override
+    protected CoverRenderer buildRenderer() {
+        return null;
     }
 }

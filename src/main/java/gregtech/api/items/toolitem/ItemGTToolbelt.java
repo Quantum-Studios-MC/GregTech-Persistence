@@ -58,7 +58,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.OreIngredient;
 
 import com.cleanroommc.modularui.api.drawable.IKey;
-import com.cleanroommc.modularui.factory.HandGuiData;
+import com.cleanroommc.modularui.factory.PlayerInventoryGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
@@ -116,7 +116,7 @@ public class ItemGTToolbelt extends ItemGTTool implements IDyeableItem, IMouseEv
     }
 
     @Override
-    public ModularPanel buildUI(HandGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
+    public ModularPanel buildUI(PlayerInventoryGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
         final var usedStack = guiData.getUsedItemStack();
         final var handler = getHandler(usedStack);
         final var selected = handler.getSelectedStack();
@@ -511,7 +511,9 @@ public class ItemGTToolbelt extends ItemGTTool implements IDyeableItem, IMouseEv
         ItemStack selectedToolBeltStack = handler.getSelectedStack();
         if (selectedToolBeltStack.isEmpty() && world.getTileEntity(pos) instanceof MetaTileEntityHolder holder &&
                 holder.getMetaTileEntity() instanceof MetaTileEntityMaintenanceHatch maintenance) {
-            maintenance.fixMaintenanceProblemsWithToolbelt(player, this, thisToolBelt);
+            java.util.List<ItemStack> stacks = new java.util.ArrayList<>();
+            stacks.add(thisToolBelt);
+            maintenance.fixMaintenanceProblemsWithTools(player, stacks);
             return EnumActionResult.SUCCESS;
         } else if (AbstractSprayBehavior.isSprayCan(selectedToolBeltStack)) {
             return AbstractSprayBehavior.handleExternalSpray(player, world, pos, side, selectedToolBeltStack);
@@ -629,7 +631,7 @@ public class ItemGTToolbelt extends ItemGTTool implements IDyeableItem, IMouseEv
 
     protected static final ToolStackHandler FALLBACK = new ToolStackHandler(0);
 
-    protected static class ToolStackHandler extends ItemStackHandler {
+    public static class ToolStackHandler extends ItemStackHandler {
 
         private static final Set<String> EMPTY = ImmutableSet.of();
 

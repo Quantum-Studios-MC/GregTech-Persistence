@@ -35,7 +35,7 @@ import com.cleanroommc.modularui.api.IPanelHandler;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.GuiTextures;
-import com.cleanroommc.modularui.factory.HandGuiData;
+import com.cleanroommc.modularui.factory.PlayerInventoryGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.StringValue;
@@ -148,7 +148,7 @@ public class MachineConfiguratorBehavior implements IItemBehaviour, ItemUIFactor
     }
 
     @Override
-    public ModularPanel buildUI(@NotNull HandGuiData guiData, @NotNull PanelSyncManager syncManager,
+    public ModularPanel buildUI(@NotNull PlayerInventoryGuiData guiData, @NotNull PanelSyncManager syncManager,
                                 UISettings settings) {
         PlayerConfiguratorData playerData = ConfiguratorDataRegistry.getPlayerData(guiData.getPlayer().getUniqueID());
         ItemStack configuratorStack = guiData.getUsedItemStack();

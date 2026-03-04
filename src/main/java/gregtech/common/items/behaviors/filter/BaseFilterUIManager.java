@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 import com.cleanroommc.modularui.api.IPanelHandler;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
-import com.cleanroommc.modularui.factory.HandGuiData;
+import com.cleanroommc.modularui.factory.PlayerInventoryGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
@@ -49,11 +49,11 @@ public abstract class BaseFilterUIManager implements IItemBehaviour, ItemUIFacto
     }
 
     @Override
-    public ModularPanel buildUI(HandGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
+    public ModularPanel buildUI(PlayerInventoryGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
         return buildUI(guiData.getUsedItemStack(), guiData, guiSyncManager, settings);
     }
 
-    public ModularPanel buildUI(ItemStack stack, HandGuiData guiData, PanelSyncManager syncManager,
+    public ModularPanel buildUI(ItemStack stack, PlayerInventoryGuiData guiData, PanelSyncManager syncManager,
                                 UISettings settings) {
         return createBasePanel(stack)
                 .child(CoverWithUI.createTitleRow(stack))

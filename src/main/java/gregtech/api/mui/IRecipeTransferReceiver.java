@@ -25,7 +25,7 @@ import java.util.Collection;
  * If you're implementing this on a {@link SyncHandler}, it's recommended to extend {@link RecipeTransferSyncHandler}
  * instead as registering and unregistering from {@link GregTechGuiScreen} is done for you.
  */
-public interface IRecipeTransferReceiver {
+public interface IRecipeTransferReceiver extends IJEIRecipeReceiver {
 
     /**
      * Attempt or simulate transferring a recipe from a recipe viewer like JEI or HEI. <br/>

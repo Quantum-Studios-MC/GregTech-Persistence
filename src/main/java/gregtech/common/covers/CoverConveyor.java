@@ -15,6 +15,7 @@ import gregtech.client.renderer.texture.Textures;
 import gregtech.client.renderer.texture.cube.SimpleSidedCubeRenderer;
 import gregtech.common.covers.filter.ItemFilterContainer;
 import gregtech.common.pipelike.itempipe.tile.TileEntityItemPipe;
+import gregtech.common.covers.IOMode;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.EntityPlayer;
@@ -57,6 +58,7 @@ import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
@@ -126,6 +128,14 @@ public class CoverConveyor extends CoverBase implements CoverWithUI, ITickable, 
 
     public ConveyorMode getConveyorMode() {
         return conveyorMode;
+    }
+
+    public IOMode getIOMode() {
+        return conveyorMode.isImport() ? IOMode.IMPORT : IOMode.EXPORT;
+    }
+
+    public void setIOMode(IOMode mode) {
+        setConveyorMode(mode.isImport() ? ConveyorMode.IMPORT : ConveyorMode.EXPORT);
     }
 
     public DistributionMode getDistributionMode() {
@@ -744,5 +754,10 @@ public class CoverConveyor extends CoverBase implements CoverWithUI, ITickable, 
             }
             return super.extractItem(slot, amount, simulate);
         }
+    }
+
+    @Override
+    protected CoverRenderer buildRenderer() {
+        return null;
     }
 }

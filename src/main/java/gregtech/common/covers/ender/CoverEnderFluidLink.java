@@ -13,6 +13,7 @@ import gregtech.api.util.virtualregistry.VirtualEnderRegistry;
 import gregtech.api.util.virtualregistry.entries.VirtualTank;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.common.covers.CoverPump;
+import gregtech.common.covers.IOMode;
 import gregtech.common.covers.filter.FluidFilterContainer;
 import gregtech.common.mui.widget.GTFluidSlot;
 
@@ -34,6 +35,8 @@ import com.cleanroommc.modularui.value.sync.EnumSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.widget.ParentWidget;
 import org.jetbrains.annotations.NotNull;
+
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
 
 import java.util.UUID;
 
@@ -117,6 +120,10 @@ public class CoverEnderFluidLink extends CoverAbstractEnderLink<VirtualTank>
         return pumpMode;
     }
 
+    public IOMode getIoMode() {
+        return pumpMode.isImport() ? IOMode.IMPORT : IOMode.EXPORT;
+    }
+
     @Override
     protected IWidget createSlotWidget(VirtualTank entry) {
         var fluidTank = GTFluidSlot.sync(entry)
@@ -182,5 +189,10 @@ public class CoverEnderFluidLink extends CoverAbstractEnderLink<VirtualTank>
             return GregtechTileCapabilities.CAPABILITY_CONTROLLABLE.cast(this);
         }
         return defaultValue;
+    }
+
+    @Override
+    protected CoverRenderer buildRenderer() {
+        return null;
     }
 }

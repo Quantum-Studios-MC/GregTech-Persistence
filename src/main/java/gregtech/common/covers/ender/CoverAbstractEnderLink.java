@@ -123,11 +123,13 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
         }
     }
 
-    public void updateColor(String str) {
+    public boolean updateColor(String str) {
         if (str.length() == 8) {
             this.color = str.toUpperCase();
             updateLink();
+            return true;
         }
+        return false;
     }
 
     @Override

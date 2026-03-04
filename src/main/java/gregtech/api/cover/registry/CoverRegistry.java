@@ -19,8 +19,8 @@ import java.util.List;
 
 public final class CoverRegistry extends GTControlledRegistry<ResourceLocation, CoverDefinition> {
 
-    private static final EnumMap<IFilter.FilterType, List<ItemStack>> filterCovers = new EnumMap<>(
-            IFilter.FilterType.class);
+    private static final EnumMap<BaseFilter.FilterType, List<ItemStack>> filterCovers = new EnumMap<>(
+            BaseFilter.FilterType.class);
 
     public CoverRegistry(int maxId) {
         super(maxId);
@@ -39,8 +39,8 @@ public final class CoverRegistry extends GTControlledRegistry<ResourceLocation, 
             if (factory == null) return;
 
             BaseFilter filter = factory.create(coverStack);
-            IFilter.FilterType filterType = filter.getType();
-            if (filterType.isError()) return;
+            BaseFilter.FilterType filterType = filter.getType();
+            if (filterType == BaseFilter.FilterType.ERROR) return;
 
             filterCovers.computeIfAbsent(filterType, $ -> new ObjectArrayList<>())
                     .add(coverStack);
@@ -48,7 +48,7 @@ public final class CoverRegistry extends GTControlledRegistry<ResourceLocation, 
     }
 
     @UnmodifiableView
-    public static @NotNull List<ItemStack> getFilterItems(@NotNull IFilter.FilterType filterType) {
+    public static @NotNull List<ItemStack> getFilterItems(@NotNull BaseFilter.FilterType filterType) {
         return GTUtility.unmodifiableOrEmpty(filterCovers.get(filterType));
     }
 }

@@ -123,7 +123,7 @@ public class CoverItemVoidingAdvanced extends CoverItemVoiding {
 
     @Override
     protected int getMaxStackSize() {
-        return getVoidingMode().maxStackSize;
+        return getVoidingMode().getMaxStackSize();
     }
 
     @Override
@@ -163,7 +163,7 @@ public class CoverItemVoidingAdvanced extends CoverItemVoiding {
     @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
         this.voidingMode = VoidingMode.VALUES[tagCompound.getInteger("VoidMode")];
-        this.itemFilterContainer.setMaxTransferSize(this.voidingMode.maxStackSize);
+        this.itemFilterContainer.setMaxTransferSize(this.voidingMode.getMaxStackSize());
         super.readFromNBT(tagCompound);
     }
 }

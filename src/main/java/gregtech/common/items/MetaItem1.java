@@ -51,7 +51,7 @@ import gregtech.common.items.behaviors.TooltipBehavior;
 import gregtech.common.items.behaviors.TricorderBehavior;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.items.behaviors.filter.OreDictFilterUIManager;
-import gregtech.common.items.behaviors.filter.SimpleFilterUIManager;
+import gregtech.common.items.behaviors.filter.SimpleItemFilterUIManager;
 import gregtech.common.items.behaviors.filter.SimpleFluidFilterUIManager;
 import gregtech.common.items.behaviors.filter.SmartFilterUIManager;
 import gregtech.common.items.behaviors.monitorplugin.AdvancedMonitorPluginBehavior;
@@ -641,17 +641,17 @@ public class MetaItem1 extends StandardMetaItem {
         // Filters: ID 290-300
         FLUID_FILTER = addItem(290, "fluid_filter")
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Zinc, M * 2)))
-                .addComponents(new SimpleFluidFilterUIManager(), IFilter.factory(SimpleFluidFilter::new));
+                .addComponents(new SimpleFluidFilterUIManager(), IFilter.factory(stack -> new SimpleFluidFilter()));
         ITEM_FILTER = addItem(291, "item_filter")
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Zinc, M * 2),
                         new MaterialStack(Materials.Steel, M)))
-                .addComponents(new SimpleFilterUIManager(), IFilter.factory(SimpleItemFilter::new));
+                .addComponents(new SimpleItemFilterUIManager(), IFilter.factory(stack -> new SimpleItemFilter()));
         ORE_DICTIONARY_FILTER = addItem(292, "ore_dictionary_filter")
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Zinc, M * 2)))
-                .addComponents(new OreDictFilterUIManager(), IFilter.factory(OreDictionaryItemFilter::new));
+                .addComponents(new OreDictFilterUIManager(), IFilter.factory(stack -> new OreDictionaryItemFilter()));
         SMART_FILTER = addItem(293, "smart_item_filter")
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Zinc, M * 3 / 2)))
-                .addComponents(new SmartFilterUIManager(), IFilter.factory(SmartItemFilter::new));
+                .addComponents(new SmartFilterUIManager(), IFilter.factory(stack -> new SmartItemFilter()));
 
         // Functional Covers: ID 301-330
         COVER_MACHINE_CONTROLLER = addItem(301, "cover.controller");

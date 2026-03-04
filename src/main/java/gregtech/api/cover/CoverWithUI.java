@@ -1,5 +1,6 @@
 package gregtech.api.cover;
 
+import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuiTheme;
 import gregtech.api.mui.GTGuis;
 import gregtech.api.mui.GregTechGuiScreen;
@@ -8,10 +9,12 @@ import gregtech.api.mui.factory.CoverGuiFactory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IStringSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import com.cleanroommc.modularui.api.IGuiHolder;
+import com.cleanroommc.modularui.api.drawable.IDrawable;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.DynamicDrawable;
@@ -30,6 +33,7 @@ import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.widget.ParentWidget;
 import com.cleanroommc.modularui.widget.Widget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
+import com.cleanroommc.modularui.widgets.ToggleButton;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +77,7 @@ public interface CoverWithUI extends Cover, IGuiHolder<SidedPosGuiData>, gregtec
     }
 
     @Override
-    default ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager) {
+    default ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
         var w = createUI(guiData, guiSyncManager);
         return confgurePanel(GTGuis.defaultPanel(getPickItem()), false)
                 .childIf(w != null, w)

@@ -69,6 +69,7 @@ public class CoverRoboticArm extends CoverConveyor {
             case TRANSFER_ANY -> doTransferItemsAny(itemHandler, myItemHandler, maxTransferAmount);
             case TRANSFER_EXACT -> doTransferExact(itemHandler, myItemHandler, maxTransferAmount);
             case KEEP_EXACT -> doKeepExact(itemHandler, myItemHandler, maxTransferAmount);
+            case RETAIN_EXACT -> doKeepExact(itemHandler, myItemHandler, maxTransferAmount);
         };
     }
 

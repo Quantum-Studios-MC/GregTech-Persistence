@@ -20,7 +20,7 @@ public abstract class RecipeTransferSyncHandler extends SyncHandler implements I
     public void init(String key, PanelSyncManager syncManager) {
         super.init(key, syncManager);
         if (syncManager.isClient()) {
-            GregTechGuiScreen.registerRecipeTransferHandler(getKey(), this, getTransferHandlerPriority());
+            GregTechGuiScreen.registerRecipeReceiver(getKey(), this);
         }
     }
 
@@ -33,7 +33,7 @@ public abstract class RecipeTransferSyncHandler extends SyncHandler implements I
     @Override
     public void dispose() {
         if (getSyncManager().isClient()) {
-            GregTechGuiScreen.removeRecipeTransferHandler(getKey());
+            GregTechGuiScreen.removeRecipeReceiver(getKey());
         }
         super.dispose();
     }
