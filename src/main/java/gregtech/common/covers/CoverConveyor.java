@@ -9,7 +9,6 @@ import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.CoverableView;
 import gregtech.api.mui.GTGuiTextures;
-import gregtech.api.mui.GTGuis;
 import gregtech.api.util.GTTransferUtils;
 import gregtech.api.util.ItemStackHashStrategy;
 import gregtech.client.renderer.texture.Textures;
@@ -44,10 +43,8 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import com.cleanroommc.modularui.api.drawable.IDrawable;
 import com.cleanroommc.modularui.drawable.DynamicDrawable;
-import com.cleanroommc.modularui.factory.GuiData;
 import com.cleanroommc.modularui.factory.SidedPosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
-import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.utils.Color;
 import com.cleanroommc.modularui.utils.MouseData;
 import com.cleanroommc.modularui.value.sync.EnumSyncValue;
@@ -504,17 +501,13 @@ public class CoverConveyor extends CoverBase implements CoverWithUI, ITickable, 
     }
 
     @Override
-    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
-        var panel = GTGuis.createPanel(this, 176, 192 + 18);
-
-        getItemFilterContainer().setMaxTransferSize(getMaxStackSize());
-
-        return panel.child(CoverWithUI.createTitleRow(getPickItem()))
-                .child(createUI(guiData, panelSyncManager))
-                .bindPlayerInventory();
+    public ModularPanel confgurePanel(ModularPanel panel, boolean isSmallGui) {
+        return panel.height(210);
     }
 
-    protected ParentWidget<Flow> createUI(GuiData data, PanelSyncManager panelSyncManager) {
+    public @NotNull ParentWidget<?> createUI(SidedPosGuiData data, PanelSyncManager guiSyncManager) {
+        getItemFilterContainer().setMaxTransferSize(getMaxStackSize());
+
         var column = Flow.column().top(24).margin(7, 0)
                 .widthRel(1f).coverChildrenHeight();
 
@@ -532,10 +525,10 @@ public class CoverConveyor extends CoverBase implements CoverWithUI, ITickable, 
         EnumSyncValue<DistributionMode> distributionMode = new EnumSyncValue<>(DistributionMode.class,
                 this::getDistributionMode, this::setDistributionMode);
 
-        panelSyncManager.syncValue("manual_io", manualIOmode);
-        panelSyncManager.syncValue("conveyor_mode", conveyorMode);
-        panelSyncManager.syncValue("distribution_mode", distributionMode);
-        panelSyncManager.syncValue("throughput", throughput);
+        guiSyncManager.syncValue("manual_io", manualIOmode);
+        guiSyncManager.syncValue("conveyor_mode", conveyorMode);
+        guiSyncManager.syncValue("distribution_mode", distributionMode);
+        guiSyncManager.syncValue("throughput", throughput);
 
         if (createThroughputRow())
             column.child(Flow.row().coverChildrenHeight()
@@ -564,7 +557,7 @@ public class CoverConveyor extends CoverBase implements CoverWithUI, ITickable, 
                             .onUpdateListener(w -> w.overlay(createAdjustOverlay(true)))));
 
         if (createFilterRow())
-            column.child(getItemFilterContainer().initUI(data, panelSyncManager));
+            column.child(getItemFilterContainer().initUI(data, guiSyncManager));
 
         if (createManualIOModeRow())
             column.child(new EnumRowBuilder<>(ManualImportExportMode.class)

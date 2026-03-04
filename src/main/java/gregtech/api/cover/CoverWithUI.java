@@ -13,6 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import com.cleanroommc.modularui.api.IGuiHolder;
 import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.DynamicDrawable;
 import com.cleanroommc.modularui.drawable.ItemDrawable;
 import com.cleanroommc.modularui.factory.SidedPosGuiData;
@@ -31,6 +32,7 @@ import com.cleanroommc.modularui.widget.Widget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -71,8 +73,35 @@ public interface CoverWithUI extends Cover, IGuiHolder<SidedPosGuiData>, gregtec
     }
 
     @Override
-    default ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
-        return GTGuis.errorPanel();
+    default ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager) {
+        var w = createUI(guiData, guiSyncManager);
+        return confgurePanel(GTGuis.defaultPanel(getPickItem()), false)
+                .childIf(w != null, w)
+                .child(createTitleRow(getPickItem()).pos(5, 5))
+                .bindPlayerInventory();
+    }
+
+    default ModularPanel confgurePanel(ModularPanel panel, boolean isSmallGui) {
+        return panel;
+    }
+
+    default @NotNull ModularPanel getSmallGUI(@NotNull SidedPosGuiData guiData,
+                                              @NotNull PanelSyncManager guiSyncManager) {
+        var w = createUI(guiData, guiSyncManager);
+        return confgurePanel(GTGuis.defaultPopupPanel(getPickItem().getTranslationKey()), true)
+                .coverChildrenHeight()
+                .paddingBottom(16)
+                .childIf(w != null, w)
+                .child(createTitleRow(getPickItem()).pos(5, 5));
+    }
+
+    default @Nullable IWidget createUI(SidedPosGuiData data, PanelSyncManager manager) {
+        return null;
+    }
+
+    default boolean shouldShowSmallUI() {
+        // Check buildUI is not null?
+        return usesMui2();
     }
 
     @Override

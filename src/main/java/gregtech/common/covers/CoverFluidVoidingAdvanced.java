@@ -3,10 +3,7 @@ package gregtech.common.covers;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverableView;
 import gregtech.api.mui.GTGuiTextures;
-import gregtech.api.mui.widget.EnumButtonRow;
 import gregtech.api.util.GTTransferUtils;
-import gregtech.client.renderer.pipe.cover.CoverRenderer;
-import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,15 +20,13 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import com.cleanroommc.modularui.api.drawable.IKey;
-import com.cleanroommc.modularui.factory.GuiData;
 import com.cleanroommc.modularui.factory.SidedPosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
-import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.utils.Color;
 import com.cleanroommc.modularui.value.sync.EnumSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.value.sync.StringSyncValue;
-import com.cleanroommc.modularui.widgets.layout.Flow;
+import com.cleanroommc.modularui.widget.ParentWidget;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import org.jetbrains.annotations.NotNull;
 
@@ -105,12 +100,13 @@ public class CoverFluidVoidingAdvanced extends CoverFluidVoiding {
     }
 
     @Override
-    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
-        return super.buildUI(guiData, panelSyncManager, settings).height(192 + 20);
+    public ModularPanel confgurePanel(ModularPanel panel, boolean isSmallGui) {
+        return super.confgurePanel(panel, isSmallGui)
+                .height(212);
     }
 
     @Override
-    protected Flow createUI(GuiData data, PanelSyncManager syncManager) {
+    public @NotNull ParentWidget<?> createUI(SidedPosGuiData data, PanelSyncManager syncManager) {
         var voidingMode = new EnumSyncValue<>(VoidingMode.class, this::getVoidingMode, this::setVoidingMode);
         syncManager.syncValue("voiding_mode", voidingMode);
 
@@ -124,12 +120,14 @@ public class CoverFluidVoidingAdvanced extends CoverFluidVoiding {
                 this.voidingMode == VoidingMode.VOID_OVERFLOW);
 
         return super.createUI(data, syncManager)
-                .child(EnumButtonRow.builder(voidingMode)
-                        .rowDescription(IKey.lang("cover.voiding.voiding_mode"))
-                        .overlays(16, GTGuiTextures.VOIDING_MODE_OVERLAY)
+                .child(new EnumRowBuilder<>(VoidingMode.class)
+                        .value(voidingMode)
+                        .lang("cover.voiding.voiding_mode")
+                        .overlay(16, GTGuiTextures.VOIDING_MODE_OVERLAY)
                         .build())
-                .child(EnumButtonRow.builder(bucketMode)
-                        .overlays(IKey.str("kL"), IKey.str("L"))
+                .child(new EnumRowBuilder<>(BucketMode.class)
+                        .value(bucketMode)
+                        .overlay(IKey.str("kL"), IKey.str("L"))
                         .build()
                         .child(transferTextField
                                 .setEnabledIf(w -> this.fluidFilterContainer.showGlobalTransferLimitSlider() &&
@@ -141,18 +139,13 @@ public class CoverFluidVoidingAdvanced extends CoverFluidVoiding {
 
     @Override
     protected int getMaxTransferRate() {
-        return getVoidingMode().getMaxStackSize();
+        return getVoidingMode().maxStackSize;
     }
 
     @Override
     public void renderCover(@NotNull CCRenderState renderState, @NotNull Matrix4 translation,
                             IVertexOperation[] pipeline, @NotNull Cuboid6 plateBox, @NotNull BlockRenderLayer layer) {
         Textures.FLUID_VOIDING_ADVANCED.renderSided(getAttachedSide(), plateBox, renderState, pipeline, translation);
-    }
-
-    @Override
-    protected CoverRenderer buildRenderer() {
-        return new CoverRendererBuilder(Textures.FLUID_VOIDING_ADVANCED).build();
     }
 
     @Override
@@ -177,7 +170,7 @@ public class CoverFluidVoidingAdvanced extends CoverFluidVoiding {
     @Override
     public void readFromNBT(@NotNull NBTTagCompound tagCompound) {
         this.voidingMode = VoidingMode.VALUES[tagCompound.getInteger("VoidingMode")];
-        this.fluidFilterContainer.setMaxTransferSize(getMaxTransferRate());
+        this.fluidFilterContainer.setMaxTransferSize(this.voidingMode.maxStackSize);
         this.transferAmount = tagCompound.getInteger("TransferAmount");
         super.readFromNBT(tagCompound);
     }

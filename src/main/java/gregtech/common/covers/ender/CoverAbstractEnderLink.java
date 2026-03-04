@@ -11,9 +11,7 @@ import gregtech.api.mui.GTGuis;
 import gregtech.api.util.virtualregistry.EntryTypes;
 import gregtech.api.util.virtualregistry.VirtualEnderRegistry;
 import gregtech.api.util.virtualregistry.VirtualEntry;
-import gregtech.common.mui.widget.GTTextFieldWidget;
 import gregtech.common.mui.widget.InteractableText;
-import gregtech.integration.ftb.utility.FTBTeamHelper;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -26,30 +24,30 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
-import com.cleanroommc.modularui.api.IPanelHandler;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.DynamicDrawable;
 import com.cleanroommc.modularui.drawable.GuiTextures;
 import com.cleanroommc.modularui.drawable.Rectangle;
-import com.cleanroommc.modularui.factory.GuiData;
 import com.cleanroommc.modularui.factory.SidedPosGuiData;
 import com.cleanroommc.modularui.network.NetworkUtils;
 import com.cleanroommc.modularui.screen.ModularPanel;
-import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.utils.Color;
 import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncHandler;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.value.sync.StringSyncValue;
 import com.cleanroommc.modularui.value.sync.SyncHandler;
+import com.cleanroommc.modularui.widget.ParentWidget;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
+import com.cleanroommc.modularui.widgets.layout.Row;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,11 +96,6 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
         return isPrivate ? playerUUID : null;
     }
 
-    protected boolean canAccess(UUID other) {
-        return this.playerUUID == null || this.playerUUID.equals(other) ||
-                FTBTeamHelper.isSameTeam(this.playerUUID, other);
-    }
-
     @Override
     public void readCustomData(int discriminator, @NotNull PacketBuffer buf) {
         super.readCustomData(discriminator, buf);
@@ -143,39 +136,25 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
     }
 
     @Override
-    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
-        if (!isPrivate()) {
-            this.playerUUID = guiData.getPlayer().getUniqueID();
-        }
-        var panel = GTGuis.createPanel(this, 176, 192);
-
-        return panel.child(CoverWithUI.createTitleRow(getPickItem()))
-                .child(createWidgets(guiData, panelSyncManager))
-                .bindPlayerInventory();
+    public ModularPanel confgurePanel(ModularPanel panel, boolean isSmallGui) {
+        return panel.height(192);
     }
 
-    protected Flow createWidgets(GuiData data, PanelSyncManager syncManager) {
-        StringSyncValue name;
-        UUID uuid = data.getPlayer().getUniqueID();
+    public @NotNull ParentWidget<?> createUI(SidedPosGuiData data, PanelSyncManager manager) {
+        this.playerUUID = data.getPlayer().getUniqueID();
+        var name = new StringSyncValue(this::getColorStr, this::updateColor);
 
-        if (canAccess(uuid)) {
-            name = new StringSyncValue(this::getColorStr, this::updateColor);
-        } else {
-            name = new StringSyncValue(this::getColorStr);
-        }
-
-        IPanelHandler entrySelectorSH = syncManager.syncedPanel("entry_selector", true, entrySelector(getType(), uuid));
+        var entrySelectorSH = manager.panel("entry_selector", entrySelector(getType()), true);
 
         return Flow.column().coverChildrenHeight().top(24)
                 .margin(7, 0).widthRel(1f)
-                .child(Flow.row().marginBottom(2)
+                .child(new Row().marginBottom(2)
                         .coverChildrenHeight()
-                        .child(createPrivateButton(uuid))
+                        .child(createPrivateButton())
                         .child(createColorIcon())
                         .child(new TextFieldWidget()
                                 .height(18)
                                 .value(name)
-                                .setTextColor(Color.WHITE.main)
                                 .setPattern(COLOR_INPUT_PATTERN)
                                 .widthRel(0.5f)
                                 .marginRight(2))
@@ -194,7 +173,7 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
                                     }
                                     return true;
                                 })))
-                .child(createIoRow(uuid));
+                .child(createIoRow());
     }
 
     protected abstract IWidget createEntrySlot();
@@ -209,39 +188,29 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
                         .marginRight(2);
     }
 
-    protected IWidget createPrivateButton(UUID uniqueID) {
-        BooleanSyncValue syncValue;
-        if (canAccess(uniqueID))
-            syncValue = new BooleanSyncValue(this::isPrivate, this::setPrivate);
-        else {
-            syncValue = new BooleanSyncValue(this::isPrivate);
-        }
+    protected IWidget createPrivateButton() {
         return new ToggleButton()
-                .value(syncValue)
+                .value(new BooleanSyncValue(this::isPrivate, this::setPrivate))
+                .tooltip(tooltip -> tooltip.setAutoUpdate(true))
                 .background(GTGuiTextures.PRIVATE_MODE_BUTTON[0])
                 .hoverBackground(GTGuiTextures.PRIVATE_MODE_BUTTON[0])
                 .selectedBackground(GTGuiTextures.PRIVATE_MODE_BUTTON[1])
                 .selectedHoverBackground(GTGuiTextures.PRIVATE_MODE_BUTTON[1])
-                .addTooltip(true, IKey.lang("cover.ender_fluid_link.private.tooltip.enabled"))
-                .addTooltip(false, IKey.lang("cover.ender_fluid_link.private.tooltip.disabled"))
+                .tooltipBuilder(tooltip -> tooltip.addLine(IKey.lang(this.isPrivate ?
+                        "cover.ender_fluid_link.private.tooltip.enabled" :
+                        "cover.ender_fluid_link.private.tooltip.disabled")))
                 .marginRight(2);
     }
 
-    protected IWidget createIoRow(UUID uuid) {
-        BooleanSyncValue syncValue;
-        if (canAccess(uuid)) {
-            syncValue = new BooleanSyncValue(this::isIoEnabled, this::setIoEnabled);
-        } else {
-            syncValue = new BooleanSyncValue(this::isIoEnabled);
-        }
+    protected IWidget createIoRow() {
         return Flow.row().marginBottom(2)
                 .coverChildrenHeight()
                 .child(new ToggleButton()
-                        .value(syncValue)
-                        .overlay(true, IKey.lang("behaviour.soft_hammer.enabled")
-                                .color(Color.WHITE.main))
-                        .overlay(false, IKey.lang("behaviour.soft_hammer.disabled")
-                                .color(Color.WHITE.main))
+                        .value(new BooleanSyncValue(this::isIoEnabled, this::setIoEnabled))
+                        .overlay(IKey.lang(() -> this.ioEnabled ?
+                                "behaviour.soft_hammer.enabled" :
+                                "behaviour.soft_hammer.disabled")
+                                .color(Color.WHITE.darker(1)))
                         .widthRel(0.6f)
                         .left(0));
     }
@@ -277,7 +246,6 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
     @Override
     public void writeInitialSyncData(PacketBuffer packetBuffer) {
         packetBuffer.writeString(this.playerUUID == null ? "null" : this.playerUUID.toString());
-        packetBuffer.writeBoolean(this.isPrivate);
     }
 
     @Override
@@ -285,7 +253,6 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
         // does client even need uuid info? just in case
         String uuidStr = packetBuffer.readString(36);
         this.playerUUID = uuidStr.equals("null") ? null : UUID.fromString(uuidStr);
-        this.isPrivate = packetBuffer.readBoolean();
     }
 
     @Override
@@ -310,11 +277,11 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
         nbt.setInteger("Frequency", activeEntry.getColor());
     }
 
-    protected PanelSyncHandler.IPanelBuilder entrySelector(EntryTypes<T> type, UUID uuid) {
+    protected PanelSyncHandler.IPanelBuilder entrySelector(EntryTypes<T> type) {
         return (syncManager, syncHandler) -> {
             List<IWidget> rows = new ArrayList<>();
             for (String name : VirtualEnderRegistry.getEntryNames(getOwner(), type)) {
-                rows.add(createRow(name, syncManager, type, uuid));
+                rows.add(createRow(name, syncManager, type));
             }
             return GTGuis.createPopupPanel("entry_selector", 168, 112, true)
                     .child(IKey.lang("cover.generic.ender.known_channels")
@@ -324,6 +291,7 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
                             .left(4))
                     .child(new ListWidget<>()
                             .children(rows)
+                            // .builder(names, name -> createRow(name, syncManager, type))
                             .background(GTGuiTextures.DISPLAY.asIcon()
                                     .width(168 - 8)
                                     .height(112 - 20))
@@ -343,13 +311,21 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
                             .asWidget()
                             .left(4)
                             .top(6))
-                    .child(new GTTextFieldWidget()
-                            .onTextAccept(string -> {
+                    .child(new TextFieldWidget() {
+
+                        // todo move this to new class?
+                        @Override
+                        public @NotNull Result onKeyPressed(char character, int keyCode) {
+                            var result = super.onKeyPressed(character, keyCode);
+                            if (result == Result.SUCCESS && keyCode == Keyboard.KEY_RETURN) {
+                                sync.setStringValue(getText());
                                 if (syncHandler.isPanelOpen()) {
                                     syncHandler.closePanel();
                                 }
-                            })
-                            .setTextColor(Color.WHITE.darker(1))
+                            }
+                            return result;
+                        }
+                    }.setTextColor(Color.WHITE.darker(1))
                             .value(sync)
                             .widthRel(0.95f)
                             .height(18)
@@ -358,14 +334,13 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
         };
     }
 
-    protected IWidget createRow(String name, PanelSyncManager syncManager,
-                                EntryTypes<T> type, UUID uuid) {
-        T entry = VirtualEnderRegistry.getEntry(getOwner(), type, name);
-        String key = String.format("entry#%s_description", entry.getColorStr());
-        String syncKey = PanelSyncManager.makeSyncKey(key, isPrivate ? 1 : 0);
-        IPanelHandler panelHandler = syncManager.syncedPanel(syncKey, true, entryDescription(key, entry));
-
-        EnderCoverSyncHandler syncHandler = new EnderCoverSyncHandler();
+    protected IWidget createRow(final String name, final PanelSyncManager syncManager, final EntryTypes<T> type) {
+        final T entry = VirtualEnderRegistry.getEntry(getOwner(), type, name);
+        var key = String.format("entry#%s_description", entry.getColorStr());
+        var syncKey = PanelSyncManager.makeSyncKey(key, isPrivate ? 1 : 0);
+        final var panelHandler = (PanelSyncHandler) syncManager.panel(syncKey,
+                entryDescription(key, entry), true);
+        final var syncHandler = new EnderCoverSyncHandler();
         syncManager.syncValue(key + "_handler", syncHandler);
 
         return Flow.row()
@@ -381,13 +356,8 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
                         .size(16)
                         .background(GTGuiTextures.SLOT.asIcon().size(18))
                         .top(1))
-                .child(new InteractableText<>(entry, str -> {
-                    if (canAccess(uuid)) {
-                        updateColor(str);
-                        return true;
-                    }
-                    return false;
-                }).tooltipAutoUpdate(true)
+                .child(new InteractableText<>(entry, this::updateColor)
+                        .tooltip(tooltip -> tooltip.setAutoUpdate(true))
                         .tooltipBuilder(tooltip -> {
                             String desc = entry.getDescription();
                             if (!desc.isEmpty()) tooltip.add(desc);
@@ -400,8 +370,6 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
                         .overlay(GuiTextures.GEAR)
                         .addTooltipLine(IKey.lang("cover.generic.ender.set_description.tooltip"))
                         .onMousePressed(i -> {
-                            if (!canAccess(uuid)) return false;
-
                             // open entry settings
                             if (panelHandler.isPanelOpen()) {
                                 panelHandler.closePanel();
@@ -416,8 +384,6 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
                         .setEnabledIf(w -> !Objects.equals(entry.getColor(), activeEntry.getColor()))
                         .addTooltipLine(IKey.lang("cover.generic.ender.delete_entry"))
                         .onMousePressed(i -> {
-                            if (!canAccess(uuid)) return false;
-
                             // todo option to force delete, maybe as a popup?
                             deleteEntry(getOwner(), name);
                             syncHandler.syncToServer(1, buffer -> {
