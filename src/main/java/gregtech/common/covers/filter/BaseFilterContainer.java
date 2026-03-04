@@ -1,7 +1,6 @@
 package gregtech.common.covers.filter;
 
 import gregtech.api.cover.CoverWithUI;
-import gregtech.api.cover.registry.CoverRegistry;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.util.IDirtyNotifiable;
 import gregtech.api.util.ItemStackHashStrategy;
@@ -14,8 +13,8 @@ import net.minecraftforge.items.ItemStackHandler;
 
 import com.cleanroommc.modularui.api.IPanelHandler;
 import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.GuiTextures;
-import com.cleanroommc.modularui.drawable.ItemDrawable;
 import com.cleanroommc.modularui.factory.GuiData;
 import com.cleanroommc.modularui.network.NetworkUtils;
 import com.cleanroommc.modularui.utils.Alignment;
@@ -29,13 +28,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
 
-public abstract class BaseFilterContainer<T> extends ItemStackHandler implements Predicate<T> {
+public abstract class BaseFilterContainer extends ItemStackHandler {
 
     private int maxTransferSize = 1;
     private int transferSize;
-    private @Nullable BaseFilter currentFilter;
+    private @NotNull BaseFilter currentFilter = BaseFilter.ERROR_FILTER;
     private @Nullable Runnable onFilterInstanceChange;
     private final IDirtyNotifiable dirtyNotifiable;
 
@@ -44,18 +42,18 @@ public abstract class BaseFilterContainer<T> extends ItemStackHandler implements
         this.dirtyNotifiable = dirtyNotifiable;
     }
 
-    public boolean test(T toTest) {
+    public boolean test(Object toTest) {
         return !hasFilter() || getFilter().test(toTest);
     }
 
-    public MatchResult match(T toMatch) {
+    public MatchResult match(Object toMatch) {
         if (!hasFilter())
             return MatchResult.create(true, toMatch, -1);
 
         return getFilter().match(toMatch);
     }
 
-    public int getTransferLimit(T stack) {
+    public int getTransferLimit(Object stack) {
         if (!hasFilter() || isBlacklistFilter()) {
             return getTransferSize();
         }
@@ -87,7 +85,7 @@ public abstract class BaseFilterContainer<T> extends ItemStackHandler implements
         if (ItemStack.areItemStacksEqual(stack, getFilterStack()))
             return;
 
-        setFilter(BaseFilter.getFilterFromStack(stack));
+        setFilter(stack);
 
         super.setStackInSlot(slot, stack);
     }
@@ -97,28 +95,23 @@ public abstract class BaseFilterContainer<T> extends ItemStackHandler implements
         return isItemValid(stack);
     }
 
-    protected boolean isItemValid(ItemStack stack) {
-        BaseFilter filter = BaseFilter.getFilterFromStack(stack);
-        return filter.getType() == getFilterType();
-    }
+    protected abstract boolean isItemValid(ItemStack stack);
 
     protected abstract @NotNull IKey getFilterKey();
-
-    protected abstract @NotNull IFilter.FilterType getFilterType();
 
     @Override
     public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
         if (!isItemValid(stack)) return stack;
-        ItemStack remainder = super.insertItem(slot, stack, simulate);
-        if (!simulate) setFilter(BaseFilter.getFilterFromStack(stack));
+        var remainder = super.insertItem(slot, stack, simulate);
+        if (!simulate) setFilter(stack);
         return remainder;
     }
 
     @Override
     public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-        ItemStack extracted = super.extractItem(slot, amount, simulate);
+        var extracted = super.extractItem(slot, amount, simulate);
         if (!extracted.isEmpty()) {
-            setFilter(null);
+            clearFilter();
         }
         return extracted;
     }
@@ -139,15 +132,26 @@ public abstract class BaseFilterContainer<T> extends ItemStackHandler implements
     }
 
     public final boolean hasFilter() {
-        return currentFilter != null;
+        return !currentFilter.isError();
     }
 
-    public final @Nullable BaseFilter getFilter() {
+    public final @NotNull BaseFilter getFilter() {
         return currentFilter;
     }
 
-    public final void setFilter(@Nullable BaseFilter newFilter) {
-        this.currentFilter = BaseFilter.ERROR_FILTER == newFilter ? null : newFilter;
+    public final void clearFilter() {
+        setFilter(BaseFilter.ERROR_FILTER);
+    }
+
+    public final void setFilter(ItemStack stack) {
+        setFilter(BaseFilter.getFilterFromStack(stack));
+        if (hasFilter()) {
+            getFilter().updateFilterReader(stack);
+        }
+    }
+
+    public final void setFilter(@NotNull BaseFilter newFilter) {
+        this.currentFilter = newFilter;
         if (hasFilter()) {
             this.currentFilter.setDirtyNotifiable(this.dirtyNotifiable);
             this.currentFilter.setMaxTransferSize(this.maxTransferSize);
@@ -218,7 +222,7 @@ public abstract class BaseFilterContainer<T> extends ItemStackHandler implements
     }
 
     /** Uses Cleanroom MUI */
-    public Flow initUI(GuiData data, PanelSyncManager manager) {
+    public IWidget initUI(GuiData data, PanelSyncManager manager) {
         // i bet brachy is gonna really hate this, but it *does* work
         // todo Find a better way to handle the filter popup panel than making
         // a new panel handler every time it changes
@@ -226,22 +230,22 @@ public abstract class BaseFilterContainer<T> extends ItemStackHandler implements
         AtomicReference<IPanelHandler> filterPanel = new AtomicReference<>();
         AtomicReference<ItemStack> oldStack = new AtomicReference<>(getFilterStack());
         AtomicInteger counter = new AtomicInteger();
-        if (hasFilter()) filterPanel.set(getFilter().createPanelHandler(manager, counter.getAndIncrement()));
+        if (hasFilter()) {
+            filterPanel.set(getFilter().getUI()
+                    .createPanelHandler(getFilterStack(), manager, counter.getAndIncrement()));
+        }
         manager.registerSyncedAction("update_filter_panel", packet -> {
             if (hasFilter()) {
                 // make new panel handler only when we have a filter
-                filterPanel.set(getFilter().createPanelHandler(manager, counter.getAndIncrement()));
+                filterPanel.set(getFilter().getUI()
+                        .createPanelHandler(getFilterStack(), manager, counter.getAndIncrement()));
             }
         });
         ItemStackHashStrategy strategy = ItemStackHashStrategy.comparingItemDamageCount();
 
-        return Flow.row()
-                .coverChildrenHeight()
-                .widthRel(1f)
-                .marginBottom(2)
+        return Flow.row().coverChildrenHeight()
+                .marginBottom(2).widthRel(1f)
                 .child(new ItemSlot()
-                        .marginRight(2)
-                        .size(18)
                         .slot(SyncHandlers.itemSlot(this, 0)
                                 .filter(this::isItemValid)
                                 .singletonSlotGroup(101)
@@ -257,26 +261,12 @@ public abstract class BaseFilterContainer<T> extends ItemStackHandler implements
                                         manager.callSyncedAction("update_filter_panel", packetBuffer -> {});
                                     }
                                 }))
-                        .tooltipBuilder(tooltip -> {
-                            ItemStack filterStack = getFilterStack();
-                            if (filterStack.isEmpty()) {
-                                tooltip.addLine(IKey.lang("cover.universal.filter_slot.tooltip_header"));
-                                for (ItemStack filterItem : CoverRegistry.getFilterItems(getFilterType())) {
-                                    tooltip.add(new ItemDrawable(filterItem));
-                                    tooltip.add(IKey.str(" - "));
-                                    tooltip.addLine(IKey.str(filterItem.getDisplayName()));
-                                }
-                            }
-                            // We don't need to .addFromItem because RichTooltip#tooltipBuilder creates compound
-                            // builders if the widget already has one.
-                        })
-                        .background(GTGuiTextures.SLOT, GTGuiTextures.FILTER_SLOT_OVERLAY.asIcon()
-                                .size(16)))
+                        .size(18).marginRight(2)
+                        .background(GTGuiTextures.SLOT, GTGuiTextures.FILTER_SLOT_OVERLAY.asIcon().size(16)))
                 .child(new ButtonWidget<>()
-                        .background(GTGuiTextures.MC_BUTTON, GTGuiTextures.FILTER_SETTINGS_OVERLAY.asIcon()
-                                .size(16))
-                        .hoverBackground(GuiTextures.MC_BUTTON_HOVERED, GTGuiTextures.FILTER_SETTINGS_OVERLAY.asIcon()
-                                .size(16))
+                        .background(GTGuiTextures.MC_BUTTON, GTGuiTextures.FILTER_SETTINGS_OVERLAY.asIcon().size(16))
+                        .hoverBackground(GuiTextures.MC_BUTTON_HOVERED,
+                                GTGuiTextures.FILTER_SETTINGS_OVERLAY.asIcon().size(16))
                         .setEnabledIf(w -> hasFilter())
                         .onMousePressed(i -> {
                             IPanelHandler panel = filterPanel.get();
@@ -292,11 +282,8 @@ public abstract class BaseFilterContainer<T> extends ItemStackHandler implements
                 .child(getFilterKey()
                         .color(CoverWithUI.UI_TEXT_COLOR)
                         .shadow(false)
-                        .alignment(Alignment.CenterRight)
-                        .asWidget()
-                        .right(0)
-                        .left(36)
-                        .height(18));
+                        .alignment(Alignment.CenterRight).asWidget()
+                        .left(36).right(0).height(18));
     }
 
     public void writeInitialSyncData(PacketBuffer packetBuffer) {

@@ -81,17 +81,19 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
 
     @Override
     public void writeInitialSyncData(@NotNull PacketBuffer packetBuffer) {
+        packetBuffer.writeByte(this.filterMode.ordinal());
+        packetBuffer.writeBoolean(this.allowFlow);
         packetBuffer.writeBoolean(itemFilterContainer.hasFilter());
         if (itemFilterContainer.hasFilter()) {
-            packetBuffer.writeByte(this.filterMode.ordinal());
             packetBuffer.writeItemStack(this.itemFilterContainer.getFilterStack());
         }
     }
 
     @Override
     public void readInitialSyncData(@NotNull PacketBuffer packetBuffer) {
-        if (!packetBuffer.readBoolean()) return;
         this.filterMode = ItemFilterMode.VALUES[packetBuffer.readByte()];
+        this.allowFlow = packetBuffer.readBoolean();
+        if (!packetBuffer.readBoolean()) return;
         try {
             this.itemFilterContainer.setFilterStack(packetBuffer.readItemStack());
         } catch (IOException e) {
@@ -109,10 +111,7 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
     }
 
     public @NotNull BaseFilter getFilter() {
-        var filter = getFilterContainer().getFilter();
-        if (filter == null) return BaseFilter.ERROR_FILTER;
-
-        return filter;
+        return getFilterContainer().getFilter();
     }
 
     public @NotNull BaseFilterContainer getFilterContainer() {
@@ -143,19 +142,15 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
     }
 
     @Override
-    public boolean usesMui2() {
-        return true;
-    }
-
-    @Override
-    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
+    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
         var filteringMode = new EnumSyncValue<>(ItemFilterMode.class, this::getFilterMode, this::setFilterMode);
 
-        panelSyncManager.syncValue("filtering_mode", filteringMode);
+        guiSyncManager.syncValue("filtering_mode", filteringMode);
 
-        return getFilter().createPanel(panelSyncManager)
+        return getFilter().getUI()
+                .createPanel(getPickItem(), guiSyncManager)
                 .size(176, 212).padding(7)
-                .child(CoverWithUI.createTitleRow(getFilterContainer().getFilterStack()).left(4))
+                .child(CoverWithUI.createTitleRow(getPickItem()).left(4))
                 .child(Flow.column().widthRel(1f).align(Alignment.TopLeft).top(22).coverChildrenHeight()
                         .child(new EnumRowBuilder<>(ItemFilterMode.class)
                                 .value(filteringMode)
@@ -168,10 +163,9 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
                                 .coverChildrenHeight()
                                 .setEnabledIf(b -> getFilterMode() != ItemFilterMode.FILTER_BOTH)
                                 .child(new ToggleButton()
-                                        .overlay(IKey.dynamic(() -> IKey.lang(allowFlow ?
-                                                "cover.generic.enabled" :
-                                                "cover.generic.disabled").get())
-                                                .color(Color.WHITE.main).shadow(false))
+                                        .overlay(createEnabledKey("cover.generic", () -> this.allowFlow)
+                                                .color(Color.WHITE.main)
+                                                .shadow(false))
                                         .tooltip(tooltip -> tooltip
                                                 .addLine(IKey.lang("cover.filter.allow_flow.tooltip")))
                                         .size(72, 18)
@@ -182,7 +176,7 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
                                         .alignX(1f)))
                         .child(new Rectangle().setColor(UI_TEXT_COLOR).asWidget()
                                 .height(1).widthRel(0.95f).margin(0, 4))
-                        .child(getFilter().createWidgets(panelSyncManager).left(0)))
+                        .child(getFilter().getUI().createWidgets(getPickItem(), guiSyncManager).left(0)))
                 .child(SlotGroupWidget.playerInventory(false).bottom(7).left(7));
     }
 
@@ -197,6 +191,7 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("FilterMode", filterMode.ordinal());
         tagCompound.setTag("Filter", this.itemFilterContainer.serializeNBT());
+        tagCompound.setBoolean("allowFlow", this.allowFlow);
     }
 
     @Override
@@ -210,6 +205,7 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
         } else {
             this.itemFilterContainer.deserializeNBT(tagCompound.getCompoundTag("Filter"));
         }
+        this.allowFlow = tagCompound.getBoolean("allowFlow");
     }
 
     @Override
