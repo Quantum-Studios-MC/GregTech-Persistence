@@ -64,43 +64,8 @@ public class BranchCutterBehavior implements IToolBehavior {
         }
         
         if (block == Blocks.VINE) {
-
+            drops.clear();
+            drops.add(new ItemStack(Blocks.VINE, 1, 0));
         }
-
-
-        if (aBlock == Blocks.leaves) {
-            aDrops.clear();
-            if ((aMetaData & 3) == 0 && RNGSUS.nextInt(9) <= aFortune * 2) aDrops.add(IL.Food_Apple_Red.get(1)); else aDrops.add(ST.make(Blocks.sapling, 1, aMetaData & 3));
-        } else if (aBlock == Blocks.leaves2) {
-            aDrops.clear();
-            aDrops.add(ST.make(Blocks.sapling, 1, (aMetaData & 3) + 4));
-        } else if (aBlock == Blocks.vine) {
-            aDrops.clear();
-            aDrops.add(ST.make(Blocks.vine, 1, 0));
-        } else if (aBlock instanceof BlockBaseLeaves) {
-            aDrops.clear();
-            aDrops.add(ST.make(aBlock.getItemDropped(aMetaData, RNGSUS, aFortune), 1, aBlock.damageDropped(aMetaData)));
-        } else if (IL.IC2_Leaves_Rubber.equal(aBlock)) {
-            aDrops.clear();
-            aDrops.add(IL.IC2_Sapling_Rubber.get(1));
-        } else if (IL.AETHER_Skyroot_Leaves_Gold.equal(aBlock)) {
-            aDrops.clear();
-            aDrops.add(IL.AETHER_Skyroot_Sapling_Gold.get(1));
-        } else if (IL.AETHER_Skyroot_Leaves_Green.equal(aBlock)) {
-            aDrops.clear();
-            aDrops.add(IL.AETHER_Skyroot_Sapling_Green.get(1));
-        } else if (IL.AETHER_Skyroot_Leaves_Blue.equal(aBlock)) {
-            aDrops.clear();
-            aDrops.add(IL.AETHER_Skyroot_Sapling_Blue.get(1));
-        } else if (IL.AETHER_Skyroot_Leaves_Dark.equal(aBlock)) {
-            aDrops.clear();
-            aDrops.add(IL.AETHER_Skyroot_Sapling_Dark.get(1));
-        } else if (IL.AETHER_Skyroot_Leaves_Purple.equal(aBlock)) {
-            aDrops.clear();
-            aDrops.add(IL.AETHER_Skyroot_Sapling_Purple.get(1));
-        } else if (IL.AETHER_Skyroot_Leaves_Apple.equal(aBlock)) {
-            if (RNGSUS.nextInt(9) <= aFortune * 2) aDrops.add(IL.AETHER_Apple.get(1)); else aDrops.add(IL.AETHER_Skyroot_Sapling_Purple.get(1));
-        }
-        return 0;
     }
 }

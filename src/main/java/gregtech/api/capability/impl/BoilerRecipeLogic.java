@@ -18,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -30,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.List;
 
 import static gregtech.api.capability.GregtechDataCodes.BOILER_HEAT;
 import static gregtech.api.capability.GregtechDataCodes.BOILER_LAST_TICK_STEAM;
@@ -91,7 +93,7 @@ public class BoilerRecipeLogic extends AbstractRecipeLogic implements ICategoryO
                     fluidTank.drain(fuelAmount, true);
                     // divide by 2, as it is half burn time for combustion
                     setMaxProgress(adjustBurnTimeForThrottle(Math.max(1, boiler.boilerType.runtimeBoost(
-                            Math.abs(recipe.getEUt()) * recipe.getDuration() / fuelAmount / 2))));
+                            (int) (Math.abs(recipe.getEUt()) * recipe.getDuration() / fuelAmount / 2)))));
                     didStartRecipe = true;
                     break;
                 }
@@ -106,7 +108,7 @@ public class BoilerRecipeLogic extends AbstractRecipeLogic implements ICategoryO
                     fluidTank.drain(fuelAmount, true);
                     // multiply by 2, as it is 2x burn time for semi-fluid
                     setMaxProgress(adjustBurnTimeForThrottle(Math.max(1, boiler.boilerType.runtimeBoost(
-                            Math.abs(recipe.getEUt()) * recipe.getDuration() / fuelAmount * 2))));
+                            (int) (Math.abs(recipe.getEUt()) * recipe.getDuration() / fuelAmount * 2)))));
                     didStartRecipe = true;
                     break;
                 }

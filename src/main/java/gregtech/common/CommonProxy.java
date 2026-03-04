@@ -454,6 +454,7 @@ public class CommonProxy {
         if (ConfigHolder.compat.removeSmeltingForEBFMetals) {
             ModHandler.removeSmeltingEBFMetals();
         }
+        GTRecipeManager.postLoad();
     }
 
     public void onLoadComplete() {

@@ -1,8 +1,9 @@
 package gregtech.loaders.recipe;
 
 import gregtech.api.GTValues;
-import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.ModHandler;
+import gregtech.api.recipes.ingredients.GTRecipeItemInput;
+import gregtech.api.recipes.ingredients.GTRecipeOreInput;
 import gregtech.common.ConfigHolder;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -106,14 +107,14 @@ public class CompressedBlockRecipes {
                                 // Register Compressor recipes for the removed crafting table compression recipes
                                 if (!inputItemStack.isEmpty()) {
                                     COMPRESSOR_RECIPES.recipeBuilder()
-                                            .inputs(CountableIngredient.from(inputItemStack, ingredientSize))
+                                            .inputs(new GTRecipeItemInput(inputItemStack, ingredientSize))
                                             .outputs(recipe.getRecipeOutput())
                                             .duration(400)
                                             .EUt(2)
                                             .buildAndRegister();
                                 } else {
                                     COMPRESSOR_RECIPES.recipeBuilder()
-                                            .inputs(CountableIngredient.from(finalOreDictName, ingredientSize))
+                                            .inputs(new GTRecipeOreInput(finalOreDictName, ingredientSize))
                                             .outputs(recipe.getRecipeOutput())
                                             .duration(400)
                                             .EUt(2)

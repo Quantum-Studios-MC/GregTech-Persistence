@@ -30,11 +30,9 @@ public final class GTRecipeManager {
         MinecraftForge.EVENT_BUS.post(new MaterialInfoEvent());
         DecompositionRecipeHandler.runRecipeGeneration();
         RecyclingRecipes.init();
-        WoodMachineRecipes.init();
     }
 
     public static void postLoad() {
-        WoodMachineRecipes.postInit();
         CompressedBlockRecipes.postInit();
     }
 }
