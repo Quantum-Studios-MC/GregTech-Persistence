@@ -103,6 +103,7 @@ public class ClientProxy extends CommonProxy {
         MetaEntities.initRenderers();
 
         MinecraftForge.EVENT_BUS.register(KeyBind.class);
+        MinecraftForge.EVENT_BUS.register(MachineTooltipRenderer.class);
     }
 
     @Override

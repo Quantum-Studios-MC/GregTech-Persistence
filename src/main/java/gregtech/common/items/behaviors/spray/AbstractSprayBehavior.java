@@ -3,7 +3,6 @@ package gregtech.common.items.behaviors.spray;
 import gregtech.api.color.ColorMode;
 import gregtech.api.color.ColorModeSupport;
 import gregtech.api.color.ColoredBlockContainer;
-import gregtech.api.cover.CoverRayTracer;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
 import gregtech.api.pipenet.block.BlockPipe;
@@ -21,12 +20,16 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class AbstractSprayBehavior implements IItemBehaviour {
 
@@ -135,17 +138,12 @@ public abstract class AbstractSprayBehavior implements IItemBehaviour {
 
         if (player.isSneaking()) {
             if (world.getBlockState(pos).getBlock() instanceof BlockPipe<?, ?, ?>blockPipe) {
-                RayTraceResult hitResult = blockPipe.getServerCollisionRayTrace(player, pos, world);
-                if (hitResult != null) {
-                    EnumFacing hitSide = CoverRayTracer.traceCoverSide(hitResult);
-                    IPipeTile<?, ?> firstPipe = blockPipe.getPipeTileEntity(world, pos);
-                    int color = getColorInt(sprayCan);
-                    if (hitSide != null && firstPipe != null && firstPipe.isConnected(hitSide) &&
-                            (firstPipe.isPainted() ? firstPipe.getPaintingColor() != color : color != -1)) {
-                        if (world.isRemote) return EnumActionResult.SUCCESS;
-                        traversePipes(firstPipe, hitSide, player, sprayCan, color);
-                        return EnumActionResult.SUCCESS;
-                    }
+                IPipeTile<?, ?> firstPipe = blockPipe.getPipeTileEntity(world, pos);
+                int color = getColorInt(sprayCan);
+                if (firstPipe != null && canPipeBePainted(firstPipe, color)) {
+                    if (world.isRemote) return EnumActionResult.SUCCESS;
+                    traversePipes(firstPipe, player, sprayCan, color);
+                    return EnumActionResult.SUCCESS;
                 }
             }
         }
@@ -199,39 +197,31 @@ public abstract class AbstractSprayBehavior implements IItemBehaviour {
 
     public abstract @NotNull ColorMode getColorMode(@NotNull ItemStack sprayCan);
 
-    protected void traversePipes(@NotNull IPipeTile<?, ?> pipeTile, @NotNull EnumFacing facing,
+    protected void traversePipes(@NotNull IPipeTile<?, ?> startPipe,
                                  @NotNull EntityPlayer player, @NotNull ItemStack sprayCan, int color) {
-        if (canPipeBePainted(pipeTile, color) && pipeTile.getNeighbor(facing) instanceof IPipeTile<?, ?>nextPipe) {
-            pipeTile.setPaintingColor(color);
+        int maxLength = getMaximumSprayLength(sprayCan);
+        Set<BlockPos> visited = new HashSet<>();
+        Deque<IPipeTile<?, ?>> queue = new ArrayDeque<>();
+        queue.add(startPipe);
+        visited.add(startPipe.getPipePos());
+
+        int count = 0;
+        while (!queue.isEmpty() && count < maxLength && canSpray(sprayCan)) {
+            IPipeTile<?, ?> current = queue.poll();
+            if (!canPipeBePainted(current, color)) continue;
+
+            current.setPaintingColor(color);
             onSpray(player, sprayCan);
-            pipeTile = nextPipe;
-        } else {
-            return;
-        }
+            count++;
 
-        for (int count = 1; count < getMaximumSprayLength(sprayCan) && canSpray(sprayCan); count++) {
-            if (canPipeBePainted(pipeTile, color)) {
-                pipeTile.setPaintingColor(color);
-                onSpray(player, sprayCan);
-            } else {
-                break;
-            }
-
-            if (pipeTile.getNumConnections() == 2) {
-                int connections = pipeTile.getConnections();
-                connections &= ~(1 << facing.getOpposite().getIndex());
-                for (EnumFacing other : EnumFacing.VALUES) {
-                    if ((connections & (1 << other.getIndex())) != 0) {
-                        facing = other;
-                        if (pipeTile.getNeighbor(facing) instanceof IPipeTile<?, ?>neighboringPipe) {
-                            pipeTile = neighboringPipe;
-                        } else {
-                            break;
-                        }
-                    }
+            for (EnumFacing side : EnumFacing.VALUES) {
+                if (!current.isConnected(side)) continue;
+                BlockPos neighborPos = current.getPipePos().offset(side);
+                if (visited.contains(neighborPos)) continue;
+                visited.add(neighborPos);
+                if (current.getNeighbor(side) instanceof IPipeTile<?, ?> neighbor) {
+                    queue.add(neighbor);
                 }
-            } else {
-                break;
             }
         }
     }

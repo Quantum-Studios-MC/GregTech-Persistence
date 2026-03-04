@@ -34,6 +34,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 
 import mezz.jei.api.ingredients.IIngredients;
@@ -57,6 +58,9 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
 
     private final List<GTRecipeInput> sortedInputs;
     private final List<GTRecipeInput> sortedFluidInputs;
+
+    private int infoAreaY = 0;
+    private int infoAreaHeight = 0;
 
     public GTRecipeWrapper(RecipeMap<?> recipeMap, Recipe recipe) {
         this.recipeMap = recipeMap;
@@ -254,18 +258,26 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
                 .filter((property) -> !property.getKey().isHidden())
                 .count();
         int yPosition = recipeHeight - ((unhiddenCount + defaultLines) * 10 - 3);
+        infoAreaY = yPosition;
 
-        // Default entries
+        int recipeTier = GTUtility.getTierByVoltage(recipe.getEUt());
+        int tierColor = getTierColor(recipeTier);
+
+        String tierBadge = GTValues.VNF[recipeTier] + TextFormatting.RESET;
+        int badgeWidth = minecraft.fontRenderer.getStringWidth(TextFormatting.getTextWithoutFormattingCodes(tierBadge));
+        int badgeX = recipeWidth - badgeWidth - 4;
+        net.minecraft.client.gui.Gui.drawRect(badgeX - 2, 0, recipeWidth - 1, 11, (0x80 << 24) | tierColor);
+        minecraft.fontRenderer.drawStringWithShadow(tierBadge, badgeX, 1, 0xFFFFFF);
+
         if (drawTotalEU) {
             long eu = recipe.getEUt() * recipe.getDuration();
-            // sadly we still need a custom override here, since computation uses duration and EU/t very differently
             if (storage.contains(TotalComputationProperty.getInstance()) &&
                     storage.contains(ComputationProperty.getInstance())) {
                 int minimumCWUt = storage.get(ComputationProperty.getInstance(), 1);
                 minecraft.fontRenderer.drawString(I18n.format("gregtech.recipe.max_eu", eu / minimumCWUt), 0, yPosition,
                         0x111111);
             } else {
-                minecraft.fontRenderer.drawString(I18n.format("gregtech.recipe.total", eu), 0, yPosition, 0x111111);
+                minecraft.fontRenderer.drawString(I18n.format("gregtech.recipe.total", eu), 0, yPosition, tierColor);
             }
         }
         if (drawEUt) {
@@ -273,8 +285,8 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
                     I18n.format(
                             recipeMap.getRecipeMapUI().isGenerator() ? "gregtech.recipe.eu_inverted" :
                                     "gregtech.recipe.eu",
-                            recipe.getEUt(), GTValues.VN[GTUtility.getTierByVoltage(recipe.getEUt())]),
-                    0, yPosition += LINE_HEIGHT, 0x111111);
+                            recipe.getEUt(), GTValues.VNF[recipeTier]),
+                    0, yPosition += LINE_HEIGHT, tierColor);
         }
         if (drawDuration) {
             minecraft.fontRenderer.drawString(
@@ -283,7 +295,6 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
                     0, yPosition += LINE_HEIGHT, 0x111111);
         }
 
-        // Property custom entries
         for (var propertyEntry : storage.entrySet()) {
             if (!propertyEntry.getKey().isHidden()) {
                 RecipeProperty<?> property = propertyEntry.getKey();
@@ -292,12 +303,19 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
                         mouseY);
             }
         }
+
+        infoAreaHeight = (yPosition + LINE_HEIGHT) - infoAreaY;
     }
 
     @NotNull
     @Override
     public List<String> getTooltipStrings(int mouseX, int mouseY) {
         List<String> tooltips = new ArrayList<>();
+
+        if (mouseX >= 0 && mouseY >= infoAreaY && mouseY <= infoAreaY + infoAreaHeight) {
+            buildOverclockTooltip(tooltips);
+        }
+
         for (var entry : recipe.propertyStorage().entrySet()) {
             if (!entry.getKey().isHidden()) {
                 RecipeProperty<?> property = entry.getKey();
@@ -306,6 +324,51 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
             }
         }
         return tooltips;
+    }
+
+    private void buildOverclockTooltip(@NotNull List<String> tooltips) {
+        long recipeEUt = recipe.getEUt();
+        int recipeDuration = recipe.getDuration();
+        int recipeTier = GTUtility.getTierByVoltage(recipeEUt);
+
+        if (recipeTier >= GTValues.V.length - 1) return;
+
+        tooltips.add(TextFormatting.GOLD + I18n.format("gregtech.jei.overclock.title"));
+        tooltips.add(TextFormatting.GRAY + I18n.format("gregtech.jei.overclock.base",
+                GTValues.VNF[recipeTier] + TextFormatting.GRAY,
+                TextFormattingUtil.formatNumbers(recipeEUt),
+                TextFormattingUtil.formatNumbers(recipeDuration / 20.0)));
+
+        long eut = recipeEUt;
+        int duration = recipeDuration;
+        for (int tier = recipeTier + 1; tier < Math.min(recipeTier + 5, GTValues.V.length); tier++) {
+            long maxVoltage = GTValues.V[tier];
+            long newEUt = eut * 4;
+            int newDuration = duration / 2;
+            if (newEUt > maxVoltage || newDuration < 1) break;
+            eut = newEUt;
+            duration = newDuration;
+
+            tooltips.add(GTValues.VNF[tier] + TextFormatting.GRAY + ": " +
+                    TextFormattingUtil.formatNumbers(eut) + " EU/t, " +
+                    TextFormattingUtil.formatNumbers(duration / 20.0) + "s (" +
+                    TextFormattingUtil.formatNumbers(eut * duration) + " EU)");
+        }
+    }
+
+    private static int getTierColor(int tier) {
+        return switch (tier) {
+            case 0 -> 0x555555;
+            case 1 -> 0xAAAAAA;
+            case 2 -> 0x55FFFF;
+            case 3 -> 0xFFAA00;
+            case 4 -> 0xAA00AA;
+            case 5 -> 0x5555FF;
+            case 6 -> 0xFF55FF;
+            case 7 -> 0xFF5555;
+            case 8 -> 0x00AAAA;
+            default -> 0x111111;
+        };
     }
 
     @Override
