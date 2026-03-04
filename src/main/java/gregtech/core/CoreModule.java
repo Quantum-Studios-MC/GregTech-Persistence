@@ -6,6 +6,7 @@ import gregtech.api.GregTechAPIInternal;
 import gregtech.api.block.IHeatingCoilBlockStats;
 import gregtech.api.block.coil.CoilManager;
 import gregtech.api.capability.SimpleCapabilityManager;
+import gregtech.api.color.ColoredBlockContainer;
 import gregtech.api.configurator.playerdata.ConfiguratorDataRegistry;
 import gregtech.api.configurator.profile.ConfiguratorProfileRegistry;
 import gregtech.api.configurator.profile.SimpleMachineProfile;
@@ -66,6 +67,7 @@ import gregtech.core.network.packets.PacketClipboard;
 import gregtech.core.network.packets.PacketClipboardNBTUpdate;
 import gregtech.core.network.packets.PacketClipboardUIWidgetUpdate;
 import gregtech.core.network.packets.PacketFluidVeinList;
+import gregtech.core.network.packets.PacketItemMouseEvent;
 import gregtech.core.network.packets.PacketKeysPressed;
 import gregtech.core.network.packets.PacketNotifyCapeChange;
 import gregtech.core.network.packets.PacketPluginSynced;
@@ -139,7 +141,7 @@ public class CoreModule implements IGregTechModule {
     }
 
     @Override
-    public void preInit(FMLPreInitializationEvent event) {
+    public void preInit(@NotNull FMLPreInitializationEvent event) {
         GregTechAPIInternal.preInit();
         GregTechAPI.advancementManager = AdvancementManager.getInstance();
         AdvancementTriggers.register();
@@ -262,10 +264,11 @@ public class CoreModule implements IGregTechModule {
         GregTechAPI.networkHandler.registerPacket(PacketClipboardNBTUpdate.class);
         GregTechAPI.networkHandler.registerPacket(PacketToolbeltSelectionChange.Server.class);
         GregTechAPI.networkHandler.registerPacket(PacketToolbeltSelectionChange.Client.class);
+        GregTechAPI.networkHandler.registerPacket(PacketItemMouseEvent.class);
     }
 
     @Override
-    public void init(FMLInitializationEvent event) {
+    public void init(@NotNull FMLInitializationEvent event) {
         // freeze once addon preInit is finished
         for (MTERegistry registry : mteManager.getRegistries()) {
             registry.freeze();
@@ -306,7 +309,7 @@ public class CoreModule implements IGregTechModule {
     }
 
     @Override
-    public void postInit(FMLPostInitializationEvent event) {
+    public void postInit(@NotNull FMLPostInitializationEvent event) {
         proxy.onPostLoad();
         BedrockFluidVeinHandler.recalculateChances(true);
         // registers coil types for the BlastTemperatureProperty used in Blast Furnace Recipes
@@ -321,15 +324,16 @@ public class CoreModule implements IGregTechModule {
         }
 
         ModHandler.postInit();
+        ColoredBlockContainer.registerCEuContainers();
     }
 
     @Override
-    public void loadComplete(FMLLoadCompleteEvent event) {
+    public void loadComplete(@NotNull FMLLoadCompleteEvent event) {
         proxy.onLoadComplete();
     }
 
     @Override
-    public void serverStarting(FMLServerStartingEvent event) {
+    public void serverStarting(@NotNull FMLServerStartingEvent event) {
         CommandManager commandManager = CommandManager.getInstance();
         GregTechAPI.commandManager = commandManager;
         commandManager.registerServerCommand(event);
@@ -348,7 +352,7 @@ public class CoreModule implements IGregTechModule {
     }
 
     @Override
-    public void serverStarted(FMLServerStartedEvent event) {
+    public void serverStarted(@NotNull FMLServerStartedEvent event) {
         if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
             World world = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
             if (!world.isRemote) {
@@ -366,7 +370,7 @@ public class CoreModule implements IGregTechModule {
     }
 
     @Override
-    public void serverStopped(FMLServerStoppedEvent event) {
+    public void serverStopped(@NotNull FMLServerStoppedEvent event) {
         VirtualEnderRegistry.clearMaps();
         CapesRegistry.clearMaps();
         ConfiguratorDataRegistry.clearMaps();

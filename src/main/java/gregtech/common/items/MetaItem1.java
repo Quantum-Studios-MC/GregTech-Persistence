@@ -3,11 +3,11 @@ package gregtech.common.items;
 import gregtech.api.GTValues;
 import gregtech.api.GregTechAPI;
 import gregtech.api.capability.impl.CommonFluidFilters;
-import gregtech.api.configurator.behavior.MachineConfiguratorBehavior;
 import gregtech.api.items.metaitem.ElectricStats;
 import gregtech.api.items.metaitem.FilteredFluidStats;
 import gregtech.api.items.metaitem.FoodStats;
 import gregtech.api.items.metaitem.MetaItem;
+import gregtech.api.items.metaitem.MusicDiscStats;
 import gregtech.api.items.metaitem.StandardMetaItem;
 import gregtech.api.items.metaitem.stats.IItemComponent;
 import gregtech.api.items.metaitem.stats.IItemContainerItemProvider;
@@ -26,6 +26,7 @@ import gregtech.api.util.GTUtility;
 import gregtech.api.util.RandomPotionEffect;
 import gregtech.common.ConfigHolder;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.covers.filter.IFilter;
 import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import gregtech.common.covers.filter.SimpleFluidFilter;
 import gregtech.common.covers.filter.SimpleItemFilter;
@@ -33,7 +34,6 @@ import gregtech.common.covers.filter.SmartItemFilter;
 import gregtech.common.creativetab.GTCreativeTabs;
 import gregtech.common.entities.GTBoatEntity.GTBoatType;
 import gregtech.common.items.behaviors.ClipboardBehavior;
-import gregtech.common.items.behaviors.ColorSprayBehaviour;
 import gregtech.common.items.behaviors.DataItemBehavior;
 import gregtech.common.items.behaviors.DoorBehavior;
 import gregtech.common.items.behaviors.DynamiteBehaviour;
@@ -47,18 +47,20 @@ import gregtech.common.items.behaviors.LighterBehaviour;
 import gregtech.common.items.behaviors.MultiblockBuilderBehavior;
 import gregtech.common.items.behaviors.NanoSaberBehavior;
 import gregtech.common.items.behaviors.ProspectorScannerBehavior;
-import gregtech.common.items.behaviors.Terminal2Behavior;
 import gregtech.common.items.behaviors.TooltipBehavior;
 import gregtech.common.items.behaviors.TricorderBehavior;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.items.behaviors.filter.OreDictFilterUIManager;
+import gregtech.common.items.behaviors.filter.SimpleFilterUIManager;
 import gregtech.common.items.behaviors.filter.SimpleFluidFilterUIManager;
-import gregtech.common.items.behaviors.filter.SimpleItemFilterUIManager;
 import gregtech.common.items.behaviors.filter.SmartFilterUIManager;
 import gregtech.common.items.behaviors.monitorplugin.AdvancedMonitorPluginBehavior;
 import gregtech.common.items.behaviors.monitorplugin.FakeGuiPluginBehavior;
 import gregtech.common.items.behaviors.monitorplugin.OnlinePicPluginBehavior;
 import gregtech.common.items.behaviors.monitorplugin.TextPluginBehavior;
+import gregtech.common.items.behaviors.spray.CreativeSprayBehavior;
+import gregtech.common.items.behaviors.spray.DurabilitySprayBehavior;
+import gregtech.core.sound.GTSoundEvents;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
@@ -88,16 +90,26 @@ public class MetaItem1 extends StandardMetaItem {
         for (MetaItem<?>.MetaValueItem item : metaItems.values()) {
             if (!item.isInCreativeTab(tab)) continue;
 
-            int itemMetaData = item.getMetaValue();
-            if (itemMetaData >= 1006 && itemMetaData <= 1010) continue;
+            int itemMeta = item.getMetaValue();
+            // Skip extra molds, see below
+            if (itemMeta >= 1006 && itemMeta <= 1010) continue;
+            // Skip creative spray can, see below
+            if (itemMeta == 30) continue;
 
             item.getSubItemHandler().getSubItems(item.getStackForm(), tab, subItems);
 
-            if (itemMetaData == 29) {
+            // Add the extra molds after the last 'original'
+            if (itemMeta == 29) {
                 for (MetaItem<?>.MetaValueItem moldItem : SHAPE_MOLDS) {
+                    // Skip the 'original' molds
                     if (moldItem.getMetaValue() < 1006) continue;
                     moldItem.getSubItemHandler().getSubItems(moldItem.getStackForm(), tab, subItems);
                 }
+            }
+
+            // Add the creative spray can after the last normal spray can
+            if (itemMeta == 77) {
+                subItems.add(SPRAY_CREATIVE.getStackForm());
             }
         }
     }
@@ -166,7 +178,8 @@ public class MetaItem1 extends StandardMetaItem {
         SHAPE_MOLDS[17] = SHAPE_MOLD_ROUND = addItem(29, "shape.mold.round")
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Steel, M * 4)));
 
-        // Free ID: 30
+        SPRAY_CREATIVE = addItem(30, "spray.creative")
+                .addComponents(new CreativeSprayBehavior());
 
         // Extruder Shapes: ID 31-59
         SHAPE_EXTRUDERS[0] = SHAPE_EXTRUDER_PLATE = addItem(31, "shape.extruder.plate")
@@ -214,14 +227,14 @@ public class MetaItem1 extends StandardMetaItem {
 
         // out of registry order so it can reference the Empty Spray Can
         SPRAY_SOLVENT = addItem(60, "spray.solvent").setMaxStackSize(1)
-                .addComponents(new ColorSprayBehaviour(SPRAY_EMPTY.getStackForm(), 1024, -1))
+                .addComponents(new DurabilitySprayBehavior(SPRAY_EMPTY.getStackForm(), 1024, null))
                 .setCreativeTabs(GTCreativeTabs.TAB_GREGTECH_TOOLS);
 
-        for (int i = 0; i < EnumDyeColor.values().length; i++) {
-            SPRAY_CAN_DYES[i] = addItem(62 + i, "spray.can.dyes." + EnumDyeColor.values()[i].getName())
+        for (EnumDyeColor color : EnumDyeColor.values()) {
+            SPRAY_CAN_DYES.put(color, addItem(62 + color.ordinal(), "spray.can.dyes." + color.getName())
                     .setMaxStackSize(1)
-                    .addComponents(new ColorSprayBehaviour(SPRAY_EMPTY.getStackForm(), 512, i))
-                    .setCreativeTabs(GTCreativeTabs.TAB_GREGTECH_TOOLS);
+                    .addComponents(new DurabilitySprayBehavior(SPRAY_EMPTY.getStackForm(), 512, color))
+                    .setCreativeTabs(GTCreativeTabs.TAB_GREGTECH_TOOLS));
         }
 
         // Fluid Cells: ID 78-88
@@ -628,17 +641,17 @@ public class MetaItem1 extends StandardMetaItem {
         // Filters: ID 290-300
         FLUID_FILTER = addItem(290, "fluid_filter")
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Zinc, M * 2)))
-                .addComponents(new SimpleFluidFilterUIManager(), new SimpleFluidFilter());
+                .addComponents(new SimpleFluidFilterUIManager(), IFilter.factory(SimpleFluidFilter::new));
         ITEM_FILTER = addItem(291, "item_filter")
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Zinc, M * 2),
                         new MaterialStack(Materials.Steel, M)))
-                .addComponents(new SimpleItemFilterUIManager(), new SimpleItemFilter());
+                .addComponents(new SimpleFilterUIManager(), IFilter.factory(SimpleItemFilter::new));
         ORE_DICTIONARY_FILTER = addItem(292, "ore_dictionary_filter")
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Zinc, M * 2)))
-                .addComponents(new OreDictFilterUIManager(), new OreDictionaryItemFilter());
+                .addComponents(new OreDictFilterUIManager(), IFilter.factory(OreDictionaryItemFilter::new));
         SMART_FILTER = addItem(293, "smart_item_filter")
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Zinc, M * 3 / 2)))
-                .addComponents(new SmartFilterUIManager(), new SmartItemFilter());
+                .addComponents(new SmartFilterUIManager(), IFilter.factory(SmartItemFilter::new));
 
         // Functional Covers: ID 301-330
         COVER_MACHINE_CONTROLLER = addItem(301, "cover.controller");
@@ -831,7 +844,6 @@ public class MetaItem1 extends StandardMetaItem {
                 .setMaxStackSize(1)
                 .setCreativeTabs(GTCreativeTabs.TAB_GREGTECH_TOOLS);
         TERMINAL = addItem(465, "terminal")
-                .addComponents(new Terminal2Behavior())
                 .setMaxStackSize(1)
                 .setCreativeTabs(GTCreativeTabs.TAB_GREGTECH_TOOLS);
         PROSPECTOR_LV = addItem(466, "prospector.lv")
@@ -1164,6 +1176,8 @@ public class MetaItem1 extends StandardMetaItem {
         PLUGIN_TEXT = addItem(783, "plugin.text").addComponents(new TextPluginBehavior());
 
         // Records: 800-819
+        SUS_RECORD = addItem(800, "record.sus").addComponents(new MusicDiscStats(GTSoundEvents.SUS_RECORD))
+                .setRarity(EnumRarity.RARE).setMaxStackSize(1).setInvisible();
 
         // Dyed Glass Lenses: 820-840
         for (int i = 0; i < MarkerMaterials.Color.VALUES.length; i++) {
@@ -1179,14 +1193,9 @@ public class MetaItem1 extends StandardMetaItem {
         BLACKLIGHT = addItem(1002, "blacklight");
 
         LOGO = addItem(1003, "logo").setInvisible();
-        LOGO.getMetaItem().addPropertyOverride(new ResourceLocation("xmas"),
-                (s, w, e) -> GTValues.isXMAS() ? 1 : 0);
+        LOGO.getMetaItem().addPropertyOverride(new ResourceLocation("xmas"), (s, w, e) -> GTValues.XMAS.get() ? 1 : 0);
 
         MULTIBLOCK_BUILDER = addItem(1004, "tool.multiblock_builder").addComponents(new MultiblockBuilderBehavior())
-                .setMaxStackSize(1);
-
-        COPY_TOOL = addItem(1005, "tool.machine_configurator")
-                .addComponents(new MachineConfiguratorBehavior())
                 .setMaxStackSize(1);
 
         // Extra molds 1006-1010

@@ -764,6 +764,7 @@ public class GTGuiTextures {
     public static final UITexture SPEAKER_ICON = fullImage("textures/gui/widget/speaker.png");
     public static final UITexture MAINTENANCE_ICON = fullImage("textures/gui/widget/button_maintenance.png",
             ColorType.DEFAULT);
+    public static final UITexture RGB_GRADIENT = fullImage("textures/gui/widget/rgb_gradient.png");
 
     // ME hatch/bus
     public static final UITexture NUMBER_BACKGROUND = fullImage("textures/gui/widget/number_background.png");

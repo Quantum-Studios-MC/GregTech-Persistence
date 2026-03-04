@@ -40,6 +40,7 @@ public interface ItemUIFactory extends IItemComponent, IGuiHolder<PlayerInventor
         return GTGuiTheme.STANDARD;
     }
 
+    // TODO: change to abstract once MUI2 port is complete
     @Override
     default ModularPanel buildUI(PlayerInventoryGuiData guiData, PanelSyncManager panelSyncManager,
                                  UISettings settings) {
