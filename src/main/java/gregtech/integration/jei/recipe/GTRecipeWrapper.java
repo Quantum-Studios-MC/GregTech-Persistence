@@ -58,6 +58,7 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
     private static final Map<Integer, Integer> RECIPE_PAGE_INDEX = new HashMap<>(); // Maps recipe hash to current page
     private static final Map<Integer, Long> RECIPE_LAST_UPDATE = new HashMap<>(); // Maps recipe hash to last update time
     private static final Map<Integer, Boolean> RECIPE_PAUSED = new HashMap<>(); // Maps recipe hash to pause state
+    private static final Map<Integer, Boolean> RECIPE_CTRL_PRESSED_PREV = new HashMap<>(); // Tracks previous frame CTRL state
 
     private static int ocScrollOffset = 0;
 
@@ -100,11 +101,16 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
         long currentTime = System.currentTimeMillis();
         int currentPage = RECIPE_PAGE_INDEX.getOrDefault(recipeHash, 0);
 
-        // Check if CTRL key is pressed to toggle pause
+        // Check if CTRL key is pressed to toggle pause (on transition from not-pressed to pressed)
         boolean ctrlPressed = org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_LCONTROL) ||
                 org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_RCONTROL);
-        if (ctrlPressed) {
-            RECIPE_PAUSED.put(recipeHash, true);
+        boolean ctrlPressedPrev = RECIPE_CTRL_PRESSED_PREV.getOrDefault(recipeHash, false);
+        RECIPE_CTRL_PRESSED_PREV.put(recipeHash, ctrlPressed);
+
+        // Toggle pause only on CTRL transition (from not-pressed to pressed)
+        if (ctrlPressed && !ctrlPressedPrev && maxPages > 1) {
+            isPaused = !isPaused;
+            RECIPE_PAUSED.put(recipeHash, isPaused);
         }
 
         // Auto-cycle pages if not paused
@@ -314,7 +320,7 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
         if (drawDuration) defaultLines++;
 
         int totalOutputs = recipe.getOutputs().size() + recipe.getChancedOutputs().getChancedEntries().size();
-        int maxVisible = gregtech.api.recipes.ui.RecipeMapUI.LARGE_JEI_MAX_VISIBLE_OUTPUTS;
+        int maxVisible = RecipeMapCategory.calcMaxVisibleOutputs(recipe);
         boolean isPaged = totalOutputs > maxVisible;
         int pageCount = isPaged ? (int) Math.ceil((double) totalOutputs / maxVisible) : 0;
         int currentPage = updatePageState(recipe, pageCount, recipeHeight);

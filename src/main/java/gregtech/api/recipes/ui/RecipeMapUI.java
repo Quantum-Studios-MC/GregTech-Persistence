@@ -215,8 +215,6 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
         int inputFluidCount = importFluids.getTanks();
         int outputFluidCount = exportFluids.getTanks();
 
-        int visibleOutputItems = Math.min(outputItemCount, LARGE_JEI_MAX_VISIBLE_OUTPUTS);
-
         int[] inputGrid = determineSlotsGrid(inputItemCount);
         int inputItemCols = inputGrid[0];
         int inputItemRows = inputGrid[1];
@@ -224,7 +222,17 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
         int inputFluidCols = inputFluidGrid[0];
         int inputFluidRows = inputFluidGrid[1];
 
-        int visibleOutputItemRows = visibleOutputItems > 0 ? (int) Math.ceil((double) visibleOutputItems / outputCols) : 0;
+        // Dynamically reduce output rows if inputs/fluids take up significant space
+        int totalInputRows = Math.max(inputItemRows, inputFluidRows);
+        int maxOutputRows = LARGE_JEI_MAX_OUTPUT_ROWS;
+        if (totalInputRows >= 3) {
+            maxOutputRows = 2; // Only 18 output slots (2x9)
+        } else if (totalInputRows >= 2) {
+            maxOutputRows = 3; // Only 27 output slots (3x9)
+        }
+        int maxVisibleOutputs = Math.min(outputItemCount, outputCols * maxOutputRows);
+        int visibleOutputItemRows = maxVisibleOutputs > 0 ? (int) Math.ceil((double) maxVisibleOutputs / outputCols) : 0;
+        
         int outputFluidCols = Math.min(outputCols, Math.max(1, outputFluidCount));
         int outputFluidRows = outputFluidCount > 0 ? (int) Math.ceil((double) outputFluidCount / outputFluidCols) : 0;
 
@@ -272,7 +280,7 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
 
         int outputStartY = topY + topRowHeight + padding;
         int outputStartX = (totalWidth - outputCols * 18) / 2;
-        for (int i = 0; i < visibleOutputItems; i++) {
+        for (int i = 0; i < maxVisibleOutputs; i++) {
             int col = i % outputCols;
             int row = i / outputCols;
             addSlot(builder, outputStartX + col * 18, outputStartY + row * 18, i,

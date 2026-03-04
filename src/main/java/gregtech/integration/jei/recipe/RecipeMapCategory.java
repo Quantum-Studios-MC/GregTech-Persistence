@@ -236,8 +236,8 @@ public class RecipeMapCategory implements IRecipeCategory<GTRecipeWrapper> {
         itemStackGroup.set(ingredients);
         fluidStackGroup.set(ingredients);
 
-        int maxVisible = gregtech.api.recipes.ui.RecipeMapUI.LARGE_JEI_MAX_VISIBLE_OUTPUTS;
         Recipe recipe = recipeWrapper.getRecipe();
+        int maxVisible = calcMaxVisibleOutputs(recipe);
         List<ItemStack> allOutputs = new ArrayList<>(recipe.getOutputs());
         for (var entry : recipe.getChancedOutputs().getChancedEntries()) {
             allOutputs.add(entry.getIngredient());
@@ -274,5 +274,21 @@ public class RecipeMapCategory implements IRecipeCategory<GTRecipeWrapper> {
     @Nullable
     public static Collection<RecipeMapCategory> getCategoriesFor(@NotNull RecipeMap<?> recipeMap) {
         return recipeMapCategories.get(recipeMap);
+    }
+
+    public static int calcMaxVisibleOutputs(Recipe recipe) {
+        // Calculate max visible outputs based on total outputs and input density
+        int totalOutputs = recipe.getOutputs().size() + recipe.getChancedOutputs().getChancedEntries().size();
+        int baseCols = 9;
+        int baseRows = 5;
+        // Check if this recipe has many inputs/fluids that would compress outputs
+        int inputCount = recipe.getInputs().size();
+        int fluidInputCount = recipe.getFluidInputs().size();
+        if (inputCount + fluidInputCount >= 8) {
+            baseRows = 2; // Severely limited
+        } else if (inputCount + fluidInputCount >= 6) {
+            baseRows = 3; // Limited
+        }
+        return Math.min(totalOutputs, baseCols * baseRows);
     }
 }
