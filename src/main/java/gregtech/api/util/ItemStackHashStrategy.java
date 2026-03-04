@@ -34,6 +34,21 @@ public interface ItemStackHashStrategy extends Hash.Strategy<ItemStack> {
     }
 
     /**
+     * Generates an ItemStackHash configured to compare every aspect of ItemStacks,
+     * using the resource location of the item to determine equality,
+     * instead of the item's transient location in memory.
+     *
+     * @return the ItemStackHashStrategy as described above.
+     */
+    static ItemStackHashStrategy comparingAllPersistent() {
+        return builder().compareResourceLocation(true)
+                .compareCount(true)
+                .compareDamage(true)
+                .compareTag(true)
+                .build();
+    }
+
+    /**
      * Generates an ItemStackHash configured to compare every aspect of ItemStacks except the number
      * of items in the stack.
      *
@@ -58,7 +73,7 @@ public interface ItemStackHashStrategy extends Hash.Strategy<ItemStack> {
      */
     class Builder {
 
-        private boolean item, count, damage, tag, meta;
+        private boolean item, resourceLocation, count, damage, tag, meta;
 
         /**
          * Defines whether the Item type should be considered for equality.
@@ -68,6 +83,18 @@ public interface ItemStackHashStrategy extends Hash.Strategy<ItemStack> {
          */
         public Builder compareItem(boolean choice) {
             item = choice;
+            return this;
+        }
+
+        /**
+         * Defines whether the Item resource location should be considered for equality
+         * (to avoid changes in hash codes).
+         *
+         * @param choice {@code true} to consider this property, {@code false} to ignore it.
+         * @return {@code this}
+         */
+        public ItemStackHashStrategyBuilder compareResourceLocation(boolean choice) {
+            resourceLocation = choice;
             return this;
         }
 
@@ -125,6 +152,7 @@ public interface ItemStackHashStrategy extends Hash.Strategy<ItemStack> {
                 public int hashCode(@Nullable ItemStack o) {
                     return o == null || o.isEmpty() ? 0 : Objects.hash(
                             item ? o.getItem() : null,
+                            resourceLocation ? o.getItem().getRegistryName() : null,
                             count ? o.getCount() : null,
                             damage ? o.getItemDamage() : null,
                             tag ? o.getTagCompound() : null,
@@ -137,6 +165,7 @@ public interface ItemStackHashStrategy extends Hash.Strategy<ItemStack> {
                     if (b == null || b.isEmpty()) return false;
 
                     return (!item || a.getItem() == b.getItem()) &&
+                            (!resourceLocation || Objects.equals(a.getItem().getRegistryName(), b.getItem().getRegistryName())) &&
                             (!count || a.getCount() == b.getCount()) &&
                             (!damage || a.getItemDamage() == b.getItemDamage()) &&
                             (!meta || a.getMetadata() == b.getMetadata()) &&
