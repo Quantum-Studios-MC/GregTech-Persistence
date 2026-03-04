@@ -5,14 +5,11 @@ import gregtech.api.metatileentity.ITieredMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GTUtility;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -24,34 +21,16 @@ import java.util.List;
 @SideOnly(Side.CLIENT)
 public class MachineTooltipRenderer {
 
-    private static final int PADDING_H = 5;
-    private static final int PADDING_V = 4;
-    private static final int LINE_SPACING = 11;
-    private static final int HEADER_HEIGHT = 14;
-    private static final int SEPARATOR_HEIGHT = 4;
-    private static final int MAX_LINE_WIDTH = 220;
-    private static final int BORDER_WIDTH = 1;
+    private static final int BG_COLOR = 0xF0100010;
+    private static final int MAX_BODY_WIDTH = 200;
+    private static final int Z_LEVEL = 300;
 
     private static final int[] TIER_COLORS = {
-            0xFF555555,
-            0xFFAAAAAA,
-            0xFF55FFFF,
-            0xFFFFAA00,
-            0xFFAA00AA,
-            0xFF5555FF,
-            0xFFFF55FF,
-            0xFFFF5555,
-            0xFF00AAAA,
-            0xFFAA0000,
-            0xFF00AA00,
-            0xFF006600,
-            0xFFFFFF55,
-            0xFF5555FF,
-            0xFFFF5555,
+            0x555555, 0xAAAAAA, 0x55FFFF, 0xFFAA00,
+            0xAA00AA, 0x5555FF, 0xFF55FF, 0xFF5555,
+            0x00AAAA, 0xAA0000, 0x00AA00, 0x006600,
+            0xFFFF55, 0x5555FF, 0xFF5555,
     };
-
-    private static final int BG_COLOR = 0xF0100010;
-    private static final int BG_HEADER = 0xF0180020;
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onRenderTooltipPre(RenderTooltipEvent.Pre event) {
@@ -62,104 +41,95 @@ public class MachineTooltipRenderer {
         if (mte == null) return;
 
         event.setCanceled(true);
-        renderMachineTooltip(event.getLines(), event.getX(), event.getY(),
+        renderTooltip(event.getLines(), event.getX(), event.getY(),
                 event.getScreenWidth(), event.getScreenHeight(),
                 event.getFontRenderer(), mte);
     }
 
-    private static void renderMachineTooltip(List<String> lines, int mouseX, int mouseY,
-                                             int screenWidth, int screenHeight,
-                                             FontRenderer font, MetaTileEntity mte) {
+    private static void renderTooltip(List<String> lines, int mouseX, int mouseY,
+                                      int screenWidth, int screenHeight,
+                                      FontRenderer font, MetaTileEntity mte) {
         if (lines.isEmpty()) return;
 
-        int tier = mte instanceof ITieredMetaTileEntity tiered ? tiered.getTier() : -1;
-        int borderColor = tier >= 0 && tier < TIER_COLORS.length ? TIER_COLORS[tier] : 0xFF808080;
-        int borderColorDark = darken(borderColor, 0.6f);
+        int tier = mte instanceof ITieredMetaTileEntity t ? t.getTier() : -1;
+        int rawColor = tier >= 0 && tier < TIER_COLORS.length ? TIER_COLORS[tier] : 0x808080;
+        int borderStart = 0xC0000000 | rawColor;
+        int borderEnd = 0xC0000000 | ((rawColor & 0xFEFEFE) >> 1);
 
-        List<String> wrappedLines = new ArrayList<>();
-        for (String line : lines) {
-            wrapLine(font, line, MAX_LINE_WIDTH, wrappedLines);
+        String title = lines.get(0);
+        String tierLabel = tier >= 0 ? GTValues.VNF[tier] : null;
+
+        List<String> bodyWrapped = new ArrayList<>();
+        for (int i = 1; i < lines.size(); i++) {
+            wrapLine(font, lines.get(i), MAX_BODY_WIDTH, bodyWrapped);
         }
 
-        int maxWidth = 0;
-        for (String line : wrappedLines) {
-            int w = font.getStringWidth(line);
-            if (w > maxWidth) maxWidth = w;
+        int titleW = font.getStringWidth(title);
+        int tierLabelW = tierLabel != null ? font.getStringWidth(tierLabel) : 0;
+        int headerW = tierLabel != null ? titleW + 8 + tierLabelW : titleW;
+
+        int maxW = headerW;
+        for (String s : bodyWrapped) {
+            int w = font.getStringWidth(s);
+            if (w > maxW) maxW = w;
         }
-        maxWidth = Math.min(maxWidth, MAX_LINE_WIDTH);
 
-        int tooltipWidth = maxWidth + PADDING_H * 2;
-        int bodyHeight = (wrappedLines.size() - 1) * LINE_SPACING;
-        int tooltipHeight = HEADER_HEIGHT + SEPARATOR_HEIGHT + bodyHeight + PADDING_V * 2;
-
-        int x = mouseX + 12;
-        int y = mouseY - 12;
-
-        if (x + tooltipWidth > screenWidth) {
-            x = mouseX - tooltipWidth - 4;
+        int tooltipWidth = maxW;
+        int tooltipHeight = 8;
+        if (!bodyWrapped.isEmpty()) {
+            tooltipHeight += 2;
+            tooltipHeight += bodyWrapped.size() * 10;
         }
-        if (x < 4) x = 4;
 
-        if (y + tooltipHeight > screenHeight) {
-            y = screenHeight - tooltipHeight - 4;
-        }
-        if (y < 4) y = 4;
+        int tooltipX = mouseX + 12;
+        int tooltipY = mouseY - 12;
+        if (tooltipX + tooltipWidth + 6 > screenWidth) tooltipX = mouseX - tooltipWidth - 16;
+        if (tooltipX < 4) tooltipX = 4;
+        if (tooltipY + tooltipHeight + 6 > screenHeight) tooltipY = screenHeight - tooltipHeight - 6;
+        if (tooltipY < 4) tooltipY = 4;
 
-        GlStateManager.pushMatrix();
         GlStateManager.disableRescaleNormal();
+        GlStateManager.disableLighting();
         GlStateManager.disableDepth();
-        GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO);
 
-        float zLevel = 300.0f;
-        GlStateManager.translate(0, 0, zLevel);
+        int left = tooltipX - 3;
+        int top = tooltipY - 4;
+        int right = tooltipX + tooltipWidth + 3;
+        int bottom = tooltipY + tooltipHeight + 3;
 
-        Gui.drawRect(x - BORDER_WIDTH, y - BORDER_WIDTH,
-                x + tooltipWidth + BORDER_WIDTH, y + tooltipHeight + BORDER_WIDTH, borderColor);
+        GuiUtils.drawGradientRect(Z_LEVEL, left - 1, top - 1, right + 1, top, BG_COLOR, BG_COLOR);
+        GuiUtils.drawGradientRect(Z_LEVEL, left - 1, bottom, right + 1, bottom + 1, BG_COLOR, BG_COLOR);
+        GuiUtils.drawGradientRect(Z_LEVEL, left - 1, top, right + 1, bottom, BG_COLOR, BG_COLOR);
+        GuiUtils.drawGradientRect(Z_LEVEL, left - 2, top, left - 1, bottom, BG_COLOR, BG_COLOR);
+        GuiUtils.drawGradientRect(Z_LEVEL, right + 1, top, right + 2, bottom, BG_COLOR, BG_COLOR);
 
-        Gui.drawRect(x, y, x + tooltipWidth, y + HEADER_HEIGHT, BG_HEADER);
+        GuiUtils.drawGradientRect(Z_LEVEL, left - 1, top, left, bottom, borderStart, borderEnd);
+        GuiUtils.drawGradientRect(Z_LEVEL, right, top, right + 1, bottom, borderStart, borderEnd);
+        GuiUtils.drawGradientRect(Z_LEVEL, left - 1, top - 1, right + 1, top, borderStart, borderStart);
+        GuiUtils.drawGradientRect(Z_LEVEL, left - 1, bottom, right + 1, bottom + 1, borderEnd, borderEnd);
 
-        Gui.drawRect(x, y + HEADER_HEIGHT, x + tooltipWidth, y + tooltipHeight, BG_COLOR);
+        GlStateManager.translate(0, 0, Z_LEVEL);
 
-        drawGradientLine(x, y + HEADER_HEIGHT, x + tooltipWidth, borderColor, borderColorDark);
-
-        if (!wrappedLines.isEmpty()) {
-            font.drawStringWithShadow(wrappedLines.get(0), x + PADDING_H, y + 3, 0xFFFFFF);
+        font.drawStringWithShadow(title, tooltipX, tooltipY, 0xFFFFFFFF);
+        if (tierLabel != null) {
+            font.drawStringWithShadow(tierLabel, tooltipX + tooltipWidth - tierLabelW, tooltipY, 0xFFFFFFFF);
         }
 
-        if (tier >= 0) {
-            String tierLabel = GTValues.VNF[tier];
-            int tierWidth = font.getStringWidth(tierLabel);
-            font.drawStringWithShadow(tierLabel, x + tooltipWidth - tierWidth - PADDING_H, y + 3, 0xFFFFFF);
+        if (!bodyWrapped.isEmpty()) {
+            int sepY = tooltipY + 10;
+            GuiUtils.drawGradientRect(0, left, sepY, right, sepY + 1, borderStart, borderEnd);
+
+            int textY = tooltipY + 12;
+            for (String line : bodyWrapped) {
+                font.drawStringWithShadow(line, tooltipX, textY, 0xFFAAAAAA);
+                textY += 10;
+            }
         }
 
-        int textY = y + HEADER_HEIGHT + SEPARATOR_HEIGHT + PADDING_V;
-        for (int i = 1; i < wrappedLines.size(); i++) {
-            String line = wrappedLines.get(i);
-            font.drawStringWithShadow(line, x + PADDING_H, textY, 0xFFCCCCCC);
-            textY += LINE_SPACING;
-        }
-
+        GlStateManager.translate(0, 0, -Z_LEVEL);
         GlStateManager.enableDepth();
+        GlStateManager.enableLighting();
         GlStateManager.enableRescaleNormal();
-        GlStateManager.disableBlend();
-        GlStateManager.popMatrix();
-    }
-
-    private static void drawGradientLine(int x1, int y, int x2, int colorLeft, int colorRight) {
-        Gui.drawRect(x1, y, x2, y + 1, colorLeft);
-    }
-
-    private static int darken(int argbColor, float factor) {
-        int a = (argbColor >> 24) & 0xFF;
-        int r = (int) (((argbColor >> 16) & 0xFF) * factor);
-        int g = (int) (((argbColor >> 8) & 0xFF) * factor);
-        int b = (int) ((argbColor & 0xFF) * factor);
-        return (a << 24) | (MathHelper.clamp(r, 0, 255) << 16) |
-                (MathHelper.clamp(g, 0, 255) << 8) | MathHelper.clamp(b, 0, 255);
     }
 
     private static void wrapLine(FontRenderer font, String line, int maxWidth, List<String> output) {
@@ -168,37 +138,33 @@ public class MachineTooltipRenderer {
             return;
         }
 
-        StringBuilder currentLine = new StringBuilder();
-        StringBuilder formatting = new StringBuilder();
-        String[] words = line.split(" ");
-
-        for (String word : words) {
-            String test = currentLine.length() == 0 ?
-                    formatting + word : currentLine + " " + word;
-            if (font.getStringWidth(test) > maxWidth && currentLine.length() > 0) {
-                output.add(currentLine.toString());
-                currentLine = new StringBuilder(formatting.toString());
-                currentLine.append(word);
+        StringBuilder current = new StringBuilder();
+        StringBuilder fmt = new StringBuilder();
+        for (String word : line.split(" ")) {
+            String test = current.length() == 0 ? fmt.toString() + word : current + " " + word;
+            if (font.getStringWidth(test) > maxWidth && current.length() > 0) {
+                output.add(current.toString());
+                current = new StringBuilder(fmt.toString());
+                current.append(word);
             } else {
-                if (currentLine.length() > 0) currentLine.append(" ");
-                currentLine.append(word);
+                if (current.length() > 0) current.append(" ");
+                current.append(word);
             }
 
-            String stripped = net.minecraft.util.text.TextFormatting.getTextWithoutFormattingCodes(word);
-            if (stripped != null && !stripped.equals(word)) {
-                formatting.setLength(0);
-                for (int i = 0; i < word.length() - 1; i++) {
-                    if (word.charAt(i) == '\u00a7') {
-                        formatting.append(word.charAt(i));
-                        formatting.append(word.charAt(i + 1));
-                        i++;
+            for (int i = 0; i < word.length() - 1; i++) {
+                if (word.charAt(i) == '\u00a7') {
+                    char code = word.charAt(i + 1);
+                    if (code == 'r' || code == 'R') {
+                        fmt.setLength(0);
+                    } else {
+                        fmt.append('\u00a7').append(code);
                     }
+                    i++;
                 }
             }
         }
-
-        if (currentLine.length() > 0) {
-            output.add(currentLine.toString());
+        if (current.length() > 0) {
+            output.add(current.toString());
         }
     }
 }

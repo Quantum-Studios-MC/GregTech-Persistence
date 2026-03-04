@@ -262,22 +262,25 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
 
         int recipeTier = GTUtility.getTierByVoltage(recipe.getEUt());
         int tierColor = getTierColor(recipeTier);
+        int infoBottom = yPosition + (unhiddenCount + defaultLines) * LINE_HEIGHT;
 
-        String tierBadge = GTValues.VNF[recipeTier] + TextFormatting.RESET;
-        int badgeWidth = minecraft.fontRenderer.getStringWidth(TextFormatting.getTextWithoutFormattingCodes(tierBadge));
-        int badgeX = recipeWidth - badgeWidth - 4;
-        net.minecraft.client.gui.Gui.drawRect(badgeX - 2, 0, recipeWidth - 1, 11, (0x80 << 24) | tierColor);
-        minecraft.fontRenderer.drawStringWithShadow(tierBadge, badgeX, 1, 0xFFFFFF);
+        net.minecraft.client.gui.Gui.drawRect(0, yPosition - 4, recipeWidth, yPosition - 3,
+                (0x60 << 24) | tierColor);
+        net.minecraft.client.gui.Gui.drawRect(0, yPosition - 3, 2, infoBottom,
+                (0xA0 << 24) | tierColor);
+
+        int textX = 5;
 
         if (drawTotalEU) {
             long eu = recipe.getEUt() * recipe.getDuration();
             if (storage.contains(TotalComputationProperty.getInstance()) &&
                     storage.contains(ComputationProperty.getInstance())) {
                 int minimumCWUt = storage.get(ComputationProperty.getInstance(), 1);
-                minecraft.fontRenderer.drawString(I18n.format("gregtech.recipe.max_eu", eu / minimumCWUt), 0, yPosition,
-                        0x111111);
+                minecraft.fontRenderer.drawString(I18n.format("gregtech.recipe.max_eu", eu / minimumCWUt),
+                        textX, yPosition, 0x111111);
             } else {
-                minecraft.fontRenderer.drawString(I18n.format("gregtech.recipe.total", eu), 0, yPosition, tierColor);
+                minecraft.fontRenderer.drawString(I18n.format("gregtech.recipe.total", eu),
+                        textX, yPosition, 0x111111);
             }
         }
         if (drawEUt) {
@@ -286,21 +289,21 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
                             recipeMap.getRecipeMapUI().isGenerator() ? "gregtech.recipe.eu_inverted" :
                                     "gregtech.recipe.eu",
                             recipe.getEUt(), GTValues.VNF[recipeTier]),
-                    0, yPosition += LINE_HEIGHT, tierColor);
+                    textX, yPosition += LINE_HEIGHT, tierColor);
         }
         if (drawDuration) {
             minecraft.fontRenderer.drawString(
                     I18n.format("gregtech.recipe.duration",
                             TextFormattingUtil.formatNumbers(recipe.getDuration() / 20.0)),
-                    0, yPosition += LINE_HEIGHT, 0x111111);
+                    textX, yPosition += LINE_HEIGHT, 0x111111);
         }
 
         for (var propertyEntry : storage.entrySet()) {
             if (!propertyEntry.getKey().isHidden()) {
                 RecipeProperty<?> property = propertyEntry.getKey();
                 var value = propertyEntry.getValue();
-                property.drawInfo(minecraft, 0, yPosition += property.getInfoHeight(value), 0x111111, value, mouseX,
-                        mouseY);
+                property.drawInfo(minecraft, textX, yPosition += property.getInfoHeight(value), 0x111111, value,
+                        mouseX, mouseY);
             }
         }
 
@@ -333,11 +336,14 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
 
         if (recipeTier >= GTValues.V.length - 1) return;
 
-        tooltips.add(TextFormatting.GOLD + I18n.format("gregtech.jei.overclock.title"));
-        tooltips.add(TextFormatting.GRAY + I18n.format("gregtech.jei.overclock.base",
-                GTValues.VNF[recipeTier] + TextFormatting.GRAY,
-                TextFormattingUtil.formatNumbers(recipeEUt),
-                TextFormattingUtil.formatNumbers(recipeDuration / 20.0)));
+        tooltips.add(TextFormatting.GOLD.toString() + TextFormatting.BOLD +
+                I18n.format("gregtech.jei.overclock.title"));
+        tooltips.add("");
+        tooltips.add(TextFormatting.GRAY + "Base " + GTValues.VNF[recipeTier] +
+                TextFormatting.DARK_GRAY + " | " + TextFormatting.WHITE +
+                TextFormattingUtil.formatNumbers(recipeEUt) + TextFormatting.GRAY + " EU/t, " +
+                TextFormatting.WHITE + TextFormattingUtil.formatNumbers(recipeDuration / 20.0) +
+                TextFormatting.GRAY + "s");
 
         long eut = recipeEUt;
         int duration = recipeDuration;
@@ -349,9 +355,11 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
             eut = newEUt;
             duration = newDuration;
 
-            tooltips.add(GTValues.VNF[tier] + TextFormatting.GRAY + ": " +
-                    TextFormattingUtil.formatNumbers(eut) + " EU/t, " +
-                    TextFormattingUtil.formatNumbers(duration / 20.0) + "s (" +
+            tooltips.add(TextFormatting.DARK_GRAY + "  > " + GTValues.VNF[tier] +
+                    TextFormatting.DARK_GRAY + " | " + TextFormatting.WHITE +
+                    TextFormattingUtil.formatNumbers(eut) + TextFormatting.GRAY + " EU/t, " +
+                    TextFormatting.WHITE + TextFormattingUtil.formatNumbers(duration / 20.0) +
+                    TextFormatting.GRAY + "s " + TextFormatting.DARK_GRAY + "(" +
                     TextFormattingUtil.formatNumbers(eut * duration) + " EU)");
         }
     }
