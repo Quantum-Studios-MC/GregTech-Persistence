@@ -3,6 +3,8 @@ package gregtech.api.util;
 import gregtech.api.GTValues;
 import gregtech.api.GregTechAPI;
 import gregtech.api.block.machines.MachineItemBlock;
+import gregtech.api.capability.GregtechCapabilities;
+import gregtech.api.capability.IElectricItem;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.fluids.GTFluid;
@@ -20,6 +22,7 @@ import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.ItemAndMetadata;
 import gregtech.api.util.function.impl.TimedProgressSupplier;
+import gregtech.common.ConfigHolder;
 
 import net.minecraft.block.BlockRedstoneWire;
 import net.minecraft.block.BlockSnow;
@@ -46,6 +49,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
@@ -58,6 +63,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
+import com.cleanroommc.modularui.api.widget.Interactable;
 import com.google.common.util.concurrent.AtomicDouble;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import org.apache.commons.lang3.ArrayUtils;
@@ -68,6 +74,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
+import java.awt.geom.Rectangle2D;
+import java.time.MonthDay;
+import java.time.ZoneId;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -764,10 +773,10 @@ public class GTUtility {
         return result.toString();
     }
 
-    public static MetaTileEntity getMetaTileEntity(IBlockAccess world, BlockPos pos) {
+    public static @Nullable MetaTileEntity getMetaTileEntity(@Nullable IBlockAccess world, @Nullable BlockPos pos) {
         if (world == null || pos == null) return null;
         TileEntity te = world.getTileEntity(pos);
-        return te instanceof IGregTechTileEntity ? ((IGregTechTileEntity) te).getMetaTileEntity() : null;
+        return te instanceof IGregTechTileEntity igtte ? igtte.getMetaTileEntity() : null;
     }
 
     public static MetaTileEntity getMetaTileEntity(ItemStack stack) {
@@ -1128,9 +1137,16 @@ public class GTUtility {
         return Math.min(voltage, GTValues.VA[workingTier]);
     }
 
+    // TODO: remove once ColorUtil from pr 2858 is merged
     public static int combineRGB(@Range(from = 0, to = 255) int r, @Range(from = 0, to = 255) int g,
                                  @Range(from = 0, to = 255) int b) {
         return (r << 16) | (g << 8) | b;
+    }
+
+    // TODO: remove once ColorUtil from pr 2858 is merged
+    public static int combineRGB(@Range(from = 0, to = 255) int a, @Range(from = 0, to = 255) int r,
+                                 @Range(from = 0, to = 255) int g, @Range(from = 0, to = 255) int b) {
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
     /**
@@ -1148,6 +1164,57 @@ public class GTUtility {
             return null;
         }
         return map.get(key.toWildcard());
+    }
+
+    public static boolean isItemChargableWithEU(@NotNull ItemStack stack, int tier) {
+        IElectricItem euItem = stack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+        if (euItem != null) {
+            return euItem.chargeable() && euItem.getCharge() < euItem.getMaxCharge() && euItem.getTier() <= tier;
+        }
+
+        if (ConfigHolder.compat.energy.nativeEUToFE) {
+            IEnergyStorage rfItem = stack.getCapability(CapabilityEnergy.ENERGY, null);
+            if (rfItem != null) {
+                return rfItem.canReceive() && rfItem.getEnergyStored() < rfItem.getMaxEnergyStored();
+            }
+        }
+
+        return false;
+    }
+
+    public static float itemChargeLevel(@NotNull ItemStack stack) {
+        if (stack.isEmpty()) return 0.0f;
+
+        IElectricItem euItem = stack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+        if (euItem != null) {
+            return (float) euItem.getCharge() / euItem.getMaxCharge();
+        }
+
+        IEnergyStorage rfItem = stack.getCapability(CapabilityEnergy.ENERGY, null);
+        if (rfItem != null) {
+            return (float) rfItem.getEnergyStored() / rfItem.getMaxEnergyStored();
+        }
+
+        return -1.0f;
+    }
+
+    public static int argbLerp(int start, int end, float position) {
+        int aStart = (start >> 24 & 0xFF);
+        int rStart = (start >> 16 & 0xFF);
+        int gStart = (start >> 8 & 0xFF);
+        int bStart = (start & 0xFF);
+
+        int aEnd = (end >> 24 & 0xFF);
+        int rEnd = (end >> 16 & 0xFF);
+        int gEnd = (end >> 8 & 0xFF);
+        int bEnd = (end & 0xFF);
+
+        int aFinal = (int) (aStart + (aEnd - aStart) * position);
+        int rFinal = (int) (rStart + (rEnd - rStart) * position);
+        int gFinal = (int) (gStart + (gEnd - gStart) * position);
+        int bFinal = (int) (bStart + (bEnd - bStart) * position);
+
+        return (aFinal << 24) | (rFinal << 16) | (gFinal << 8) | bFinal;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -1198,5 +1265,30 @@ public class GTUtility {
 
     public static <T> @NotNull List<T> unmodifiableOrEmpty(@Nullable List<T> sourceList) {
         return sourceList == null ? Collections.emptyList() : Collections.unmodifiableList(sourceList);
+    }
+
+    public static boolean isToday(@NotNull MonthDay monthDay, @Nullable ZoneId tz) {
+        MonthDay now = tz == null ? MonthDay.now() : MonthDay.now(tz);
+        return now.equals(monthDay);
+    }
+
+    public static boolean isToday(@NotNull MonthDay monthDay) {
+        return isToday(monthDay, null);
+    }
+
+    public static boolean rectanglesCollide(@NotNull Rectangle2D a, @NotNull Rectangle2D b) {
+        return (a.getX() <= b.getX() + b.getWidth()) &&
+                (a.getX() + a.getWidth() >= b.getX()) &&
+                (a.getY() <= b.getY() + b.getHeight()) &&
+                (a.getY() + a.getHeight() >= b.getY());
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static int getButtonIncrementValue() {
+        int adjust = 1;
+        if (Interactable.hasShiftDown()) adjust *= 4;
+        if (Interactable.hasControlDown()) adjust *= 16;
+        if (Interactable.hasAltDown()) adjust *= 64;
+        return adjust;
     }
 }

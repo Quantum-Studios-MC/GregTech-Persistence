@@ -12,7 +12,9 @@ import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
 import gregtech.api.mui.widget.EnumButtonRow;
 import gregtech.api.util.GTTransferUtils;
+import gregtech.api.util.GTUtility;
 import gregtech.api.util.ITranslatable;
+import gregtech.api.util.KeyUtil;
 import gregtech.client.renderer.pipe.cover.CoverRenderer;
 import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
@@ -51,7 +53,6 @@ import com.cleanroommc.modularui.factory.SidedPosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.utils.Color;
-import com.cleanroommc.modularui.utils.MouseData;
 import com.cleanroommc.modularui.value.sync.EnumSyncValue;
 import com.cleanroommc.modularui.value.sync.IntSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
@@ -205,12 +206,12 @@ public class CoverPump extends CoverBase implements CoverWithUI, ITickable, ICon
                     .coverChildrenHeight()
                     .child(new ButtonWidget<>()
                             .left(0).width(18)
+                            .overlay(KeyUtil.createMultiplierKey(false))
                             .onMousePressed(mouseButton -> {
                                 int val = throughputSync.getValue() - getIncrementValue(MouseData.create(mouseButton));
                                 throughputSync.setValue(Math.max(val, 1));
                                 return true;
-                            })
-                            .onUpdateListener(w -> w.overlay(createAdjustOverlay(false))))
+                            }))
                     .child(new GTTextFieldWidget()
                             .left(18).right(18)
                             .setPostFix(" L/s")

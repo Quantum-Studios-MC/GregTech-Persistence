@@ -746,6 +746,9 @@ public class GTGuiTextures {
     // MISC
     public static final UITexture ASSEMBLER_FRONT_OVERLAY = fullImage(
             "blocks/machines/assembler/overlay_front.png");
+    public static final UITexture SPEAKER_ICON = fullImage("textures/gui/widget/speaker.png");
+    public static final UITexture MAINTENANCE_ICON = fullImage("textures/gui/widget/button_maintenance.png",
+            ColorType.DEFAULT);
 
     public static void init() {/**/}
 
@@ -824,12 +827,12 @@ public class GTGuiTextures {
     }
 
     // todo steam logos? multi indicator blinking logos?
-    public static @NotNull UITexture getLogo(GTGuiTheme theme) {
+    public static @NotNull UITexture getLogo(@Nullable GTGuiTheme theme) {
         if (theme != null) {
             UITexture logo = theme.getLogo();
             if (logo != null) return logo;
         }
-        return GTValues.XMAS.get() ? GREGTECH_LOGO_XMAS : GREGTECH_LOGO;
+        return GTValues.isXMAS() ? GREGTECH_LOGO_XMAS : GREGTECH_LOGO;
     }
 
     public static IDrawable dynamic(UITexture[] textures, int rate) {

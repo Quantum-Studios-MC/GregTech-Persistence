@@ -431,7 +431,7 @@ public final class RecipeMaps {
                             .fluidSlotOverlay(GTGuiTextures.MOLECULAR_OVERLAY_4, false)
                             .fluidSlotOverlay(GTGuiTextures.VIAL_OVERLAY_2, true)
                             .progressBar(GTGuiTextures.PROGRESS_BAR_ARROW_MULTIPLE))
-                    .sound(GTValues.FOOLS.get() ? GTSoundEvents.SCIENCE : GTSoundEvents.CHEMICAL_REACTOR)
+                    .sound(GTValues.isAprilFools() ? GTSoundEvents.SCIENCE : GTSoundEvents.CHEMICAL_REACTOR)
                     .onBuild(gregtechId("lcr_copy"), recipeBuilder -> RecipeMaps.LARGE_CHEMICAL_RECIPES.recipeBuilder()
                             .inputs(recipeBuilder.getInputs().toArray(new GTRecipeInput[0]))
                             .fluidInputs(recipeBuilder.getFluidInputs())

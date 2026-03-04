@@ -619,7 +619,7 @@ public class SimpleMachineMetaTileEntity extends WorkableTieredMetaTileEntity
         if (exportItems.getSlots() + exportFluids.getTanks() <= 9) {
             gregtech.api.gui.widgets.ImageWidget logo = new gregtech.api.gui.widgets.ImageWidget(152, 63 + yOffset, 17,
                     17,
-                    GTValues.XMAS.get() ? getXmasLogo() : getLogo()).setIgnoreColor(true);
+                    GTValues.isXMAS() ? getXmasLogo() : getLogo()).setIgnoreColor(true);
 
             if (this.circuitInventory != null) {
                 gregtech.api.gui.widgets.SlotWidget circuitSlot = new gregtech.api.gui.widgets.GhostCircuitSlotWidget(
