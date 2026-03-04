@@ -21,7 +21,7 @@ import gregtech.api.pattern.MultiblockShapeInfo;
 import gregtech.api.pattern.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
-import gregtech.api.recipes.logic.OCParams;
+import gregtech.api.recipes.logic.old.OCParams;
 import gregtech.api.recipes.properties.RecipePropertyStorage;
 import gregtech.api.recipes.properties.impl.FusionEUToStartProperty;
 import gregtech.api.util.KeyUtil;
@@ -79,8 +79,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
-import static gregtech.api.recipes.logic.OverclockingLogic.PERFECT_HALF_DURATION_FACTOR;
-import static gregtech.api.recipes.logic.OverclockingLogic.PERFECT_HALF_VOLTAGE_FACTOR;
+import static gregtech.api.recipes.logic.old.OverclockingLogic.PERFECT_HALF_DURATION_FACTOR;
+import static gregtech.api.recipes.logic.old.OverclockingLogic.PERFECT_HALF_VOLTAGE_FACTOR;
 import static gregtech.api.util.RelativeDirection.*;
 
 public class MetaTileEntityFusionReactor extends RecipeMapMultiblockController
