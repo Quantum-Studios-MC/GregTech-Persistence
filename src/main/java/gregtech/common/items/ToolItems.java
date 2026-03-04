@@ -64,6 +64,7 @@ public final class ToolItems {
     public static IGTTool WIRECUTTER_LV;
     public static IGTTool WIRECUTTER_HV;
     public static IGTTool WIRECUTTER_IV;
+    public static IGTTool SCISSORS;
     public static ItemGTToolbelt TOOLBELT;
 
     private ToolItems() {/**/}
@@ -361,6 +362,10 @@ public final class ToolItems {
                 .secondaryOreDicts("craftingToolWireCutter")
                 .toolClasses(ToolClasses.WIRE_CUTTER)
                 .electric(GTValues.IV));
+        SCISSORS = register(ItemGTTool.Builder.of(GTValues.MODID, "scissors")
+                .toolStats(b -> b.behaviors(EntityShearBehavior.INSTANCE))
+                .oreDict(ToolOreDict.toolScissors)
+                .toolClasses(ToolClasses.SHEARS, ToolClasses.SCISSORS));
     }
 
     public static IGTTool register(@NotNull ToolBuilder<?> builder) {
