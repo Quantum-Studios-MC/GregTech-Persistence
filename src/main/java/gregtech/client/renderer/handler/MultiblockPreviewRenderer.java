@@ -66,6 +66,7 @@ public class MultiblockPreviewRenderer {
 
             GlStateManager.callList(opList);
 
+            GlStateManager.disableBlend();
             GlStateManager.enableLighting();
             GlStateManager.popMatrix();
             GlStateManager.color(1F, 1F, 1F, 1F);
@@ -83,11 +84,14 @@ public class MultiblockPreviewRenderer {
         resetMultiblockRender();
         mbpPos = controller.getPos();
         mbpEndTime = System.currentTimeMillis() + durTimeMillis;
-        opList = GLAllocation.generateDisplayLists(1); // allocate op list
+        opList = GLAllocation.generateDisplayLists(1);
         GlStateManager.glNewList(opList, GL11.GL_COMPILE);
-        List<MultiblockShapeInfo> shapes = controller.getMatchingShapes();
-        if (!shapes.isEmpty()) renderControllerInList(controller, shapes.get(0), layer);
-        GlStateManager.glEndList();
+        try {
+            List<MultiblockShapeInfo> shapes = controller.getMatchingShapes();
+            if (!shapes.isEmpty()) renderControllerInList(controller, shapes.get(0), layer);
+        } finally {
+            GlStateManager.glEndList();
+        }
     }
 
     public static void resetMultiblockRender() {

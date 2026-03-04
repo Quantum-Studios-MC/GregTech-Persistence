@@ -22,6 +22,7 @@ import gregtech.client.renderer.pipe.AbstractPipeModel;
 import gregtech.client.renderer.pipe.PipeModelRegistry;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.client.utils.ItemRenderCompat;
+import gregtech.client.utils.RenderUtil;
 import gregtech.client.utils.TooltipHelper;
 import gregtech.common.CommonProxy;
 import gregtech.common.ConfigHolder;
@@ -130,6 +131,7 @@ public class ClientProxy extends CommonProxy {
         TextureMap map = event.getMap();
         GTFluidRegistration.INSTANCE.registerSprites(map);
         Textures.register(map);
+        RenderUtil.clearTextureCache();
     }
 
     @SubscribeEvent

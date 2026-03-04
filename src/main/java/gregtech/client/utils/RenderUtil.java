@@ -227,6 +227,13 @@ public class RenderUtil {
 
     private static final Map<TextureAtlasSprite, Integer> textureMap = new HashMap<>();
 
+    public static void clearTextureCache() {
+        for (int id : textureMap.values()) {
+            TextureUtil.deleteTexture(id);
+        }
+        textureMap.clear();
+    }
+
     public static void bindTextureAtlasSprite(TextureAtlasSprite textureAtlasSprite) {
         if (textureAtlasSprite == null) {
             return;

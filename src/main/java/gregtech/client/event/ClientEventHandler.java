@@ -126,6 +126,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void onRenderArmorHUD(TickEvent.RenderTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.inGameHasFocus && mc.world != null && !mc.gameSettings.showDebugInfo && Minecraft.isGuiEnabled()) {
             renderHUDMetaArmor(mc.player.inventory.armorItemInSlot(EntityEquipmentSlot.HEAD.getIndex()));

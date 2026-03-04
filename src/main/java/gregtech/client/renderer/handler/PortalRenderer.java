@@ -67,10 +67,10 @@ public class PortalRenderer extends Render<PortalEntity> {
         GlStateManager.enableBlend();
         GlStateManager.rotate(-entity.rotationYaw, 0.0F, 1.0F, 0.0F);
         this.model.render(entity, partialTicks, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.popMatrix();
-        super.doRender(entity, x, y, z, entityYaw, partialTicks);
         GlStateManager.disableAlpha();
         GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
+        super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
 
     public static void setupTranslation(double x, double y, double z) {
