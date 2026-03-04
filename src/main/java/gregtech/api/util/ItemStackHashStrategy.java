@@ -93,7 +93,7 @@ public interface ItemStackHashStrategy extends Hash.Strategy<ItemStack> {
          * @param choice {@code true} to consider this property, {@code false} to ignore it.
          * @return {@code this}
          */
-        public ItemStackHashStrategyBuilder compareResourceLocation(boolean choice) {
+        public Builder compareResourceLocation(boolean choice) {
             resourceLocation = choice;
             return this;
         }

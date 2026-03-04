@@ -1,7 +1,7 @@
 package gregtech.common.items.tool.rotation;
 
-import gregtech.api.GTValues;
 import gregtech.api.cover.CoverRayTracer;
+import gregtech.api.util.Mods;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
@@ -13,7 +13,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Loader;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +33,7 @@ public class CustomBlockRotations {
         registerCustomRotation(HOPPER_BEHAVIOR);
 
         // Mod-specific custom rotation logic
-        if (Loader.isModLoaded(GTValues.MODID_APPENG)) {
+        if (Mods.AppliedEnergistics2.isModLoaded()) {
             AECustomBlockRotations.init();
         }
     }

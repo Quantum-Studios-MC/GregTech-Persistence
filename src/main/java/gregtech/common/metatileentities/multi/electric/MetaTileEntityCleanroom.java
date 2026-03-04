@@ -51,7 +51,6 @@ import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -67,7 +66,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -241,13 +239,6 @@ public class MetaTileEntityCleanroom extends MultiblockWithDisplayBase
             }
             context.init(pos, state);
             determineOpenDoors(context);
-        }
-        if (this.openBlocks != context.openDoors && context.world instanceof WorldServer worldServer) {
-            List<EntityPlayerMP> players = worldServer.getMinecraftServer().getPlayerList().getPlayers();
-            if (!players.isEmpty()) {
-                // for debug
-                players.get(0).sendMessage(new TextComponentString("Open blocks: " + context.openDoors));
-            }
         }
         this.openBlocks = context.openDoors;
     }
