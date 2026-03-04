@@ -84,7 +84,7 @@ public class RecipeMapCategory implements IRecipeCategory<GTRecipeWrapper> {
                 recipeMap.getMaxFluidInputs() + recipeMap.getMaxFluidOutputs();
         if (totalSlots > 12) {
             bgWidth = modularUI.getWidth();
-            bgHeight = modularUI.getHeight();
+            bgHeight = modularUI.getHeight() + 6;
         }
         this.backgroundDrawable = guiHelper.createBlankDrawable(bgWidth, bgHeight);
         gtCategories.put(category, this);

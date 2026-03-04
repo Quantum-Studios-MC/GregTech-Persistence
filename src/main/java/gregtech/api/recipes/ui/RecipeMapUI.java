@@ -204,80 +204,80 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
                                                          IItemHandlerModifiable exportItems,
                                                          FluidTankList importFluids, FluidTankList exportFluids,
                                                          int yOffset) {
-        int maxInputCols = 3;
-        int maxOutputCols = 9;
+        int outputCols = 9;
 
         int inputItemCount = importItems.getSlots();
         int outputItemCount = exportItems.getSlots();
         int inputFluidCount = importFluids.getTanks();
         int outputFluidCount = exportFluids.getTanks();
 
-        int inputCols = Math.min(maxInputCols, Math.max(inputItemCount, inputFluidCount));
-        if (inputCols == 0) inputCols = 1;
-        int outputCols = Math.min(maxOutputCols, outputItemCount);
-        if (outputCols == 0) outputCols = 1;
-        if (outputItemCount > 0) {
-            double sqrt = Math.sqrt(outputItemCount);
-            outputCols = Math.min(maxOutputCols, (int) Math.ceil(sqrt));
-            if (outputCols < 3) outputCols = 3;
-        }
+        int[] inputGrid = determineSlotsGrid(inputItemCount);
+        int inputItemCols = inputGrid[0];
+        int inputItemRows = inputGrid[1];
+        int[] inputFluidGrid = determineSlotsGrid(inputFluidCount);
+        int inputFluidCols = inputFluidGrid[0];
+        int inputFluidRows = inputFluidGrid[1];
 
-        int inputItemRows = inputItemCount > 0 ? (int) Math.ceil((double) inputItemCount / inputCols) : 0;
         int outputItemRows = outputItemCount > 0 ? (int) Math.ceil((double) outputItemCount / outputCols) : 0;
-        int inputFluidRows = inputFluidCount > 0 ? (int) Math.ceil((double) inputFluidCount / inputCols) : 0;
-        int outputFluidCols = Math.min(outputCols, outputFluidCount);
+        int outputFluidCols = Math.min(outputCols, Math.max(1, outputFluidCount));
         int outputFluidRows = outputFluidCount > 0 ? (int) Math.ceil((double) outputFluidCount / outputFluidCols) : 0;
 
-        int leftHeight = (inputItemRows + inputFluidRows) * 18;
-        int rightHeight = (outputItemRows + outputFluidRows) * 18;
-        int maxHeight = Math.max(leftHeight, rightHeight);
-
-        int progressBarX = inputCols * 18 + 4;
+        int inputSectionWidth = (inputItemCols + inputFluidCols) * 18;
         int progressBarWidth = 20;
-        int rightStartX = progressBarX + progressBarWidth + 4;
-        int totalWidth = rightStartX + outputCols * 18 + 4;
+        int topRowWidth = inputSectionWidth + 4 + progressBarWidth;
+        int outputSectionWidth = outputCols * 18;
+        int totalWidth = Math.max(topRowWidth, outputSectionWidth) + 8;
         totalWidth = Math.max(176, totalWidth);
-        int totalHeight = Math.max(66, maxHeight + 20) + yOffset;
+
+        int inputSectionHeight = Math.max(inputItemRows, inputFluidRows) * 18;
+        inputSectionHeight = Math.max(inputSectionHeight, 18);
+        int topRowHeight = Math.max(inputSectionHeight, 20);
+
+        int outputSectionHeight = (outputItemRows + outputFluidRows) * 18;
+
+        int infoHeight = 40;
+        int padding = 4;
+        int totalHeight = topRowHeight + padding + outputSectionHeight + padding + infoHeight + yOffset;
 
         ModularUI.Builder builder = ModularUI.builder(GuiTextures.BACKGROUND, totalWidth, totalHeight);
 
-        int progressBarY = Math.max(0, (maxHeight - 20) / 2) + yOffset;
+        int topY = yOffset;
+        int inputX = padding;
+        int inputCenterY = topY + (topRowHeight - inputSectionHeight) / 2;
+        for (int i = 0; i < inputItemCount; i++) {
+            int col = i % inputItemCols;
+            int row = i / inputItemCols;
+            addSlot(builder, inputX + col * 18, inputCenterY + row * 18, i,
+                    importItems, importFluids, false, false);
+        }
+        int fluidStartX = inputX + inputItemCols * 18;
+        for (int i = 0; i < inputFluidCount; i++) {
+            int col = i % inputFluidCols;
+            int row = i / inputFluidCols;
+            addSlot(builder, fluidStartX + col * 18, inputCenterY + row * 18, i,
+                    importItems, importFluids, true, false);
+        }
+
+        int progressX = inputX + inputSectionWidth + 4;
+        int progressY = topY + (topRowHeight - 20) / 2;
         builder.widget(new gregtech.api.gui.widgets.RecipeProgressWidget(200,
-                progressBarX, progressBarY, progressBarWidth, 20,
+                progressX, progressY, progressBarWidth, 20,
                 progressBarTexture, moveType, recipeMap));
 
-        int inputY = yOffset + Math.max(0, (maxHeight - leftHeight) / 2);
-        for (int i = 0; i < inputItemCount; i++) {
-            int col = i % inputCols;
-            int row = i / inputCols;
-            int x = col * 18;
-            int y = inputY + row * 18;
-            addSlot(builder, x, y, i, importItems, importFluids, false, false);
-        }
-        int inputFluidY = inputY + inputItemRows * 18;
-        for (int i = 0; i < inputFluidCount; i++) {
-            int col = i % inputCols;
-            int row = i / inputCols;
-            int x = col * 18;
-            int y = inputFluidY + row * 18;
-            addSlot(builder, x, y, i, importItems, importFluids, true, false);
-        }
-
-        int outputY = yOffset + Math.max(0, (maxHeight - rightHeight) / 2);
+        int outputStartY = topY + topRowHeight + padding;
+        int outputStartX = (totalWidth - outputCols * 18) / 2;
         for (int i = 0; i < outputItemCount; i++) {
             int col = i % outputCols;
             int row = i / outputCols;
-            int x = rightStartX + col * 18;
-            int y = outputY + row * 18;
-            addSlot(builder, x, y, i, exportItems, exportFluids, false, true);
+            addSlot(builder, outputStartX + col * 18, outputStartY + row * 18, i,
+                    exportItems, exportFluids, false, true);
         }
-        int outputFluidY = outputY + outputItemRows * 18;
+        int fluidOutputStartY = outputStartY + outputItemRows * 18;
         for (int i = 0; i < outputFluidCount; i++) {
             int col = i % outputFluidCols;
             int row = i / outputFluidCols;
-            int x = rightStartX + col * 18;
-            int y = outputFluidY + row * 18;
-            addSlot(builder, x, y, i, exportItems, exportFluids, true, true);
+            addSlot(builder, outputStartX + col * 18, fluidOutputStartY + row * 18, i,
+                    exportItems, exportFluids, true, true);
         }
 
         if (specialTexture != null) {
