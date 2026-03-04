@@ -6,7 +6,6 @@ import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.CoverableView;
 import gregtech.api.mui.GTGuiTextures;
-import gregtech.api.mui.GTGuis;
 import gregtech.api.util.GTLog;
 import gregtech.api.util.GTUtility;
 import gregtech.client.renderer.texture.cube.SimpleOverlayRenderer;
@@ -153,10 +152,11 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
 
     @Override
     public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
-        return GTGuis.createPanel(getDefinition().getResourceLocation().getPath(), 176, 212)
-                .child(CoverWithUI.createTitleRow(getFilterContainer().getFilterStack()).left(4))
+        return getFilter().createPanel(guiSyncManager)
+                .size(176, 212).padding(7)
+                .child(CoverWithUI.createTitleRow(getFilterContainer().getFilterStack()))
                 .child(createUI(guiData, guiSyncManager))
-                .child(SlotGroupWidget.playerInventory(false).left(7));
+                .child(SlotGroupWidget.playerInventory(false).bottom(7).left(7));
     }
 
     @Override
