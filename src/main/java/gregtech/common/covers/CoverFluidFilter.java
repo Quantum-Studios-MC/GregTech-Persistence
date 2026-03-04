@@ -136,6 +136,17 @@ public class CoverFluidFilter extends CoverBase implements CoverWithUI {
         return true;
     }
 
+    public @NotNull EnumActionResult onRightClick(@NotNull EntityPlayer playerIn, @NotNull EnumHand hand,
+                                                  @NotNull CuboidRayTraceResult hitResult) {
+        if (playerIn.isSneaking() && playerIn.getHeldItemMainhand().isEmpty()) {
+            if (!playerIn.world.isRemote) {
+                this.openUI((EntityPlayerMP) playerIn);
+            }
+            return EnumActionResult.SUCCESS;
+        }
+        return EnumActionResult.PASS;
+    }
+
     public @NotNull EnumActionResult onScrewdriverClick(@NotNull EntityPlayer playerIn, @NotNull EnumHand hand,
                                                         @NotNull CuboidRayTraceResult hitResult) {
         if (!playerIn.world.isRemote) {

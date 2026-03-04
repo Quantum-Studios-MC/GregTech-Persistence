@@ -302,8 +302,8 @@ public abstract class ParallelLogic {
      * @param parallelAmount   The limit on the amount of recipes that can be performed at one time
      * @return The Maximum number of Recipes that can be performed at a single time based on the available Items
      */
-    protected static int getMaxRatioItem(@NotNull Object2IntMap<ItemStack> countIngredients, @NotNull Recipe recipe,
-                                         int parallelAmount) {
+    public static int getMaxRatioItem(@NotNull Object2IntMap<ItemStack> countIngredients, @NotNull Recipe recipe,
+                                      int parallelAmount) {
         int minMultiplier = Integer.MAX_VALUE;
         // map the recipe ingredients to account for duplicated and notConsumable ingredients.
         // notConsumable ingredients are not counted towards the max ratio
@@ -389,8 +389,8 @@ public abstract class ParallelLogic {
      * @param parallelAmount The limit on the amount of recipes that can be performed at one time
      * @return The Maximum number of Recipes that can be performed at a single time based on the available Fluids
      */
-    protected static int getMaxRatioFluid(@NotNull Object2IntMap<FluidStack> countFluid, @NotNull Recipe recipe,
-                                          int parallelAmount) {
+    public static int getMaxRatioFluid(@NotNull Object2IntMap<FluidStack> countFluid, @NotNull Recipe recipe,
+                                       int parallelAmount) {
         int minMultiplier = Integer.MAX_VALUE;
         // map the recipe input fluids to account for duplicated fluids,
         // so their sum is counted against the total of fluids available in the input

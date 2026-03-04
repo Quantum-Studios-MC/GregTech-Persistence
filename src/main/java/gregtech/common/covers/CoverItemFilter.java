@@ -134,6 +134,18 @@ public class CoverItemFilter extends CoverBase implements CoverWithUI {
     }
 
     @Override
+    public @NotNull EnumActionResult onRightClick(@NotNull EntityPlayer playerIn, @NotNull EnumHand hand,
+                                                  @NotNull CuboidRayTraceResult hitResult) {
+        if (playerIn.isSneaking() && playerIn.getHeldItemMainhand().isEmpty()) {
+            if (!playerIn.world.isRemote) {
+                openUI((EntityPlayerMP) playerIn);
+            }
+            return EnumActionResult.SUCCESS;
+        }
+        return EnumActionResult.PASS;
+    }
+
+    @Override
     public @NotNull EnumActionResult onScrewdriverClick(@NotNull EntityPlayer playerIn, @NotNull EnumHand hand,
                                                         @NotNull CuboidRayTraceResult hitResult) {
         if (!playerIn.world.isRemote) {

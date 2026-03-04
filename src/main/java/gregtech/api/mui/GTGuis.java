@@ -25,21 +25,20 @@ public class GTGuis {
 
     public static final int DEFAULT_WIDTH = 176, DEFAULT_HEIGHT = 166;
 
-    private static final ModularPanel ERROR = createPanel("error")
-            .size(100)
-            .child(new RichTextWidget()
-                    .sizeRel(1)
-                    .margin(6)
-                    .align(Alignment.Center)
-                    .alignment(Alignment.Center)
-                    .textBuilder(richText -> {
-                        richText.addLine(IKey.str("ERROR!").style(IKey.RED, IKey.ITALIC)).newLine();
-                        richText.addLine("You shouldn't be able to see this. If you do, report it to a dev.");
-                    }));
-
     public static ModularPanel errorPanel() {
         GTLog.logger.error("Error Panel Opened!", new Throwable());
-        return ERROR;
+        return createPanel("error")
+                .size(100)
+                .child(new RichTextWidget()
+                        .sizeRel(1)
+                        .margin(6)
+                        .align(Alignment.Center)
+                        .alignment(Alignment.Center)
+                        .textBuilder(richText -> {
+                            richText.addLine(IKey.str("ERROR!").style(IKey.RED, IKey.ITALIC)).newLine();
+                            richText.addLine(
+                                    "You shouldn't be able to see this. If you do, report it to a dev.");
+                        }));
     }
 
     @ApiStatus.Internal
