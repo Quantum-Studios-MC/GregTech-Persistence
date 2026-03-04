@@ -348,6 +348,11 @@ public abstract class MultiblockWithDisplayBase extends MultiblockControllerBase
             builder.addMaintenanceProblemLines(getMaintenanceProblems(), true);
     }
 
+    @Override
+    public boolean usesMui2() {
+        return true;
+    }
+
     protected MultiblockUIFactory createUIFactory() {
         return new MultiblockUIFactory(this)
                 .configureDisplayText(this::configureDisplayText)

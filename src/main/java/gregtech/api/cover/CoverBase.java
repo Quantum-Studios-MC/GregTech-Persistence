@@ -84,11 +84,14 @@ public abstract class CoverBase implements Cover {
         }
     }
 
+    private static final CoverRenderer EMPTY_RENDERER = (quads, facing, renderPlate, renderBackside, renderLayer,
+            data) -> {};
+
     @Override
     @SideOnly(Side.CLIENT)
     public @NotNull CoverRenderer getRenderer() {
         if (renderer == null) renderer = buildRenderer();
-        return renderer;
+        return renderer != null ? renderer : EMPTY_RENDERER;
     }
 
     protected abstract CoverRenderer buildRenderer();

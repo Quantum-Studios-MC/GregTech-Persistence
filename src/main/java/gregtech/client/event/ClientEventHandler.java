@@ -8,6 +8,7 @@ import gregtech.api.items.metaitem.stats.IItemHUDProvider;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.util.CapesRegistry;
 import gregtech.client.particle.GTParticleManager;
+import gregtech.client.renderer.handler.BlockHighlightRenderer;
 import gregtech.client.renderer.handler.BlockPosHighlightRenderer;
 import gregtech.client.renderer.handler.MultiblockPreviewRenderer;
 import gregtech.client.utils.BloomEffectUtil;
@@ -56,8 +57,15 @@ public class ClientEventHandler {
         if (tileEntity instanceof MetaTileEntityHolder) {
             if (((MetaTileEntityHolder) tileEntity).getMetaTileEntity() instanceof MetaTileEntityMonitorScreen) {
                 event.setCanceled(true);
+                return;
             }
         }
+        BlockHighlightRenderer.handleMaterialHighlight(event);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public static void onDrawMachineHighlight(DrawBlockHighlightEvent event) {
+        BlockHighlightRenderer.handleMachineHighlight(event);
     }
 
     @SubscribeEvent

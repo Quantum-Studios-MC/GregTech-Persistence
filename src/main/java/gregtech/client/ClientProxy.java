@@ -345,6 +345,12 @@ public class ClientProxy extends CommonProxy {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onMouseEvent(@NotNull MouseEvent event) {
+        if (event.getDwheel() != 0 && org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_LCONTROL)) {
+            gregtech.integration.jei.recipe.GTRecipeWrapper.handleOCScroll(event.getDwheel());
+            event.setCanceled(true);
+            return;
+        }
+
         EntityPlayerSP player = Minecraft.getMinecraft().player;
 
         handleItemEvent(event, player, EnumHand.MAIN_HAND);

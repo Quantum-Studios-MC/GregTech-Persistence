@@ -10,6 +10,7 @@ import gregtech.api.cover.CoverHolder;
 import gregtech.api.items.toolitem.IGTTool;
 import gregtech.api.items.toolitem.ToolClasses;
 import gregtech.api.items.toolitem.ToolHelper;
+import gregtech.api.metatileentity.ITieredMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
@@ -19,6 +20,7 @@ import gregtech.api.pipenet.tile.IPipeTile;
 import gregtech.api.pipenet.tile.TileEntityPipeBase;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.TaskScheduler;
+import gregtech.client.renderer.handler.BlockHighlightRenderer;
 import gregtech.common.items.behaviors.spray.AbstractSprayBehavior;
 import gregtech.common.items.tool.rotation.CustomBlockRotations;
 import gregtech.common.items.tool.rotation.ICustomRotationBehavior;
@@ -383,7 +385,16 @@ public class ToolEventHandlers {
             double d4 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) partialTicks;
             double d5 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) partialTicks;
             AxisAlignedBB box = state.getSelectedBoundingBox(player.world, pos).grow(0.002D).offset(-d3, -d4, -d5);
-            RenderGlobal.drawSelectionBoundingBox(box, 1, 1, 1, 0.4F);
+
+            float boxR = 1, boxG = 1, boxB = 1, boxA = 0.4F;
+            if (tile instanceof MetaTileEntityHolder) {
+                int c = BlockHighlightRenderer.getMachineColor(player.world, pos);
+                boxR = ((c >> 16) & 0xFF) / 255.0f;
+                boxG = ((c >> 8) & 0xFF) / 255.0f;
+                boxB = (c & 0xFF) / 255.0f;
+                boxA = 0.55F;
+            }
+            RenderGlobal.drawSelectionBoundingBox(box, boxR, boxG, boxB, boxA);
 
             rColour = gColour = bColour = 0.2F +
                     (float) Math.sin((float) (System.currentTimeMillis() % (Math.PI * 800)) / 800) / 2;

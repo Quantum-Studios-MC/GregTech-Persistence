@@ -53,6 +53,8 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
 
     private static final int LINE_HEIGHT = 10;
 
+    private static int ocScrollOffset = 0;
+
     private final RecipeMap<?> recipeMap;
     private final Recipe recipe;
 
@@ -262,14 +264,14 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
 
         int recipeTier = GTUtility.getTierByVoltage(recipe.getEUt());
         int tierColor = getTierColor(recipeTier);
-        int infoBottom = yPosition + (unhiddenCount + defaultLines) * LINE_HEIGHT;
 
-        net.minecraft.client.gui.Gui.drawRect(0, yPosition - 4, recipeWidth, yPosition - 3,
+        int lineEnd = Math.min(recipeWidth - 14, 160);
+        net.minecraft.client.gui.Gui.drawRect(0, yPosition - 3, lineEnd, yPosition - 2,
+                (0x40 << 24) | tierColor);
+        net.minecraft.client.gui.Gui.drawRect(0, yPosition - 2, 1, yPosition + (unhiddenCount + defaultLines) * LINE_HEIGHT,
                 (0x60 << 24) | tierColor);
-        net.minecraft.client.gui.Gui.drawRect(0, yPosition - 3, 2, infoBottom,
-                (0xA0 << 24) | tierColor);
 
-        int textX = 5;
+        int textX = 4;
 
         if (drawTotalEU) {
             long eu = recipe.getEUt() * recipe.getDuration();
@@ -336,32 +338,49 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
 
         if (recipeTier >= GTValues.V.length - 1) return;
 
-        tooltips.add(TextFormatting.GOLD.toString() + TextFormatting.BOLD +
-                I18n.format("gregtech.jei.overclock.title"));
-        tooltips.add("");
-        tooltips.add(TextFormatting.GRAY + "Base " + GTValues.VNF[recipeTier] +
-                TextFormatting.DARK_GRAY + " | " + TextFormatting.WHITE +
-                TextFormattingUtil.formatNumbers(recipeEUt) + TextFormatting.GRAY + " EU/t, " +
-                TextFormatting.WHITE + TextFormattingUtil.formatNumbers(recipeDuration / 20.0) +
-                TextFormatting.GRAY + "s");
-
+        java.util.List<long[]> ocTiers = new java.util.ArrayList<>();
+        ocTiers.add(new long[]{recipeTier, recipeEUt, recipeDuration});
         long eut = recipeEUt;
         int duration = recipeDuration;
-        for (int tier = recipeTier + 1; tier < Math.min(recipeTier + 5, GTValues.V.length); tier++) {
-            long maxVoltage = GTValues.V[tier];
+        for (int tier = recipeTier + 1; tier < GTValues.V.length; tier++) {
             long newEUt = eut * 4;
             int newDuration = duration / 2;
-            if (newEUt > maxVoltage || newDuration < 1) break;
+            if (newEUt > GTValues.V[tier] || newDuration < 1) break;
             eut = newEUt;
             duration = newDuration;
-
-            tooltips.add(TextFormatting.DARK_GRAY + "  > " + GTValues.VNF[tier] +
-                    TextFormatting.DARK_GRAY + " | " + TextFormatting.WHITE +
-                    TextFormattingUtil.formatNumbers(eut) + TextFormatting.GRAY + " EU/t, " +
-                    TextFormatting.WHITE + TextFormattingUtil.formatNumbers(duration / 20.0) +
-                    TextFormatting.GRAY + "s " + TextFormatting.DARK_GRAY + "(" +
-                    TextFormattingUtil.formatNumbers(eut * duration) + " EU)");
+            ocTiers.add(new long[]{tier, eut, duration});
         }
+
+        if (ocTiers.size() <= 1) return;
+
+        int maxVisible = Math.min(6, ocTiers.size());
+        int scrollOffset = ocScrollOffset % ocTiers.size();
+        if (scrollOffset < 0) scrollOffset += ocTiers.size();
+
+        tooltips.add(TextFormatting.GOLD + I18n.format("gregtech.jei.overclock.title") +
+                TextFormatting.DARK_GRAY + " [Ctrl+Scroll]");
+
+        for (int i = 0; i < maxVisible; i++) {
+            int idx = (scrollOffset + i) % ocTiers.size();
+            long[] data = ocTiers.get(idx);
+            int tier = (int) data[0];
+            long tierEUt = data[1];
+            long tierDur = data[2];
+            String marker = idx == 0 ? TextFormatting.WHITE + "\u25B6 " : TextFormatting.GRAY + "  ";
+            tooltips.add(marker + GTValues.VNF[tier] +
+                    TextFormatting.DARK_GRAY + " | " + TextFormatting.WHITE +
+                    TextFormattingUtil.formatNumbers(tierEUt) + TextFormatting.GRAY + " EU/t " +
+                    TextFormatting.WHITE + TextFormattingUtil.formatNumbers(tierDur / 20.0) +
+                    TextFormatting.GRAY + "s");
+        }
+
+        if (ocTiers.size() > maxVisible) {
+            tooltips.add(TextFormatting.DARK_GRAY + "  +" + (ocTiers.size() - maxVisible) + " more");
+        }
+    }
+
+    public static void handleOCScroll(int delta) {
+        ocScrollOffset += (delta > 0) ? -1 : 1;
     }
 
     private static int getTierColor(int tier) {

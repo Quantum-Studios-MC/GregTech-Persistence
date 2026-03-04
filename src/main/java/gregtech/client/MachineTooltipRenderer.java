@@ -5,8 +5,11 @@ import gregtech.api.metatileentity.ITieredMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.GTUtility;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -22,8 +25,10 @@ import java.util.List;
 public class MachineTooltipRenderer {
 
     private static final int BG_COLOR = 0xF0100010;
-    private static final int MAX_BODY_WIDTH = 200;
+    private static final int MAX_BODY_WIDTH = 210;
     private static final int Z_LEVEL = 300;
+    private static final int ICON_SIZE = 12;
+    private static final int ICON_PAD = 2;
 
     private static final int[] TIER_COLORS = {
             0x555555, 0xAAAAAA, 0x55FFFF, 0xFFAA00,
@@ -41,12 +46,12 @@ public class MachineTooltipRenderer {
         if (mte == null) return;
 
         event.setCanceled(true);
-        renderTooltip(event.getLines(), event.getX(), event.getY(),
+        renderTooltip(stack, event.getLines(), event.getX(), event.getY(),
                 event.getScreenWidth(), event.getScreenHeight(),
                 event.getFontRenderer(), mte);
     }
 
-    private static void renderTooltip(List<String> lines, int mouseX, int mouseY,
+    private static void renderTooltip(ItemStack stack, List<String> lines, int mouseX, int mouseY,
                                       int screenWidth, int screenHeight,
                                       FontRenderer font, MetaTileEntity mte) {
         if (lines.isEmpty()) return;
@@ -64,7 +69,8 @@ public class MachineTooltipRenderer {
             wrapLine(font, lines.get(i), MAX_BODY_WIDTH, bodyWrapped);
         }
 
-        int titleW = font.getStringWidth(title);
+        int iconSpace = ICON_SIZE + ICON_PAD;
+        int titleW = font.getStringWidth(title) + iconSpace;
         int tierLabelW = tierLabel != null ? font.getStringWidth(tierLabel) : 0;
         int headerW = tierLabel != null ? titleW + 8 + tierLabelW : titleW;
 
@@ -74,28 +80,27 @@ public class MachineTooltipRenderer {
             if (w > maxW) maxW = w;
         }
 
-        int tooltipWidth = maxW;
-        int tooltipHeight = 8;
+        int tooltipWidth = maxW + 4;
+        int tooltipHeight = 10;
         if (!bodyWrapped.isEmpty()) {
-            tooltipHeight += 2;
-            tooltipHeight += bodyWrapped.size() * 10;
+            tooltipHeight += 4 + bodyWrapped.size() * 10;
         }
 
         int tooltipX = mouseX + 12;
         int tooltipY = mouseY - 12;
-        if (tooltipX + tooltipWidth + 6 > screenWidth) tooltipX = mouseX - tooltipWidth - 16;
+        if (tooltipX + tooltipWidth + 8 > screenWidth) tooltipX = mouseX - tooltipWidth - 16;
         if (tooltipX < 4) tooltipX = 4;
-        if (tooltipY + tooltipHeight + 6 > screenHeight) tooltipY = screenHeight - tooltipHeight - 6;
+        if (tooltipY + tooltipHeight + 8 > screenHeight) tooltipY = screenHeight - tooltipHeight - 8;
         if (tooltipY < 4) tooltipY = 4;
 
         GlStateManager.disableRescaleNormal();
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
 
-        int left = tooltipX - 3;
+        int left = tooltipX - 4;
         int top = tooltipY - 4;
-        int right = tooltipX + tooltipWidth + 3;
-        int bottom = tooltipY + tooltipHeight + 3;
+        int right = tooltipX + tooltipWidth + 4;
+        int bottom = tooltipY + tooltipHeight + 4;
 
         GuiUtils.drawGradientRect(Z_LEVEL, left - 1, top - 1, right + 1, top, BG_COLOR, BG_COLOR);
         GuiUtils.drawGradientRect(Z_LEVEL, left - 1, bottom, right + 1, bottom + 1, BG_COLOR, BG_COLOR);
@@ -108,28 +113,47 @@ public class MachineTooltipRenderer {
         GuiUtils.drawGradientRect(Z_LEVEL, left - 1, top - 1, right + 1, top, borderStart, borderStart);
         GuiUtils.drawGradientRect(Z_LEVEL, left - 1, bottom, right + 1, bottom + 1, borderEnd, borderEnd);
 
+        GlStateManager.pushMatrix();
         GlStateManager.translate(0, 0, Z_LEVEL);
 
-        font.drawStringWithShadow(title, tooltipX, tooltipY, 0xFFFFFFFF);
+        int iconY = tooltipY + (8 - ICON_SIZE) / 2;
+        renderMachineIcon(stack, tooltipX, iconY);
+
+        font.drawStringWithShadow(title, tooltipX + iconSpace, tooltipY, 0xFFFFFFFF);
         if (tierLabel != null) {
             font.drawStringWithShadow(tierLabel, tooltipX + tooltipWidth - tierLabelW, tooltipY, 0xFFFFFFFF);
         }
 
         if (!bodyWrapped.isEmpty()) {
-            int sepY = tooltipY + 10;
-            GuiUtils.drawGradientRect(0, left, sepY, right, sepY + 1, borderStart, borderEnd);
+            int sepY = tooltipY + 11;
+            GuiUtils.drawGradientRect(0, left + 2, sepY, right - 2, sepY + 1, borderStart, borderEnd);
 
-            int textY = tooltipY + 12;
+            int textY = tooltipY + 14;
             for (String line : bodyWrapped) {
                 font.drawStringWithShadow(line, tooltipX, textY, 0xFFAAAAAA);
                 textY += 10;
             }
         }
 
-        GlStateManager.translate(0, 0, -Z_LEVEL);
+        GlStateManager.popMatrix();
         GlStateManager.enableDepth();
         GlStateManager.enableLighting();
         GlStateManager.enableRescaleNormal();
+    }
+
+    private static void renderMachineIcon(ItemStack stack, int x, int y) {
+        Minecraft mc = Minecraft.getMinecraft();
+        RenderItem renderItem = mc.getRenderItem();
+        GlStateManager.pushMatrix();
+        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.enableDepth();
+        float scale = ICON_SIZE / 16.0f;
+        GlStateManager.translate(x, y, 0);
+        GlStateManager.scale(scale, scale, scale);
+        renderItem.renderItemAndEffectIntoGUI(stack, 0, 0);
+        GlStateManager.disableDepth();
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.popMatrix();
     }
 
     private static void wrapLine(FontRenderer font, String line, int maxWidth, List<String> output) {
