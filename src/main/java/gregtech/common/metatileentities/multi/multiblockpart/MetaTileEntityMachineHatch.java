@@ -10,8 +10,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
 import gregtech.api.mui.GTGuis;
-import gregtech.api.mui.IMetaTileEntityGuiHolder;
-import gregtech.api.mui.MetaTileEntityGuiData;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.ItemStackHashStrategy;
 import gregtech.client.renderer.texture.Textures;
@@ -25,6 +23,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.mui.MetaTileEntityGuiData;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.drawable.GuiDraw;
 import com.cleanroommc.modularui.screen.ModularPanel;
@@ -39,8 +38,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class MetaTileEntityMachineHatch extends MetaTileEntityMultiblockNotifiablePart implements
-                                        IMultiblockAbilityPart<IItemHandlerModifiable>, IMetaTileEntityGuiHolder {
+public class MetaTileEntityMachineHatch extends MetaTileEntityMultiblockNotifiablePart
+                                        implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
     private final IItemHandlerModifiable machineHandler;
 
@@ -71,9 +70,13 @@ public class MetaTileEntityMachineHatch extends MetaTileEntityMultiblockNotifiab
     }
 
     @Override
-    public @NotNull ModularPanel buildUI(MetaTileEntityGuiData guiData, PanelSyncManager guiSyncManager,
-                                         UISettings settings) {
-        guiSyncManager.registerSlotGroup("item_inv", 1);
+    public boolean usesMui2() {
+        return true;
+    }
+
+    @Override
+    public ModularPanel buildUI(MetaTileEntityGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
+        panelSyncManager.registerSlotGroup("item_inv", 1);
 
         // TODO: Change the position of the name when it's standardized.
         return GTGuis.createPanel(this, 176, 18 + 18 + 94)

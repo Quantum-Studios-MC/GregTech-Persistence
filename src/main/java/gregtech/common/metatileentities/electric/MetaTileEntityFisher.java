@@ -7,8 +7,6 @@ import gregtech.api.metatileentity.TieredMetaTileEntity;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
-import gregtech.api.mui.IMetaTileEntityGuiHolder;
-import gregtech.api.mui.MetaTileEntityGuiData;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.util.GTTransferUtils;
 import gregtech.client.renderer.texture.Textures;
@@ -30,6 +28,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.mui.MetaTileEntityGuiData;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.screen.ModularPanel;
@@ -45,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MetaTileEntityFisher extends TieredMetaTileEntity implements IMetaTileEntityGuiHolder {
+public class MetaTileEntityFisher extends TieredMetaTileEntity {
 
     private static final int WATER_CHECK_SIZE = 25;
 
@@ -67,11 +66,15 @@ public class MetaTileEntityFisher extends TieredMetaTileEntity implements IMetaT
     }
 
     @Override
-    public @NotNull ModularPanel buildUI(MetaTileEntityGuiData guiData, PanelSyncManager guiSyncManager,
-                                         UISettings settings) {
+    public boolean usesMui2() {
+        return true;
+    }
+
+    @Override
+    public ModularPanel buildUI(MetaTileEntityGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
         int rowSize = (int) Math.sqrt(inventorySize);
-        guiSyncManager.registerSlotGroup("item_in", 1);
-        guiSyncManager.registerSlotGroup("item_out", rowSize);
+        panelSyncManager.registerSlotGroup("item_in", 1);
+        panelSyncManager.registerSlotGroup("item_out", rowSize);
 
         List<List<IWidget>> widgets = new ArrayList<>();
         for (int i = 0; i < rowSize; i++) {

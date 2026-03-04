@@ -3,8 +3,6 @@ package gregtech.common.covers;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverableView;
-import gregtech.client.renderer.pipe.cover.CoverRenderer;
-import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,6 +21,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
+import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.factory.GuiData;
 import com.cleanroommc.modularui.factory.SidedPosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
@@ -30,6 +29,7 @@ import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.utils.Color;
 import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.widget.ParentWidget;
 import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import org.jetbrains.annotations.NotNull;
@@ -74,20 +74,22 @@ public class CoverItemVoiding extends CoverConveyor {
     }
 
     @Override
-    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
-        return super.buildUI(guiData, guiSyncManager, settings).height(192 - 22);
+    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
+        return super.buildUI(guiData, panelSyncManager, settings).height(192 - 22);
     }
 
     @Override
-    protected Flow createUI(GuiData data, PanelSyncManager guiSyncManager) {
-        BooleanSyncValue isWorking = new BooleanSyncValue(this::isWorkingEnabled, this::setWorkingEnabled);
+    protected ParentWidget<Flow> createUI(GuiData data, PanelSyncManager panelSyncManager) {
+        var isWorking = new BooleanSyncValue(this::isWorkingEnabled, this::setWorkingEnabled);
 
-        return super.createUI(data, guiSyncManager)
+        return super.createUI(data, panelSyncManager)
                 .child(Flow.row().height(18).widthRel(1f)
                         .marginBottom(2)
                         .child(new ToggleButton()
                                 .value(isWorking)
-                                .overlay(createEnabledKey("behaviour.soft_hammer", () -> this.isWorkingAllowed)
+                                .overlay(IKey.dynamic(() -> IKey.lang(this.isWorkingAllowed ?
+                                        "behaviour.soft_hammer.enabled" :
+                                        "behaviour.soft_hammer.disabled").get())
                                         .color(Color.WHITE.darker(1)))
                                 .widthRel(0.6f)
                                 .left(0)));
@@ -109,21 +111,9 @@ public class CoverItemVoiding extends CoverConveyor {
     }
 
     @Override
-    public void renderCover(@NotNull CCRenderState renderState, @NotNull Matrix4 translation,
-                            IVertexOperation[] pipeline,
-                            @NotNull Cuboid6 plateBox, @NotNull BlockRenderLayer layer) {
+    public void renderCover(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline,
+                            Cuboid6 plateBox, BlockRenderLayer layer) {
         Textures.ITEM_VOIDING.renderSided(getAttachedSide(), plateBox, renderState, pipeline, translation);
-    }
-
-    @Override
-    public @NotNull CoverRenderer getRenderer() {
-        if (renderer == null) renderer = buildRenderer();
-        return renderer;
-    }
-
-    @Override
-    protected CoverRenderer buildRenderer() {
-        return new CoverRendererBuilder(Textures.ITEM_VOIDING).build();
     }
 
     @Override
@@ -138,7 +128,7 @@ public class CoverItemVoiding extends CoverConveyor {
     }
 
     @Override
-    public <T> T getCapability(@NotNull Capability<T> capability, T defaultValue) {
+    public <T> T getCapability(Capability<T> capability, T defaultValue) {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(nullItemHandler);
         }

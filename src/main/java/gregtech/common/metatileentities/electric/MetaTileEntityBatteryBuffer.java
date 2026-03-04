@@ -10,8 +10,6 @@ import gregtech.api.metatileentity.*;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
-import gregtech.api.mui.IMetaTileEntityGuiHolder;
-import gregtech.api.mui.MetaTileEntityGuiData;
 import gregtech.api.util.TextFormattingUtil;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.client.utils.PipelineUtil;
@@ -36,6 +34,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.mui.MetaTileEntityGuiData;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.screen.ModularPanel;
@@ -51,8 +50,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MetaTileEntityBatteryBuffer extends TieredMetaTileEntity
-                                         implements IControllable, IDataInfoProvider, IMetaTileEntityGuiHolder {
+public class MetaTileEntityBatteryBuffer extends TieredMetaTileEntity implements IControllable, IDataInfoProvider {
 
     private final int inventorySize;
     private boolean allowEnergyOutput = true;
@@ -146,8 +144,12 @@ public class MetaTileEntityBatteryBuffer extends TieredMetaTileEntity
     }
 
     @Override
-    public @NotNull ModularPanel buildUI(MetaTileEntityGuiData guiData, PanelSyncManager guiSyncManager,
-                                         UISettings settings) {
+    public boolean usesMui2() {
+        return true;
+    }
+
+    @Override
+    public ModularPanel buildUI(MetaTileEntityGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
         int rowSize = (int) Math.sqrt(inventorySize);
         int colSize = rowSize;
         if (inventorySize == 8) {
@@ -155,7 +157,7 @@ public class MetaTileEntityBatteryBuffer extends TieredMetaTileEntity
             colSize = 2;
         }
 
-        guiSyncManager.registerSlotGroup("item_inv", rowSize);
+        panelSyncManager.registerSlotGroup("item_inv", rowSize);
 
         int index = 0;
         List<List<IWidget>> widgets = new ArrayList<>();

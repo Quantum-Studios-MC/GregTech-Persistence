@@ -7,8 +7,6 @@ import gregtech.api.metatileentity.ITieredMetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.mui.GTGuis;
-import gregtech.api.mui.IMetaTileEntityGuiHolder;
-import gregtech.api.mui.MetaTileEntityGuiData;
 import gregtech.api.util.GTUtility;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.common.mui.widget.GTFluidSlot;
@@ -28,6 +26,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.ColourMultiplier;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.mui.MetaTileEntityGuiData;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.screen.ModularPanel;
@@ -45,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MetaTileEntityBuffer extends MetaTileEntity implements ITieredMetaTileEntity, IMetaTileEntityGuiHolder {
+public class MetaTileEntityBuffer extends MetaTileEntity implements ITieredMetaTileEntity {
 
     private static final int TANK_SIZE = 64000;
     private final int tier;
@@ -82,10 +81,14 @@ public class MetaTileEntityBuffer extends MetaTileEntity implements ITieredMetaT
     }
 
     @Override
-    public @NotNull ModularPanel buildUI(MetaTileEntityGuiData guiData, PanelSyncManager guiSyncManager,
-                                         UISettings settings) {
+    public boolean usesMui2() {
+        return true;
+    }
+
+    @Override
+    public ModularPanel buildUI(MetaTileEntityGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
         int invTier = tier + 2;
-        guiSyncManager.registerSlotGroup("item_inv", invTier);
+        panelSyncManager.registerSlotGroup("item_inv", invTier);
 
         List<List<IWidget>> slotWidgets = new ArrayList<>();
         for (int y = 0; y < invTier; y++) {

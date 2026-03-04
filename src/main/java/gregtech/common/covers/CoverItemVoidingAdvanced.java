@@ -3,9 +3,6 @@ package gregtech.common.covers;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverableView;
 import gregtech.api.mui.GTGuiTextures;
-import gregtech.api.mui.widget.EnumButtonRow;
-import gregtech.client.renderer.pipe.cover.CoverRenderer;
-import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 
 import net.minecraft.item.ItemStack;
@@ -20,7 +17,6 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
-import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.factory.GuiData;
 import com.cleanroommc.modularui.factory.SidedPosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
@@ -29,6 +25,7 @@ import com.cleanroommc.modularui.utils.Color;
 import com.cleanroommc.modularui.value.sync.EnumSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.value.sync.StringSyncValue;
+import com.cleanroommc.modularui.widget.ParentWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import org.jetbrains.annotations.NotNull;
@@ -93,14 +90,14 @@ public class CoverItemVoidingAdvanced extends CoverItemVoiding {
     }
 
     @Override
-    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
-        return super.buildUI(guiData, guiSyncManager, settings).height(192 + 18);
+    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
+        return super.buildUI(guiData, panelSyncManager, settings).height(192 + 18);
     }
 
     @Override
-    protected Flow createUI(GuiData data, PanelSyncManager guiSyncManager) {
+    protected ParentWidget<Flow> createUI(GuiData data, PanelSyncManager panelSyncManager) {
         var voidingMode = new EnumSyncValue<>(VoidingMode.class, this::getVoidingMode, this::setVoidingMode);
-        guiSyncManager.syncValue("voiding_mode", voidingMode);
+        panelSyncManager.syncValue("voiding_mode", voidingMode);
 
         var filterTransferSize = new StringSyncValue(
                 () -> String.valueOf(this.itemFilterContainer.getTransferSize()),
@@ -110,14 +107,13 @@ public class CoverItemVoidingAdvanced extends CoverItemVoiding {
         transferTextField.setEnabled(this.itemFilterContainer.showGlobalTransferLimitSlider() &&
                 this.voidingMode == VoidingMode.VOID_OVERFLOW);
 
-        return super.createUI(data, guiSyncManager)
-                .child(EnumButtonRow.builder(voidingMode)
-                        .rowDescription(IKey.lang("cover.voiding.voiding_mode"))
-                        .overlays(16, GTGuiTextures.VOIDING_MODE_OVERLAY)
+        return super.createUI(data, panelSyncManager)
+                .child(new EnumRowBuilder<>(VoidingMode.class)
+                        .value(voidingMode)
+                        .lang("cover.voiding.voiding_mode")
+                        .overlay(16, GTGuiTextures.VOIDING_MODE_OVERLAY)
                         .build())
-                .child(Flow.row()
-                        .right(0)
-                        .coverChildrenHeight()
+                .child(Flow.row().right(0).coverChildrenHeight()
                         .child(transferTextField
                                 .setEnabledIf(w -> this.itemFilterContainer.showGlobalTransferLimitSlider() &&
                                         this.voidingMode == VoidingMode.VOID_OVERFLOW)
@@ -128,19 +124,13 @@ public class CoverItemVoidingAdvanced extends CoverItemVoiding {
 
     @Override
     protected int getMaxStackSize() {
-        return getVoidingMode().getMaxStackSize();
+        return getVoidingMode().maxStackSize;
     }
 
     @Override
-    public void renderCover(@NotNull CCRenderState renderState, @NotNull Matrix4 translation,
-                            IVertexOperation[] pipeline,
-                            @NotNull Cuboid6 plateBox, @NotNull BlockRenderLayer layer) {
+    public void renderCover(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline,
+                            Cuboid6 plateBox, BlockRenderLayer layer) {
         Textures.ITEM_VOIDING_ADVANCED.renderSided(getAttachedSide(), plateBox, renderState, pipeline, translation);
-    }
-
-    @Override
-    protected CoverRenderer buildRenderer() {
-        return new CoverRendererBuilder(Textures.ITEM_VOIDING_ADVANCED).build();
     }
 
     public void setVoidingMode(VoidingMode voidingMode) {
@@ -166,15 +156,15 @@ public class CoverItemVoidingAdvanced extends CoverItemVoiding {
     }
 
     @Override
-    public void writeToNBT(@NotNull NBTTagCompound tagCompound) {
+    public void writeToNBT(NBTTagCompound tagCompound) {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("VoidMode", voidingMode.ordinal());
     }
 
     @Override
-    public void readFromNBT(@NotNull NBTTagCompound tagCompound) {
+    public void readFromNBT(NBTTagCompound tagCompound) {
         this.voidingMode = VoidingMode.VALUES[tagCompound.getInteger("VoidMode")];
-        this.itemFilterContainer.setMaxTransferSize(getMaxStackSize());
+        this.itemFilterContainer.setMaxTransferSize(this.voidingMode.maxStackSize);
         super.readFromNBT(tagCompound);
     }
 }

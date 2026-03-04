@@ -4,9 +4,6 @@ import gregtech.api.capability.GregtechDataCodes;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverableView;
 import gregtech.api.mui.GTGuiTextures;
-import gregtech.api.mui.widget.EnumButtonRow;
-import gregtech.client.renderer.pipe.cover.CoverRenderer;
-import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.common.covers.filter.SmartItemFilter;
 import gregtech.common.pipelike.itempipe.net.ItemNetHandler;
@@ -22,15 +19,15 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
-import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.factory.GuiData;
 import com.cleanroommc.modularui.factory.SidedPosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.utils.Color;
 import com.cleanroommc.modularui.value.sync.EnumSyncValue;
-import com.cleanroommc.modularui.value.sync.IntSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.value.sync.StringSyncValue;
+import com.cleanroommc.modularui.widget.ParentWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import org.jetbrains.annotations.NotNull;
@@ -40,20 +37,20 @@ import java.util.Map;
 
 public class CoverRoboticArm extends CoverConveyor {
 
-    protected TransferMode transferMode = TransferMode.TRANSFER_ANY;
+    protected TransferMode transferMode;
     protected int itemsTransferBuffered;
 
     public CoverRoboticArm(@NotNull CoverDefinition definition, @NotNull CoverableView coverableView,
                            @NotNull EnumFacing attachedSide, int tier, int itemsPerSecond) {
         super(definition, coverableView, attachedSide, tier, itemsPerSecond);
+        this.transferMode = TransferMode.TRANSFER_ANY;
         this.itemFilterContainer.setMaxTransferSize(1);
     }
 
     @Override
-    public void renderCover(@NotNull CCRenderState renderState, @NotNull Matrix4 translation,
-                            IVertexOperation[] pipeline,
-                            @NotNull Cuboid6 plateBox, @NotNull BlockRenderLayer layer) {
-        if (ioMode.isExport()) {
+    public void renderCover(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline,
+                            Cuboid6 plateBox, BlockRenderLayer layer) {
+        if (conveyorMode == ConveyorMode.EXPORT) {
             Textures.ARM_OVERLAY.renderSided(getAttachedSide(), plateBox, renderState, pipeline, translation);
         } else {
             Textures.ARM_OVERLAY_INVERTED.renderSided(getAttachedSide(), plateBox, renderState, pipeline, translation);
@@ -61,25 +58,19 @@ public class CoverRoboticArm extends CoverConveyor {
     }
 
     @Override
-    protected CoverRenderer buildRenderer() {
-        return new CoverRendererBuilder(Textures.ARM_OVERLAY).setPlateQuads(tier).build();
-    }
-
-    @Override
-    protected CoverRenderer buildRendererInverted() {
-        return new CoverRendererBuilder(Textures.ARM_OVERLAY_INVERTED).setPlateQuads(tier).build();
-    }
-
-    @Override
     protected int doTransferItems(IItemHandler itemHandler, IItemHandler myItemHandler, int maxTransferAmount) {
-        boolean block = ioMode.isExport() && transferMode.isKeepExact() && itemHandler instanceof ItemNetHandler;
-        block |= ioMode.isImport() && transferMode.isKeepExact() && myItemHandler instanceof ItemNetHandler;
-
-        return block ? 0 : switch (transferMode) {
+        if (conveyorMode == ConveyorMode.EXPORT && itemHandler instanceof ItemNetHandler &&
+                transferMode == TransferMode.KEEP_EXACT) {
+            return 0;
+        }
+        if (conveyorMode == ConveyorMode.IMPORT && myItemHandler instanceof ItemNetHandler &&
+                transferMode == TransferMode.KEEP_EXACT) {
+            return 0;
+        }
+        return switch (transferMode) {
             case TRANSFER_ANY -> doTransferItemsAny(itemHandler, myItemHandler, maxTransferAmount);
             case TRANSFER_EXACT -> doTransferExact(itemHandler, myItemHandler, maxTransferAmount);
-            case KEEP_EXACT -> doKeepExact(itemHandler, myItemHandler, maxTransferAmount, true);
-            case RETAIN_EXACT -> doKeepExact(itemHandler, myItemHandler, maxTransferAmount, false);
+            case KEEP_EXACT -> doKeepExact(itemHandler, myItemHandler, maxTransferAmount);
         };
     }
 
@@ -132,8 +123,7 @@ public class CoverRoboticArm extends CoverConveyor {
         return Math.min(itemsTransferred, maxTransferAmount);
     }
 
-    protected int doKeepExact(IItemHandler itemHandler, IItemHandler myItemHandler, int maxTransferAmount,
-                              boolean direction) {
+    protected int doKeepExact(IItemHandler itemHandler, IItemHandler myItemHandler, int maxTransferAmount) {
         Map<Integer, GroupItemInfo> currentItemAmount = doCountDestinationInventoryItemsByMatchIndex(itemHandler,
                 myItemHandler);
         Map<Integer, GroupItemInfo> sourceItemAmounts = doCountDestinationInventoryItemsByMatchIndex(myItemHandler,
@@ -156,20 +146,12 @@ public class CoverRoboticArm extends CoverConveyor {
             }
 
             int itemAmount = 0;
-            if (direction) {
-                if (currentItemAmount.containsKey(filterSlotIndex)) {
-                    GroupItemInfo destItemInfo = currentItemAmount.get(filterSlotIndex);
-                    itemAmount = destItemInfo.totalCount;
-                }
-            } else {
-                if (sourceItemAmounts.containsKey(filterSlotIndex)) {
-                    GroupItemInfo sourceItemInfo = sourceItemAmounts.get(filterSlotIndex);
-                    itemAmount = sourceItemInfo.totalCount;
-                }
+            if (currentItemAmount.containsKey(filterSlotIndex)) {
+                GroupItemInfo destItemInfo = currentItemAmount.get(filterSlotIndex);
+                itemAmount = destItemInfo.totalCount;
             }
-
-            if (direction ? (itemAmount < itemToKeepAmount) : (itemAmount > itemToKeepAmount)) {
-                sourceInfo.totalCount = direction ? (itemToKeepAmount - itemAmount) : (itemAmount - itemToKeepAmount);
+            if (itemAmount < itemToKeepAmount) {
+                sourceInfo.totalCount = itemToKeepAmount - itemAmount;
             } else {
                 iterator.remove();
             }
@@ -193,7 +175,7 @@ public class CoverRoboticArm extends CoverConveyor {
         if (this.transferMode != transferMode) {
             this.transferMode = transferMode;
             this.getCoverableView().markDirty();
-            this.itemFilterContainer.setMaxTransferSize(getMaxStackSize());
+            this.itemFilterContainer.setMaxTransferSize(transferMode.maxStackSize);
             writeCustomData(GregtechDataCodes.UPDATE_TRANSFER_MODE,
                     buffer -> buffer.writeByte(this.transferMode.ordinal()));
         }
@@ -204,36 +186,36 @@ public class CoverRoboticArm extends CoverConveyor {
     }
 
     private boolean shouldDisplayAmountSlider() {
-        return !transferMode.isTransferAny() && itemFilterContainer.showGlobalTransferLimitSlider();
+        if (transferMode == TransferMode.TRANSFER_ANY) {
+            return false;
+        }
+        return itemFilterContainer.showGlobalTransferLimitSlider();
     }
 
     @Override
-    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
-        return super.buildUI(guiData, guiSyncManager, settings).height(192 + 36 + 18 + 2);
+    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
+        return super.buildUI(guiData, panelSyncManager, settings).height(192 + 36 + 18 + 2);
     }
 
     @Override
-    protected Flow createUI(GuiData data, PanelSyncManager guiSyncManager) {
-        EnumSyncValue<TransferMode> transferModeSync = new EnumSyncValue<>(TransferMode.class, this::getTransferMode,
+    protected ParentWidget<Flow> createUI(GuiData data, PanelSyncManager panelSyncManager) {
+        EnumSyncValue<TransferMode> transferMode = new EnumSyncValue<>(TransferMode.class, this::getTransferMode,
                 this::setTransferMode);
-        IntSyncValue filterTransferSize = new IntSyncValue(this.itemFilterContainer::getTransferSize,
-                this.itemFilterContainer::setTransferSize);
+        panelSyncManager.syncValue("transfer_mode", transferMode);
 
-        guiSyncManager.syncValue("transfer_mode", transferModeSync);
+        var filterTransferSize = new StringSyncValue(
+                () -> String.valueOf(this.itemFilterContainer.getTransferSize()),
+                s -> this.itemFilterContainer.setTransferSize(Integer.parseInt(s)));
+        filterTransferSize.updateCacheFromSource(true);
 
-        return super.createUI(data, guiSyncManager)
-                .child(EnumButtonRow.builder(transferModeSync)
-                        .rowDescription(IKey.lang("cover.generic.transfer_mode"))
-                        .overlays(GTGuiTextures.TRANSFER_MODE_OVERLAY)
-                        .widgetExtras(
-                                (transferMode, toggleButton) -> transferMode.handleTooltip(toggleButton, "robotic_arm"))
+        return super.createUI(data, panelSyncManager)
+                .child(new EnumRowBuilder<>(TransferMode.class)
+                        .value(transferMode)
+                        .lang("cover.generic.transfer_mode")
+                        .overlay(GTGuiTextures.TRANSFER_MODE_OVERLAY)
                         .build())
-                .child(Flow.row()
-                        .right(0)
-                        .coverChildrenHeight()
-                        .child(new TextFieldWidget()
-                                .right(0)
-                                .widthRel(0.5f)
+                .child(Flow.row().right(0).coverChildrenHeight()
+                        .child(new TextFieldWidget().widthRel(0.5f).right(0)
                                 .setEnabledIf(w -> shouldDisplayAmountSlider())
                                 .setNumbers(0, Integer.MAX_VALUE)
                                 .value(filterTransferSize)
@@ -242,11 +224,7 @@ public class CoverRoboticArm extends CoverConveyor {
 
     @Override
     protected int getMaxStackSize() {
-        return switch (transferMode) {
-            case TRANSFER_ANY -> 1;
-            case TRANSFER_EXACT -> 1024;
-            case KEEP_EXACT, RETAIN_EXACT -> Integer.MAX_VALUE;
-        };
+        return getTransferMode().maxStackSize;
     }
 
     @Override
@@ -259,7 +237,7 @@ public class CoverRoboticArm extends CoverConveyor {
     public void readInitialSyncData(@NotNull PacketBuffer packetBuffer) {
         super.readInitialSyncData(packetBuffer);
         this.transferMode = TransferMode.VALUES[packetBuffer.readByte()];
-        this.itemFilterContainer.setMaxTransferSize(getMaxStackSize());
+        this.itemFilterContainer.setMaxTransferSize(this.transferMode.maxStackSize);
     }
 
     @Override
@@ -267,20 +245,20 @@ public class CoverRoboticArm extends CoverConveyor {
         super.readCustomData(discriminator, buf);
         if (discriminator == GregtechDataCodes.UPDATE_TRANSFER_MODE) {
             this.transferMode = TransferMode.VALUES[buf.readByte()];
-            this.itemFilterContainer.setMaxTransferSize(getMaxStackSize());
+            this.itemFilterContainer.setMaxTransferSize(this.transferMode.maxStackSize);
         }
     }
 
     @Override
-    public void writeToNBT(@NotNull NBTTagCompound tagCompound) {
+    public void writeToNBT(NBTTagCompound tagCompound) {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("TransferMode", transferMode.ordinal());
     }
 
     @Override
-    public void readFromNBT(@NotNull NBTTagCompound tagCompound) {
+    public void readFromNBT(NBTTagCompound tagCompound) {
         this.transferMode = TransferMode.VALUES[tagCompound.getInteger("TransferMode")];
-        this.itemFilterContainer.setMaxTransferSize(getMaxStackSize());
+        this.itemFilterContainer.setMaxTransferSize(this.transferMode.maxStackSize);
         super.readFromNBT(tagCompound);
     }
 }

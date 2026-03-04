@@ -138,15 +138,19 @@ public abstract class CoverAbstractEnderLink<T extends VirtualEntry> extends Cov
     }
 
     @Override
-    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
+    public boolean usesMui2() {
+        return true;
+    }
+
+    @Override
+    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
         if (!isPrivate()) {
-            // if we're public, we update the player uuid
-            // so when set to private, it'll use the latest player uuid
             this.playerUUID = guiData.getPlayer().getUniqueID();
         }
-        return GTGuis.createPanel(this, 176, 192)
-                .child(CoverWithUI.createTitleRow(getPickItem()))
-                .child(createWidgets(guiData, guiSyncManager))
+        var panel = GTGuis.createPanel(this, 176, 192);
+
+        return panel.child(CoverWithUI.createTitleRow(getPickItem()))
+                .child(createWidgets(guiData, panelSyncManager))
                 .bindPlayerInventory();
     }
 

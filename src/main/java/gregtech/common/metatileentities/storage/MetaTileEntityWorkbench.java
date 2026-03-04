@@ -46,7 +46,6 @@ import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.GuiTextures;
 import com.cleanroommc.modularui.drawable.ItemDrawable;
-import com.cleanroommc.modularui.factory.PosGuiData;
 import com.cleanroommc.modularui.network.NetworkUtils;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
@@ -228,7 +227,7 @@ public class MetaTileEntityWorkbench extends MetaTileEntity implements IMetaTile
 
         return GTGuis.createPanel(this, 176, 224)
                 .child(Flow.row()
-                        .debugName("tab row")
+                        .name("tab row")
                         .widthRel(1f)
                         .leftRel(0.5f)
                         .margin(3, 0)
@@ -255,10 +254,10 @@ public class MetaTileEntityWorkbench extends MetaTileEntity implements IMetaTile
                         .coverChildrenHeight()
                         // workstation page
                         .addPage(Flow.column()
-                                .debugName("crafting page")
+                                .name("crafting page")
                                 .coverChildrenWidth()
                                 .child(Flow.row()
-                                        .debugName("crafting row")
+                                        .name("crafting row")
                                         .coverChildrenHeight()
                                         .widthRel(1f)
                                         // crafting grid
@@ -363,7 +362,7 @@ public class MetaTileEntityWorkbench extends MetaTileEntity implements IMetaTile
     public IWidget createInventoryPage(PanelSyncManager syncManager) {
         if (this.connectedInventory.getSlots() == 0) {
             return Flow.column()
-                    .debugName("inventory page - empty")
+                    .name("inventory page - empty")
                     .leftRel(0.5f)
                     .padding(2)
                     .height(18 * 6)
@@ -402,7 +401,7 @@ public class MetaTileEntityWorkbench extends MetaTileEntity implements IMetaTile
         });
 
         return Flow.column()
-                .debugName("inventory page")
+                .name("inventory page")
                 .padding(2)
                 .leftRel(0.5f)
                 .coverChildren()

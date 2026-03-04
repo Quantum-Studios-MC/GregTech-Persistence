@@ -5,9 +5,6 @@ import gregtech.api.capability.IControllable;
 import gregtech.api.cover.*;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
-import gregtech.api.mui.util.ValueHelper;
-import gregtech.client.renderer.pipe.cover.CoverRenderer;
-import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -110,13 +107,18 @@ public class CoverMachineController extends CoverBase implements CoverWithUI {
     }
 
     @Override
-    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings) {
+    public boolean usesMui2() {
+        return true;
+    }
+
+    @Override
+    public ModularPanel buildUI(SidedPosGuiData guiData, PanelSyncManager panelSyncManager, UISettings settings) {
         EnumSyncValue<ControllerMode> controllerModeValue = new EnumSyncValue<>(ControllerMode.class,
                 this::getControllerMode, this::setControllerMode);
         BooleanSyncValue invertedValue = new BooleanSyncValue(this::isInverted, this::setInverted);
 
-        guiSyncManager.syncValue("controller_mode", controllerModeValue);
-        guiSyncManager.syncValue("inverted", invertedValue);
+        panelSyncManager.syncValue("controller_mode", controllerModeValue);
+        panelSyncManager.syncValue("inverted", invertedValue);
 
         return GTGuis.createPanel(this, 176, 112)
                 .child(CoverWithUI.createTitleRow(getPickItem()))
@@ -206,7 +208,7 @@ public class CoverMachineController extends CoverBase implements CoverWithUI {
         }
 
         return new ToggleButton().size(18)
-                .value(ValueHelper.boolValueOf(syncValue, mode))
+                .value(boolValueOf(syncValue, mode))
                 .overlay(new ItemDrawable(stack).asIcon().size(16))
                 .tooltip(t -> t.addLine(IKey.lang(mode.localeName))
                         .addLine(IKey.str(TextFormatting.GRAY + stack.getDisplayName())));
@@ -231,11 +233,6 @@ public class CoverMachineController extends CoverBase implements CoverWithUI {
                             IVertexOperation[] pipeline, @NotNull Cuboid6 plateBox, @NotNull BlockRenderLayer layer) {
         Textures.MACHINE_CONTROLLER_OVERLAY.renderSided(getAttachedSide(), plateBox, renderState, pipeline,
                 translation);
-    }
-
-    @Override
-    protected CoverRenderer buildRenderer() {
-        return new CoverRendererBuilder(Textures.MACHINE_CONTROLLER_OVERLAY).build();
     }
 
     @Override
