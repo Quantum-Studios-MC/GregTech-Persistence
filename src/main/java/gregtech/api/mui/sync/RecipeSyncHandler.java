@@ -11,12 +11,16 @@ public abstract class RecipeSyncHandler extends SyncHandler implements IJEIRecip
     @Override
     public void init(String key, PanelSyncManager syncManager) {
         super.init(key, syncManager);
-        GregTechGuiScreen.registerRecipeReceiver(getKey(), this);
+        if (syncManager.isClient()) {
+            GregTechGuiScreen.registerRecipeReceiver(getKey(), this);
+        }
     }
 
     @Override
     public void dispose() {
-        GregTechGuiScreen.removeRecipeReceiver(getKey());
+        if (getSyncManager().isClient()) {
+            GregTechGuiScreen.removeRecipeReceiver(getKey());
+        }
         super.dispose();
     }
 }

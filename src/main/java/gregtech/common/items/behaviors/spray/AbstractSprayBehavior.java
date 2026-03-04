@@ -137,7 +137,7 @@ public abstract class AbstractSprayBehavior implements IItemBehaviour {
             if (world.getBlockState(pos).getBlock() instanceof BlockPipe<?, ?, ?>blockPipe) {
                 RayTraceResult hitResult = blockPipe.getServerCollisionRayTrace(player, pos, world);
                 if (hitResult != null) {
-                    EnumFacing hitSide = CoverRayTracer.determineGridSideHit(hitResult);
+                    EnumFacing hitSide = CoverRayTracer.traceCoverSide(hitResult);
                     IPipeTile<?, ?> firstPipe = blockPipe.getPipeTileEntity(world, pos);
                     int color = getColorInt(sprayCan);
                     if (hitSide != null && firstPipe != null && firstPipe.isConnected(hitSide) &&

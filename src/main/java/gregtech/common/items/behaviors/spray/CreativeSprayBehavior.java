@@ -15,11 +15,14 @@ import gregtech.common.items.MetaItems;
 
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -183,6 +186,14 @@ public class CreativeSprayBehavior extends AbstractSprayBehavior implements Item
                                         .margin(4, 0)
                                         .height(8))
                         .addTooltipLine(IKey.lang("metaitem.spray.creative.tip." + helper.toString().toLowerCase())));
+    }
+
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+        if (!world.isRemote) {
+            MetaItemGuiFactory.open(player, hand);
+        }
+        return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
     }
 
     @Override
