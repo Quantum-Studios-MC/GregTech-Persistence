@@ -45,9 +45,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
@@ -55,10 +53,6 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
 
     private static final int LINE_HEIGHT = 10;
     private static final int PAGE_CYCLE_TIME_MS = 2000; // Page changes every 2 seconds
-    private static final Map<Integer, Integer> RECIPE_PAGE_INDEX = new HashMap<>(); // Maps recipe hash to current page
-    private static final Map<Integer, Long> RECIPE_LAST_UPDATE = new HashMap<>(); // Maps recipe hash to last update time
-    private static final Map<Integer, Boolean> RECIPE_PAUSED = new HashMap<>(); // Maps recipe hash to pause state
-    private static final Map<Integer, Boolean> RECIPE_CTRL_PRESSED_PREV = new HashMap<>(); // Tracks previous frame CTRL state
 
     private static int ocScrollOffset = 0;
 
@@ -70,15 +64,10 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
 
     private int infoAreaY = 0;
     private int infoAreaHeight = 0;
-    private int recipeHash; // Hash of this recipe for tracking page state
 
     public GTRecipeWrapper(RecipeMap<?> recipeMap, Recipe recipe) {
         this.recipeMap = recipeMap;
         this.recipe = recipe;
-        this.recipeHash = recipe.hashCode();
-        RECIPE_PAGE_INDEX.putIfAbsent(recipeHash, 0);
-        RECIPE_LAST_UPDATE.putIfAbsent(recipeHash, System.currentTimeMillis());
-        RECIPE_PAUSED.putIfAbsent(recipeHash, false);
 
         this.sortedInputs = new ArrayList<>(recipe.getInputs());
         this.sortedInputs.sort(GTRecipeInput.RECIPE_INPUT_COMPARATOR);
@@ -91,44 +80,7 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
     }
 
     public static int getCurrentPage(Recipe recipe, int maxPages) {
-        return RECIPE_PAGE_INDEX.getOrDefault(recipe.hashCode(), 0);
-    }
-
-    public static int updatePageState(Recipe recipe, int maxPages, int recipeHeight) {
-        int recipeHash = recipe.hashCode();
-        boolean isPaused = RECIPE_PAUSED.getOrDefault(recipeHash, false);
-        long lastUpdate = RECIPE_LAST_UPDATE.getOrDefault(recipeHash, System.currentTimeMillis());
-        long currentTime = System.currentTimeMillis();
-        int currentPage = RECIPE_PAGE_INDEX.getOrDefault(recipeHash, 0);
-
-        // Check if CTRL key is pressed to toggle pause (on transition from not-pressed to pressed)
-        boolean ctrlPressed = org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_LCONTROL) ||
-                org.lwjgl.input.Keyboard.isKeyDown(org.lwjgl.input.Keyboard.KEY_RCONTROL);
-        boolean ctrlPressedPrev = RECIPE_CTRL_PRESSED_PREV.getOrDefault(recipeHash, false);
-        RECIPE_CTRL_PRESSED_PREV.put(recipeHash, ctrlPressed);
-
-        // Toggle pause only on CTRL transition (from not-pressed to pressed)
-        if (ctrlPressed && !ctrlPressedPrev && maxPages > 1) {
-            isPaused = !isPaused;
-            RECIPE_PAUSED.put(recipeHash, isPaused);
-        }
-
-        // Auto-cycle pages if not paused
-        if (!isPaused && maxPages > 1) {
-            if (currentTime - lastUpdate >= PAGE_CYCLE_TIME_MS) {
-                currentPage = (currentPage + 1) % maxPages;
-                RECIPE_PAGE_INDEX.put(recipeHash, currentPage);
-                RECIPE_LAST_UPDATE.put(recipeHash, currentTime);
-            }
-        }
-
-        return currentPage;
-    }
-
-    public static void resetPageState() {
-        RECIPE_PAGE_INDEX.clear();
-        RECIPE_LAST_UPDATE.clear();
-        RECIPE_PAUSED.clear();
+        return 0; // Paging is handled automatically by JEI's ingredient cycling
     }
 
     @Override
@@ -323,8 +275,6 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
         int maxVisible = RecipeMapCategory.calcMaxVisibleOutputs(recipe);
         boolean isPaged = totalOutputs > maxVisible;
         int pageCount = isPaged ? (int) Math.ceil((double) totalOutputs / maxVisible) : 0;
-        int currentPage = updatePageState(recipe, pageCount, recipeHeight);
-        boolean isPaused = RECIPE_PAUSED.getOrDefault(recipeHash, false);
 
         int unhiddenCount = (int) storage.entrySet().stream()
                 .filter((property) -> !property.getKey().isHidden())
@@ -334,11 +284,9 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
         infoAreaY = yPosition;
 
         if (isPaged) {
-            String pauseIndicator = isPaused ? TextFormatting.BOLD + " [PAUSED]" : "";
             minecraft.fontRenderer.drawString(
                     TextFormatting.GRAY + I18n.format("gregtech.recipe.output_paged",
-                            totalOutputs, pageCount) + " (" + (currentPage + 1) + "/" + pageCount + ")" +
-                            pauseIndicator,
+                            totalOutputs, pageCount),
                     4, yPosition, 0x555555);
             yPosition += LINE_HEIGHT;
         }

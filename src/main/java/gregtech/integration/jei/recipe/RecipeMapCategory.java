@@ -13,7 +13,6 @@ import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.category.GTRecipeCategory;
 import gregtech.api.recipes.Recipe;
-import gregtech.integration.jei.recipe.GTRecipeWrapper;
 import gregtech.api.recipes.properties.impl.ResearchProperty;
 import gregtech.api.recipes.properties.impl.ResearchPropertyData;
 import gregtech.api.util.AssemblyLineManager;
@@ -244,15 +243,18 @@ public class RecipeMapCategory implements IRecipeCategory<GTRecipeWrapper> {
         }
         if (allOutputs.size() > maxVisible) {
             int pages = (int) Math.ceil((double) allOutputs.size() / maxVisible);
-            int currentPage = GTRecipeWrapper.getCurrentPage(recipe, pages);
             int baseSlotIndex = importItems.getSlots();
             for (int slot = 0; slot < maxVisible; slot++) {
-                int outputIndex = currentPage * maxVisible + slot;
-                if (outputIndex < allOutputs.size()) {
-                    itemStackGroup.set(baseSlotIndex + slot, allOutputs.get(outputIndex).copy());
-                } else {
-                    itemStackGroup.set(baseSlotIndex + slot, ItemStack.EMPTY);
+                List<ItemStack> pageItems = new ArrayList<>();
+                for (int page = 0; page < pages; page++) {
+                    int outputIndex = page * maxVisible + slot;
+                    if (outputIndex < allOutputs.size()) {
+                        pageItems.add(allOutputs.get(outputIndex).copy());
+                    } else {
+                        pageItems.add(ItemStack.EMPTY);
+                    }
                 }
+                itemStackGroup.set(baseSlotIndex + slot, pageItems);
             }
         }
     }
