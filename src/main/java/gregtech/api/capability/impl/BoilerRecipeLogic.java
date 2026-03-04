@@ -38,8 +38,7 @@ public class BoilerRecipeLogic extends AbstractRecipeLogic implements ICategoryO
 
     private static final int STEAM_PER_WATER = 160;
 
-    private static final int FLUID_DRAIN_MULTIPLIER = 100;
-    private static final int FLUID_BURNTIME_TO_EU = 800 / FLUID_DRAIN_MULTIPLIER;
+    private static final List<ItemStack> DUMMY_LIST = NonNullList.create();
 
     private int currentHeat;
     private int lastTickSteamOutput;
@@ -83,34 +82,34 @@ public class BoilerRecipeLogic extends AbstractRecipeLogic implements ICategoryO
             FluidStack fuelStack = fluidTank.drain(Integer.MAX_VALUE, false);
             if (fuelStack == null || CommonFluidFilters.BOILER_FLUID.test(fuelStack)) continue;
 
-            Recipe dieselRecipe = RecipeMaps.COMBUSTION_GENERATOR_FUELS.findRecipe(
-                    GTValues.V[GTValues.MAX], Collections.emptyList(), Collections.singletonList(fuelStack));
-            // run only if it can apply a certain amount of "parallel", this is to mitigate int division
-            if (dieselRecipe != null &&
-                    fuelStack.amount >= dieselRecipe.getFluidInputs().get(0).getAmount() * FLUID_DRAIN_MULTIPLIER) {
-                fluidTank.drain(dieselRecipe.getFluidInputs().get(0).getAmount() * FLUID_DRAIN_MULTIPLIER, true);
-                // divide by 2, as it is half burntime for combustion
-                setMaxProgress(adjustBurnTimeForThrottle(Math.max(1, boiler.boilerType.runtimeBoost(
-                        GTUtility.safeCastLongToInt((Math.abs(dieselRecipe.getEUt()) * dieselRecipe.getDuration()) /
-                                FLUID_BURNTIME_TO_EU / 2)))));
-                didStartRecipe = true;
-                break;
+            Recipe recipe = RecipeMaps.COMBUSTION_GENERATOR_FUELS.findRecipe(GTValues.V[GTValues.MAX], DUMMY_LIST,
+                    Collections.singletonList(fuelStack));
+            if (recipe != null) {
+                int fuelAmount = recipe.getFluidInputs().get(0).getAmount();
+                if (fuelStack.amount >= fuelAmount) {
+                    assert fuelAmount > 0;
+                    fluidTank.drain(fuelAmount, true);
+                    // divide by 2, as it is half burn time for combustion
+                    setMaxProgress(adjustBurnTimeForThrottle(Math.max(1, boiler.boilerType.runtimeBoost(
+                            Math.abs(recipe.getEUt()) * recipe.getDuration() / fuelAmount / 2))));
+                    didStartRecipe = true;
+                    break;
+                }
             }
 
-            Recipe denseFuelRecipe = RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.findRecipe(
-                    GTValues.V[GTValues.MAX], Collections.emptyList(), Collections.singletonList(fuelStack));
-            // run only if it can apply a certain amount of "parallel", this is to mitigate int division
-            if (denseFuelRecipe != null &&
-                    fuelStack.amount >= denseFuelRecipe.getFluidInputs().get(0).getAmount() * FLUID_DRAIN_MULTIPLIER) {
-                fluidTank.drain(denseFuelRecipe.getFluidInputs().get(0).getAmount() * FLUID_DRAIN_MULTIPLIER, true);
-                // multiply by 2, as it is 2x burntime for semi-fluid
-                setMaxProgress(adjustBurnTimeForThrottle(
-                        Math.max(1,
-                                boiler.boilerType
-                                        .runtimeBoost(GTUtility.safeCastLongToInt((Math.abs(denseFuelRecipe.getEUt()) *
-                                                denseFuelRecipe.getDuration() / FLUID_BURNTIME_TO_EU * 2))))));
-                didStartRecipe = true;
-                break;
+            recipe = RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.findRecipe(GTValues.V[GTValues.MAX], DUMMY_LIST,
+                    Collections.singletonList(fuelStack));
+            if (recipe != null) {
+                int fuelAmount = recipe.getFluidInputs().get(0).getAmount();
+                if (fuelStack.amount >= fuelAmount) {
+                    assert fuelAmount > 0;
+                    fluidTank.drain(fuelAmount, true);
+                    // multiply by 2, as it is 2x burn time for semi-fluid
+                    setMaxProgress(adjustBurnTimeForThrottle(Math.max(1, boiler.boilerType.runtimeBoost(
+                            Math.abs(recipe.getEUt()) * recipe.getDuration() / fuelAmount * 2))));
+                    didStartRecipe = true;
+                    break;
+                }
             }
         }
 
@@ -118,7 +117,7 @@ public class BoilerRecipeLogic extends AbstractRecipeLogic implements ICategoryO
             IItemHandlerModifiable importItems = boiler.getImportItems();
             for (int i = 0; i < importItems.getSlots(); i++) {
                 ItemStack stack = importItems.getStackInSlot(i);
-                int fuelBurnTime = (int) Math.ceil(TileEntityFurnace.getItemBurnTime(stack));
+                int fuelBurnTime = TileEntityFurnace.getItemBurnTime(stack);
                 if (fuelBurnTime / 80 > 0) { // try to ensure this fuel can burn for at least 1 tick
                     if (FluidUtil.getFluidHandler(stack) != null) continue;
                     this.excessFuel += fuelBurnTime % 80;
