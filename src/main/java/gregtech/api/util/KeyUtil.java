@@ -3,6 +3,7 @@ package gregtech.api.util;
 import gregtech.api.GTValues;
 import gregtech.api.fluids.GTFluid;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -108,6 +109,57 @@ public class KeyUtil {
         return string(formatting, () -> TextFormattingUtil.formatNumbers(supplier.getAsLong()) + suffix);
     }
 
+    public static IKey compactNumber(@NotNull TextFormatting formatting, @NotNull String prefix, long number,
+                                     int precision, @NotNull String suffix) {
+        return compactNumber(prefix, number, precision, suffix).style(formatting);
+    }
+
+    public static IKey compactNumber(@NotNull String prefix, long number, int precision, @NotNull String suffix) {
+        return string(prefix + TextFormattingUtil.formatLongToCompactString(number, precision) + suffix);
+    }
+
+    public static IKey compactNumber(@NotNull TextFormatting formatting, @NotNull String prefix, long number,
+                                     @NotNull String suffix) {
+        return compactNumber(prefix, number, suffix).style(formatting);
+    }
+
+    public static IKey compactNumber(@NotNull String prefix, long number, @NotNull String suffix) {
+        return string(prefix + TextFormattingUtil.formatLongToCompactString(number) + suffix);
+    }
+
+    public static IKey compactNumber(@NotNull TextFormatting formatting, long number, int precision,
+                                     @NotNull String suffix) {
+        return compactNumber(number, precision, suffix).style(formatting);
+    }
+
+    public static IKey compactNumber(long number, int precision, @NotNull String suffix) {
+        return string(TextFormattingUtil.formatLongToCompactString(number, precision) + suffix);
+    }
+
+    public static IKey compactNumber(@NotNull TextFormatting formatting, long number, @NotNull String suffix) {
+        return compactNumber(number, suffix).style(formatting);
+    }
+
+    public static IKey compactNumber(long number, @NotNull String suffix) {
+        return string(TextFormattingUtil.formatLongToCompactString(number) + suffix);
+    }
+
+    public static IKey compactNumber(@NotNull TextFormatting formatting, long number, int precision) {
+        return compactNumber(number, precision).style(formatting);
+    }
+
+    public static IKey compactNumber(long number, int precision) {
+        return string(TextFormattingUtil.formatLongToCompactString(number, precision));
+    }
+
+    public static IKey compactNumber(@NotNull TextFormatting formatting, long number) {
+        return compactNumber(number).style(formatting);
+    }
+
+    public static IKey compactNumber(long number) {
+        return string(TextFormattingUtil.formatLongToCompactString(number));
+    }
+
     public static IDrawable setHover(IKey body, IDrawable... hover) {
         if (ArrayUtils.isEmpty(hover)) return body;
         if (!GTValues.isClientSide()) return IDrawable.NONE;
@@ -147,19 +199,12 @@ public class KeyUtil {
         else return IKey.lang(fluid.getUnlocalizedName(stack));
     }
 
-    /**
-     * Create an {@link IKey} that dynamically shows the result of {@link GTUtility#getButtonIncrementValue()}. <br/>
-     * Example: player is holding down ctrl and {@code positive} is {@code true} = {@code +16}. <br/>
-     * 
-     * @param positive if the prefix should be {@code +} or {@code -}
-     */
     @NotNull
     public static IKey createMultiplierKey(boolean positive) {
         Object[] args = new Object[] { positive ? '+' : '-', 0 };
         StyledText key = IKey.str("%c%d", args)
                 .withStyle();
 
-        // Using the color supplier here as a callback to update the multiplier and scale before it gets rendered.
         key.color(() -> {
             int multiplier = GTUtility.getButtonIncrementValue();
             args[1] = multiplier;
@@ -178,5 +223,9 @@ public class KeyUtil {
         });
 
         return key;
+    }
+
+    public static @NotNull IKey item(@NotNull ItemStack itemStack) {
+        return IKey.str(itemStack.getDisplayName());
     }
 }

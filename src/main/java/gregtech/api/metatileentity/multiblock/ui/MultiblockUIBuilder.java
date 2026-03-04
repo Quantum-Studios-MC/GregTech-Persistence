@@ -10,6 +10,7 @@ import gregtech.api.mui.GTByteBufAdapters;
 import gregtech.api.mui.drawable.GTObjectDrawable;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
+import gregtech.api.recipes.chance.boost.BoostableChanceEntry;
 import gregtech.api.recipes.chance.output.impl.ChancedFluidOutput;
 import gregtech.api.recipes.chance.output.impl.ChancedItemOutput;
 import gregtech.api.util.GTHashMaps;
@@ -40,6 +41,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,6 +55,7 @@ import java.util.function.Function;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 
 @SuppressWarnings({ "UnusedReturnValue", "unused" })
 public class MultiblockUIBuilder {
@@ -351,14 +354,15 @@ public class MultiblockUIBuilder {
         progress = getSyncer().syncInt(progress);
         maxProgress = getSyncer().syncInt(maxProgress);
 
+        float percentage = (float) progress / maxProgress * 100f;
         if (maxProgress <= 20) {
+            String format = maxProgress < 10 ? "%01d" : "%02d";
             addKey(KeyUtil.lang(TextFormatting.GRAY, "gregtech.multiblock.recipe_progress.ticks",
                     // %02d is not supported by lang
-                    String.format("%02d", progress), String.format("%02d", maxProgress),
-                    (float) progress / maxProgress * 100f));
+                    String.format(format, progress), String.format(format, maxProgress), percentage));
         } else {
             addKey(KeyUtil.lang(TextFormatting.GRAY, "gregtech.multiblock.recipe_progress.seconds",
-                    progress / 20f, maxProgress / 20f, (float) progress / maxProgress * 100f));
+                    progress / 20f, maxProgress / 20f, percentage));
         }
 
         return this;
@@ -550,8 +554,8 @@ public class MultiblockUIBuilder {
             trimmed = Recipe.trimRecipeOutputs(recipe, map, mte.getItemOutputLimit(), mte.getFluidOutputLimit());
         }
 
-        int p = getSyncer().syncInt(arl.getParallelRecipesPerformed());
-        if (p == 0) p = 1;
+        int parallels = getSyncer().syncInt(arl.getParallelRecipesPerformed());
+        if (parallels == 0) parallels = 1;
 
         long eut = getSyncer().syncLong(trimmed == null ? 0 : trimmed.getEUt());
         long maxVoltage = getSyncer().syncLong(arl.getMaximumOverclockVoltage());
@@ -566,6 +570,7 @@ public class MultiblockUIBuilder {
 
         if (isServer()) {
             // recipe searching has to be done server only
+            // noinspection DataFlowIssue
             itemOutputs.addAll(trimmed.getOutputs());
             chancedItemOutputs.addAll(trimmed.getChancedOutputs().getChancedEntries());
             fluidOutputs.addAll(trimmed.getFluidOutputs());
@@ -583,127 +588,106 @@ public class MultiblockUIBuilder {
         int machineTier = GTUtility.getOCTierByVoltage(maxVoltage);
 
         // items
-
         Object2IntMap<ItemStack> itemMap = GTHashMaps.fromItemStackCollection(itemOutputs);
 
-        for (var stack : itemMap.keySet()) {
-            addItemOutputLine(stack, (long) itemMap.getInt(stack) * p, maxProgress);
+        for (ItemStack itemStack : itemMap.keySet()) {
+            long amount = (long) itemMap.getInt(itemStack) * parallels;
+            addRecipeOutput(itemStack, KeyUtil::item, amount, maxProgress);
         }
 
-        for (var chancedItemOutput : chancedItemOutputs) {
+        for (ChancedItemOutput chancedItemOutput : chancedItemOutputs) {
             // noinspection DataFlowIssue
-            int chance = getSyncer()
+            int boostedChance = getSyncer()
                     .syncInt(() -> map.chanceFunction.getBoostedChance(chancedItemOutput, recipeTier, machineTier));
-            int count = chancedItemOutput.getIngredient().getCount() * p;
-            addChancedItemOutputLine(chancedItemOutput, count, chance, maxProgress);
+            ItemStack itemStack = chancedItemOutput.getIngredient();
+            long amount = (long) itemStack.getCount() * parallels;
+            addRecipeOutput(chancedItemOutput, KeyUtil::item, amount, maxProgress, $ -> boostedChance);
         }
 
         // fluids
-
         Object2IntMap<FluidStack> fluidMap = GTHashMaps.fromFluidCollection(fluidOutputs);
 
-        for (var stack : fluidMap.keySet()) {
-            addFluidOutputLine(stack, fluidMap.getInt(stack), maxProgress);
+        for (FluidStack fluidStack : fluidMap.keySet()) {
+            long amount = (long) fluidMap.getInt(fluidStack) * parallels;
+            addRecipeOutput(fluidStack, KeyUtil::fluid, amount, maxProgress);
         }
 
-        for (var chancedFluidOutput : chancedFluidOutputs) {
+        for (ChancedFluidOutput chancedFluidOutput : chancedFluidOutputs) {
             // noinspection DataFlowIssue
-            int chance = getSyncer()
+            int boostedChance = getSyncer()
                     .syncInt(() -> map.chanceFunction.getBoostedChance(chancedFluidOutput, recipeTier, machineTier));
-            int count = chancedFluidOutput.getIngredient().amount * p;
-            addChancedFluidOutputLine(chancedFluidOutput, count, chance, maxProgress);
+            FluidStack fluidStack = chancedFluidOutput.getIngredient();
+            long amount = (long) fluidStack.amount * parallels;
+            addRecipeOutput(chancedFluidOutput, KeyUtil::fluid, amount, maxProgress, $ -> boostedChance);
         }
+
         return this;
     }
 
     /**
-     * Add an item output of a recipe to the display.
-     *
-     * @param stack        the {@link ItemStack} to display.
-     * @param recipeLength the recipe length, in ticks.
+     * Add an output of a recipe to the display.
+     * 
+     * @param recipeOutput    the object to add. Should be an {@link ItemStack} or {@link FluidStack}.
+     * @param nameFunction    a function to get the name of the object.
+     * @param amountPerRecipe how many of this object are being made per recipe.
+     * @param recipeLength    the length of the recipe in ticks.
+     * @param <T>             the type of the object being drawn and described.
      */
-    private void addItemOutputLine(@NotNull ItemStack stack, long count, int recipeLength) {
-        IKey name = KeyUtil.string(TextFormatting.AQUA, stack.getDisplayName());
-        IKey amount = KeyUtil.number(TextFormatting.GOLD, count);
-        IKey rate = KeyUtil.string(TextFormatting.WHITE,
-                formatRecipeRate(getSyncer().syncInt(recipeLength), count));
-
-        addKey(new GTObjectDrawable(stack, count)
-                .asIcon()
-                .asHoverable()
-                .addTooltipLine(formatRecipeData(name, amount, rate)), Operation::add);
+    protected <T> void addRecipeOutput(@NotNull T recipeOutput,
+                                       @NotNull Function<@NotNull T, @NotNull IKey> nameFunction, long amountPerRecipe,
+                                       int recipeLength) {
+        addRecipeOutput(new GTObjectDrawable<>(recipeOutput, amountPerRecipe), nameFunction, amountPerRecipe,
+                recipeLength);
     }
 
     /**
-     * Add the fluid outputs of a recipe to the display.
+     * Add a chanced output of a recipe to the display.
      *
-     * @param stack        a {@link FluidStack}s to display.
-     * @param recipeLength the recipe length, in ticks.
+     * @param recipeOutput    the object to add. Should be a {@link ChancedItemOutput} or {@link ChancedFluidOutput}.
+     * @param nameFunction    a function to get the name of the object.
+     * @param amountPerRecipe how many of this object are being made per recipe.
+     * @param recipeLength    the length of the recipe in ticks.
+     * @param chanceFunction  a function to get the chance that this object will succeed when the recipe finishes.
+     * @param <T>             the type of the object being drawn and described.
+     * @param <B>             the type of the {@link BoostableChanceEntry} holding type {@link T}.
      */
-    private void addFluidOutputLine(@NotNull FluidStack stack, long count, int recipeLength) {
-        IKey name = KeyUtil.fluid(TextFormatting.AQUA, stack);
-        IKey amount = KeyUtil.number(TextFormatting.GOLD, count);
-        IKey rate = KeyUtil.string(TextFormatting.WHITE,
-                formatRecipeRate(getSyncer().syncInt(recipeLength), count));
-
-        addKey(new GTObjectDrawable(stack, count)
-                .asIcon()
-                .asHoverable()
-                .addTooltipLine(formatRecipeData(name, amount, rate)), Operation::add);
+    protected <T,
+            B extends BoostableChanceEntry<T>> void addRecipeOutput(@NotNull B recipeOutput,
+                                                                    @NotNull Function<@NotNull T, @NotNull IKey> nameFunction,
+                                                                    long amountPerRecipe, int recipeLength,
+                                                                    @NotNull ToIntFunction<B> chanceFunction) {
+        GTObjectDrawable<B> objectDrawable = new GTObjectDrawable<>(recipeOutput, amountPerRecipe)
+                .setBoostFunction(chanceFunction);
+        Function<B, IKey> nestedNameFunction = boostableEntry -> IKey.comp(
+                nameFunction.apply(boostableEntry.getIngredient()),
+                KeyUtil.lang(TextFormatting.GRAY, "gregtech.multiblock.rate.estimate"));
+        addRecipeOutput(objectDrawable, nestedNameFunction,
+                amountPerRecipe / (chanceFunction.applyAsInt(recipeOutput) / 100.0d), recipeLength);
     }
 
     /**
-     * Add a chanced item output of a recipe to the display.
+     * Add an output of a recipe to the display.
      *
-     * @param recipeLength max duration of the recipe
+     * @param objectDrawable  the {@link GTObjectDrawable} to add. Should encapsulate a {@link ItemStack},
+     *                        {@link FluidStack}, {@link ChancedItemOutput}, or {@link ChancedFluidOutput}
+     * @param nameFunction    a function to get the name of the object.
+     * @param amountPerRecipe how many of this object are being made per recipe.
+     * @param recipeLength    the length of the recipe in ticks.
+     * @param <T>             the type of the object being drawn and described.
      */
-    private void addChancedItemOutputLine(@NotNull ChancedItemOutput output,
-                                          int count, int chance, int recipeLength) {
-        IKey name = KeyUtil.string(TextFormatting.AQUA, output.getIngredient().getDisplayName());
-        IKey amount = KeyUtil.number(TextFormatting.GOLD, count);
-        IKey rate = KeyUtil.string(TextFormatting.WHITE, formatRecipeRate(getSyncer().syncInt(recipeLength), count));
-
-        addKey(new GTObjectDrawable(output, count)
-                .setBoostFunction(entry -> chance)
-                .asIcon()
+    protected <T> void addRecipeOutput(@NotNull GTObjectDrawable<@NotNull T> objectDrawable,
+                                       @NotNull Function<@NotNull T, @NotNull IKey> nameFunction,
+                                       double amountPerRecipe, int recipeLength) {
+        addKey(objectDrawable.asIcon()
                 .asHoverable()
-                .addTooltipLine(formatRecipeData(name, amount, rate)), Operation::add);
-    }
-
-    /**
-     * Add a chanced fluid output of a recipe to the display.
-     *
-     * @param recipeLength max duration of the recipe
-     */
-    private void addChancedFluidOutputLine(ChancedFluidOutput output,
-                                           int count, int chance, int recipeLength) {
-        IKey name = KeyUtil.fluid(TextFormatting.AQUA, output.getIngredient());
-        IKey amount = KeyUtil.number(TextFormatting.GOLD, count);
-        IKey rate = KeyUtil.string(TextFormatting.WHITE,
-                formatRecipeRate(getSyncer().syncInt(recipeLength), count));
-
-        addKey(new GTObjectDrawable(output, count)
-                .setBoostFunction(entry -> chance)
-                .asIcon()
-                .asHoverable()
-                .addTooltipLine(formatRecipeData(name, amount, rate)), Operation::add);
-    }
-
-    private static String formatRecipeRate(int recipeLength, long amount) {
-        float perSecond = ((float) amount / recipeLength) * 20f;
-
-        String rate;
-        if (perSecond > 1) {
-            rate = "(" + String.format("%,.2f", perSecond).replaceAll("\\.?0+$", "") + "/s)";
-        } else {
-            rate = "(" + String.format("%,.2f", 1 / (perSecond)).replaceAll("\\.?0+$", "") + "s/ea)";
-        }
-
-        return rate;
-    }
-
-    private static IKey formatRecipeData(IKey name, IKey amount, IKey rate) {
-        return IKey.comp(name, KeyUtil.string(TextFormatting.WHITE, " x "), amount, IKey.SPACE, rate);
+                .tooltipBuilder(tooltip -> {
+                    T objectToDraw = objectDrawable.getObject();
+                    IKey nameKey = nameFunction.apply(objectToDraw)
+                            .style(TextFormatting.AQUA);
+                    tooltip.addLine(nameKey);
+                    RecipeRateFormat.addRateLines(amountPerRecipe, recipeLength, objectToDraw instanceof FluidStack,
+                            tooltip::addLine);
+                }), Operation::add);
     }
 
     /** Insert an empty line into the text list. */
@@ -971,5 +955,74 @@ public class MultiblockUIBuilder {
 
         @Override
         public void readOnServer(int id, PacketBuffer buf) {}
+    }
+
+    protected enum RecipeRateFormat {
+
+        TICK("gregtech.multiblock.rate.per_tick", "gregtech.multiblock.rate.ticks_per", 1.0d, 20 * 30),
+        SECOND("gregtech.multiblock.rate.per_second", "gregtech.multiblock.rate.seconds_per", 20.0d, 120),
+        MINUTE("gregtech.multiblock.rate.per_minute", "gregtech.multiblock.rate.minutes_per", 20.0d * 60.0d, 240),
+        HOUR("gregtech.multiblock.rate.per_hour", "gregtech.multiblock.rate.hours_per", 20.0d * 60.0d * 60.0d,
+                Integer.MAX_VALUE);
+
+        public static final RecipeRateFormat[] VALUES = values();
+        // comma separated every three digits and only one decimal place max.
+        private static final DecimalFormat FORMATTING = new DecimalFormat("#,###.#");
+
+        @NotNull
+        private final String fastKey;
+        @NotNull
+        private final String slowKey;
+        @NotNull
+        private final String slowKeyLiters;
+        private final double dividend;
+        private final int maxSlowRate;
+
+        RecipeRateFormat(@NotNull String fastKey, @NotNull String slowKey, double dividend, int maxSlowRate) {
+            this.fastKey = fastKey;
+            this.slowKey = slowKey;
+            this.slowKeyLiters = slowKey + "_l";
+            this.dividend = dividend;
+            this.maxSlowRate = maxSlowRate;
+        }
+
+        public static void addRateLines(double amountPerRecipe, int recipeLength, boolean isFluid,
+                                        @NotNull Consumer<@NotNull IKey> addLine) {
+            for (RecipeRateFormat rate : VALUES) {
+                rate.addRateLine(amountPerRecipe, recipeLength, isFluid, addLine);
+            }
+        }
+
+        public void addRateLine(double amountPerRecipe, int recipeLength, boolean isFluid,
+                                @NotNull Consumer<@NotNull IKey> addLine) {
+            double amount = amountPerRecipe * (dividend / recipeLength);
+            if (amount > 1) {
+                addLine.accept(formatFast(amount, isFluid));
+            } else {
+                double slowRate = 1 / amount;
+                if (slowRate > maxSlowRate || (this == SECOND && amountPerRecipe == 1)) return;
+                addLine.accept(IKey.lang(isFluid ? slowKeyLiters : slowKey, FORMATTING.format(slowRate)));
+            }
+        }
+
+        private @NotNull IKey formatFast(double amount, boolean isFluid) {
+            IKey largeSuffix = null;
+            if (amount >= (isFluid ? 1_000_000.0d : 250_000.0d)) {
+                largeSuffix = isFluid ? KeyUtil.compactNumber(TextFormatting.GRAY, "[", (long) amount, 4, "L]") :
+                        KeyUtil.compactNumber(TextFormatting.GRAY, "[", (long) amount, 4, "]");
+            }
+
+            String rateFormatted;
+            if (isFluid && amount > 1_000d) {
+                rateFormatted = FORMATTING.format(amount / 1_000d) + "kL";
+            } else if (isFluid) {
+                rateFormatted = FORMATTING.format(amount) + "L";
+            } else {
+                rateFormatted = FORMATTING.format(amount);
+            }
+
+            IKey rateKey = IKey.lang(fastKey, rateFormatted);
+            return largeSuffix == null ? rateKey : IKey.comp(rateKey, IKey.SPACE, largeSuffix);
+        }
     }
 }
