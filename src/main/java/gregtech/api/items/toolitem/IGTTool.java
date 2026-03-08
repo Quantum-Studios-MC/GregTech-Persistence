@@ -527,8 +527,7 @@ public interface IGTTool extends ItemUIFactory, IAEWrench, IToolWrench, IToolHam
     // called by HarvestDropsEvent
     default void onHarvestDrops(ItemStack stack, EntityPlayer player, List<ItemStack> drops,
                                 BlockEvent.HarvestDropsEvent event) {
-        getToolStats().getBehaviors().forEach(behavior ->
-                behavior.convertBlockDrops(stack, player, drops, event));
+        getToolStats().getBehaviors().forEach(behavior -> behavior.convertBlockDrops(stack, player, drops, event));
     }
 
     default boolean definition$getIsRepairable(ItemStack toRepair, ItemStack repair) {
@@ -1061,9 +1060,9 @@ public interface IGTTool extends ItemUIFactory, IAEWrench, IToolWrench, IToolHam
     /***
      * Called to ensure that the wrench can be used.
      *
-     * @param player   - The player doing the wrenching
-     * @param hand     - Which hand was holding the wrench
-     * @param wrench   - The item stack that holds the wrench
+     * @param player  - The player doing the wrenching
+     * @param hand    - Which hand was holding the wrench
+     * @param wrench  - The item stack that holds the wrench
      * @param rayTrace - The object that is being wrenched
      *
      * @return true if wrenching is allowed, false if not
@@ -1076,9 +1075,9 @@ public interface IGTTool extends ItemUIFactory, IAEWrench, IToolWrench, IToolHam
     /***
      * Callback after the wrench has been used. This can be used to decrease durability or for other purposes.
      *
-     * @param player   - The player doing the wrenching
-     * @param hand     - Which hand was holding the wrench
-     * @param wrench   - The item stack that holds the wrench
+     * @param player  - The player doing the wrenching
+     * @param hand    - Which hand was holding the wrench
+     * @param wrench  - The item stack that holds the wrench
      * @param rayTrace - The object that is being wrenched
      */
     @Override

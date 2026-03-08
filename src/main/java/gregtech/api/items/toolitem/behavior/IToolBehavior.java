@@ -43,7 +43,7 @@ public interface IToolBehavior {
      * @return true if the interaction was handled, false otherwise
      */
     default boolean onEntityInteract(@NotNull ItemStack stack, @NotNull EntityPlayer player,
-                                  @NotNull EntityLivingBase entity, @NotNull EnumHand hand) {
+                                     @NotNull EntityLivingBase entity, @NotNull EnumHand hand) {
         return false;
     }
 

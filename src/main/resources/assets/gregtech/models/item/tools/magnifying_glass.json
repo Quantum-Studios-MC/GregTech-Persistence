@@ -1,0 +1,7 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "gregtech:items/tools/magnifying_glass_overlay",
+    "layer1": "gregtech:items/tools/magnifying_glass"
+  }
+}

@@ -25,4 +25,20 @@ public enum ToolOreDict {
     toolBuzzsaw,
     toolPlunger,
     toolScissors,
+
+    // GT6 ported tools
+    toolDoubleAxe,
+    toolChisel,
+    toolClub,
+    toolConstructionPickaxe,
+    toolPlow,
+    toolUniversalSpade,
+    toolBendingCylinder,
+    toolBendingCylinderSmall,
+    toolRollingPin,
+    toolMagnifyingGlass,
+    toolMonkeyWrench,
+    toolPincers,
+    toolFlintAndTinder,
+    toolJackhammer,
 }

@@ -2,7 +2,6 @@ package gregtech.common.items.tool;
 
 import gregtech.api.items.toolitem.IGTTool;
 import gregtech.api.items.toolitem.behavior.IToolBehavior;
-
 import gregtech.api.util.TaskScheduler;
 
 import net.minecraft.block.Block;

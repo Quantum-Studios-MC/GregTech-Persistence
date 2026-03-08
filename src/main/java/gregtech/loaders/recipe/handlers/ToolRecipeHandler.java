@@ -96,6 +96,12 @@ public class ToolRecipeHandler {
         ToolHeadReplaceRecipe.setToolHeadForTool(OrePrefix.toolHeadBuzzSaw, ToolItems.BUZZSAW);
         ToolHeadReplaceRecipe.setToolHeadForTool(OrePrefix.toolHeadScrewdriver, ToolItems.SCREWDRIVER_LV);
 
+        // GT6 electric tools reuse existing tool heads
+        ToolHeadReplaceRecipe.setToolHeadForTool(OrePrefix.toolHeadWrench, ToolItems.MONKEY_WRENCH_LV);
+        ToolHeadReplaceRecipe.setToolHeadForTool(OrePrefix.toolHeadWrench, ToolItems.MONKEY_WRENCH_HV);
+        ToolHeadReplaceRecipe.setToolHeadForTool(OrePrefix.toolHeadWrench, ToolItems.MONKEY_WRENCH_IV);
+        ToolHeadReplaceRecipe.setToolHeadForTool(OrePrefix.toolHeadDrill, ToolItems.JACKHAMMER);
+
         ForgeRegistries.RECIPES
                 .register(new ToolHeadReplaceRecipe().setRegistryName(new ResourceLocation(MODID, "replacetoolhead")));
     }
@@ -197,6 +203,64 @@ public class ToolRecipeHandler {
             addToolRecipe(material, ToolItems.WRENCH, false,
                     "PhP", " P ", " P ",
                     'P', plate);
+
+            // GT6 ported tool recipes
+            addToolRecipe(material, ToolItems.DOUBLE_AXE, false,
+                    "PIP", "PSP", "f h",
+                    'P', plate,
+                    'I', ingot,
+                    'S', stick);
+
+            addToolRecipe(material, ToolItems.CHISEL, false,
+                    "hPf", " S ",
+                    'P', plate,
+                    'S', stick);
+
+            addToolRecipe(material, ToolItems.CLUB, true,
+                    " II", "III", "SI ",
+                    'I', ingot,
+                    'S', stick);
+
+            addToolRecipe(material, ToolItems.CONSTRUCTION_PICKAXE, false,
+                    "PIP", "f h", " S ",
+                    'P', plate,
+                    'I', ingot,
+                    'S', stick);
+
+            addToolRecipe(material, ToolItems.PLOW, false,
+                    "PPP", "PPP", "fSh",
+                    'P', plate,
+                    'S', stick);
+
+            addToolRecipe(material, ToolItems.BENDING_CYLINDER, false,
+                    "sfh", "III", "III",
+                    'I', ingot);
+
+            addToolRecipe(material, ToolItems.BENDING_CYLINDER_SMALL, false,
+                    "sfh", "III",
+                    'I', ingot);
+
+            if (material.hasFlag(GENERATE_BOLT_SCREW)) {
+                addToolRecipe(material, ToolItems.UNIVERSAL_SPADE, false,
+                        "IPf", "IhI", "TSd",
+                        'I', ingot,
+                        'P', plate,
+                        'T', new UnificationEntry(OrePrefix.screw, material),
+                        'S', stick);
+
+                addToolRecipe(material, ToolItems.MONKEY_WRENCH, false,
+                        "PPd", "hPT", " P ",
+                        'P', plate,
+                        'T', new UnificationEntry(OrePrefix.screw, material));
+            }
+
+            if (material.hasFlag(GENERATE_CURVED_PLATE) && material.hasFlag(GENERATE_BOLT_SCREW)) {
+                addToolRecipe(material, ToolItems.PINCERS, false,
+                        "XhX", " T ", "SdS",
+                        'X', new UnificationEntry(OrePrefix.plateCurved, material),
+                        'T', new UnificationEntry(OrePrefix.screw, material),
+                        'S', stick);
+            }
         }
 
         if (material.hasFlag(GENERATE_ROD)) {
@@ -301,6 +365,16 @@ public class ToolRecipeHandler {
             // wirecutter
             addElectricWirecutterRecipe(material,
                     new IGTTool[] { ToolItems.WIRECUTTER_LV, ToolItems.WIRECUTTER_HV, ToolItems.WIRECUTTER_IV });
+
+            // monkey wrench (reuses wrench head)
+            toolPrefix = OrePrefix.toolHeadWrench;
+            addElectricToolRecipe(toolPrefix, material,
+                    new IGTTool[] { ToolItems.MONKEY_WRENCH_LV, ToolItems.MONKEY_WRENCH_HV,
+                            ToolItems.MONKEY_WRENCH_IV });
+
+            // jackhammer (reuses drill head)
+            toolPrefix = OrePrefix.toolHeadDrill;
+            addElectricToolRecipe(toolPrefix, material, new IGTTool[] { ToolItems.JACKHAMMER });
         }
 
         // screwdriver
@@ -361,6 +435,7 @@ public class ToolRecipeHandler {
         registerMortarRecipes();
         registerSoftToolRecipes();
         registerElectricRecipes();
+        registerGT6ToolRecipes();
     }
 
     private static void registerFlintToolRecipes() {
@@ -509,6 +584,39 @@ public class ToolRecipeHandler {
                     'D', MetaItems.COVER_SCREEN.getStackForm(),
                     'C', new UnificationEntry(OrePrefix.circuit, MarkerMaterials.Tier.LuV),
                     'B', batteryItem.getStackForm());
+        }
+    }
+
+    private static void registerGT6ToolRecipes() {
+        final UnificationEntry flint = new UnificationEntry(OrePrefix.gem, Materials.Flint);
+        final UnificationEntry stick = new UnificationEntry(OrePrefix.stick, Materials.Wood);
+
+        // Flint and Tinder: nugget + flint, mirrored (GT6: "T ", " F")
+        for (Material material : new Material[] {
+                Materials.Iron, Materials.WroughtIron, Materials.Steel }) {
+
+            addToolRecipe(material, ToolItems.FLINT_AND_TINDER, true,
+                    "T ", " F",
+                    'T', new UnificationEntry(OrePrefix.nugget, material),
+                    'F', flint);
+        }
+
+        // Magnifying Glass: shapeless lens + stick (GT6: AdvancedCraftingTool with lens)
+        ModHandler.addShapelessRecipe("magnifying_glass",
+                ToolItems.MAGNIFYING_GLASS.get(Materials.Flint),
+                new UnificationEntry(OrePrefix.lens, Materials.Glass),
+                stick);
+
+        // Rolling Pin: specific materials only, mirrored (GT6: "  S", " I ", "S f")
+        for (Material material : new Material[] {
+                Materials.Gold, Materials.Aluminium, Materials.Chrome, Materials.StainlessSteel }) {
+            if (!material.hasProperty(PropertyKey.TOOL)) continue;
+
+            addToolRecipe(material, ToolItems.ROLLING_PIN, true,
+                    "  S", " I ", "S f",
+                    'I', new UnificationEntry(
+                            material.hasProperty(GEM) ? OrePrefix.gem : OrePrefix.ingot, material),
+                    'S', stick);
         }
     }
 }

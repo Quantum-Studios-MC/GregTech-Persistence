@@ -28,5 +28,15 @@ public class ToolClasses {
     public static final String PLUNGER = "plunger";
     public static final String SCISSORS = "scissors";
 
+    // GT6 ported tool classes
+    public static final String CHISEL = "chisel";
+    public static final String CLUB = "club";
+    public static final String PLOW = "plow";
+    public static final String MONKEY_WRENCH = "monkey_wrench";
+    public static final String PINCERS = "pincers";
+    public static final String BENDING_CYLINDER = "bending_cylinder";
+    public static final String ROLLING_PIN = "rolling_pin";
+    public static final String MAGNIFYING_GLASS = "magnifying_glass";
+
     public static final Set<String> DRILL = ImmutableSet.of(PICKAXE, SHOVEL);
 }

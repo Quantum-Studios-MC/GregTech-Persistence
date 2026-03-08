@@ -10,7 +10,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
-
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.IShearable;
 
@@ -34,7 +33,7 @@ public class EntityShearBehavior implements IToolBehavior {
         if (entity instanceof IShearable shearable) {
             BlockPos pos = new BlockPos(entity.posX, entity.posY, entity.posZ);
             if (shearable.isShearable(stack, entity.world, pos)) {
-                //noinspection ConstantConditions
+                // noinspection ConstantConditions
                 List<ItemStack> drops = shearable.onSheared(stack, entity.world, pos,
                         EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, stack));
 
@@ -50,7 +49,7 @@ public class EntityShearBehavior implements IToolBehavior {
                     } else {
                         EntityItem itemEntity = entity.entityDropItem(drop, 1.0F);
                         // cannot be null if stack is not empty
-                        //noinspection ConstantConditions
+                        // noinspection ConstantConditions
                         itemEntity.motionY += r.nextFloat() * 0.05F;
                         itemEntity.motionX += (r.nextFloat() - r.nextFloat()) * 0.1F;
                         itemEntity.motionZ += (r.nextFloat() - r.nextFloat()) * 0.1F;

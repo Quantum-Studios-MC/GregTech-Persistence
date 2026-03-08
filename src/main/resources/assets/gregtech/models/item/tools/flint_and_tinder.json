@@ -1,0 +1,7 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "gregtech:items/tools/flint_and_tinder_overlay",
+    "layer1": "gregtech:items/tools/flint_and_tinder"
+  }
+}

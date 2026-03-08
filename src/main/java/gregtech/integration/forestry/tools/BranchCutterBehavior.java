@@ -4,8 +4,6 @@ import gregtech.api.GTValues;
 import gregtech.api.items.toolitem.IGTTool;
 import gregtech.api.items.toolitem.behavior.IToolBehavior;
 
-import gregtech.common.blocks.wood.BlockRubberLeaves;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockNewLeaf;
@@ -62,7 +60,7 @@ public class BranchCutterBehavior implements IToolBehavior {
             drops.add(new ItemStack(Blocks.SAPLING, 1, block.getMetaFromState(state)));
             return;
         }
-        
+
         if (block == Blocks.VINE) {
             drops.clear();
             drops.add(new ItemStack(Blocks.VINE, 1, 0));
