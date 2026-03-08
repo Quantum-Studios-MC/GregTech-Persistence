@@ -38,7 +38,15 @@ public class PartsRecipeHandler {
         OrePrefix.stickLong.addProcessingHandler(PropertyKey.DUST, PartsRecipeHandler::processLongStick);
         OrePrefix.plate.addProcessingHandler(PropertyKey.DUST, PartsRecipeHandler::processPlate);
         OrePrefix.plateDouble.addProcessingHandler(PropertyKey.INGOT, PartsRecipeHandler::processPlateDouble);
+        OrePrefix.plateTriple.addProcessingHandler(PropertyKey.INGOT,
+                (p, m, prop) -> processPlateMultiple(p, m, 3));
+        OrePrefix.plateQuadruple.addProcessingHandler(PropertyKey.INGOT,
+                (p, m, prop) -> processPlateMultiple(p, m, 4));
+        OrePrefix.plateQuintuple.addProcessingHandler(PropertyKey.INGOT,
+                (p, m, prop) -> processPlateMultiple(p, m, 5));
+        OrePrefix.plateCurved.addProcessingHandler(PropertyKey.INGOT, PartsRecipeHandler::processPlateCurved);
         OrePrefix.plateDense.addProcessingHandler(PropertyKey.DUST, PartsRecipeHandler::processPlateDense);
+        OrePrefix.casingSmall.addProcessingHandler(PropertyKey.INGOT, PartsRecipeHandler::processCasingSmall);
 
         OrePrefix.turbineBlade.addProcessingHandler(PropertyKey.INGOT, PartsRecipeHandler::processTurbine);
         OrePrefix.rotor.addProcessingHandler(PropertyKey.INGOT, PartsRecipeHandler::processRotor);
@@ -51,9 +59,13 @@ public class PartsRecipeHandler {
         OrePrefix.gear.addProcessingHandler(PropertyKey.DUST, PartsRecipeHandler::processGear);
         OrePrefix.gearSmall.addProcessingHandler(PropertyKey.DUST, PartsRecipeHandler::processGear);
         OrePrefix.ring.addProcessingHandler(PropertyKey.INGOT, PartsRecipeHandler::processRing);
+        OrePrefix.chain.addProcessingHandler(PropertyKey.INGOT, PartsRecipeHandler::processChain);
         OrePrefix.springSmall.addProcessingHandler(PropertyKey.INGOT, PartsRecipeHandler::processSpringSmall);
         OrePrefix.spring.addProcessingHandler(PropertyKey.INGOT, PartsRecipeHandler::processSpring);
         OrePrefix.round.addProcessingHandler(PropertyKey.INGOT, PartsRecipeHandler::processRound);
+
+        // GT6 plate handlers
+        OrePrefix.plateTiny.addProcessingHandler(PropertyKey.DUST, PartsRecipeHandler::processPlateTiny);
     }
 
     public static void processBolt(OrePrefix boltPrefix, Material material, DustProperty property) {
@@ -343,14 +355,80 @@ public class PartsRecipeHandler {
                     .duration((int) material.getMass() * 2)
                     .EUt(GTUtility.scaleVoltage(96, workingTier))
                     .buildAndRegister();
+        }
+    }
 
-            BENDER_RECIPES.recipeBuilder()
-                    .input(ingot, material, 2)
-                    .circuitMeta(2)
-                    .output(doublePrefix, material)
-                    .duration((int) material.getMass() * 2)
-                    .EUt(GTUtility.scaleVoltage(96, workingTier))
-                    .buildAndRegister();
+    public static void processPlateMultiple(OrePrefix multiplePrefix, Material material, int amount) {
+        int workingTier = material.getWorkingTier();
+
+        if (!material.hasFlag(GENERATE_PLATE)) {
+            return;
+        }
+
+        if (!material.hasFlag(NO_SMASHING) && workingTier <= HV) {
+            ModHandler.addShapedRecipe(String.format("%s_%s", multiplePrefix.name(), material),
+                    OreDictUnifier.get(multiplePrefix, material),
+                    "h", "P", "P", 'P', new UnificationEntry(plate, material));
+        }
+
+        BENDER_RECIPES.recipeBuilder()
+                .input(plate, material, amount)
+                .output(multiplePrefix, material)
+                .circuitMeta(amount)
+                .duration((int) Math.max(material.getMass() * (long) amount, 1L))
+                .EUt(GTUtility.scaleVoltage(96, workingTier))
+                .buildAndRegister();
+
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(multiplePrefix, material)
+                .circuitMeta(1)
+                .output(plate, material, amount)
+                .buildAndRegister();
+    }
+
+    public static void processPlateCurved(OrePrefix curvedPrefix, Material material, IngotProperty property) {
+        int workingTier = material.getWorkingTier();
+
+        // Bender: plate → curved plate
+        BENDER_RECIPES.recipeBuilder()
+                .input(plate, material)
+                .output(curvedPrefix, material)
+                .circuitMeta(3)
+                .duration((int) Math.max(material.getMass(), 1L))
+                .EUt(GTUtility.scaleVoltage(24, workingTier))
+                .buildAndRegister();
+
+        // Forge Hammer: curved plate → plate (reversing)
+        RecipeMaps.FORGE_HAMMER_RECIPES.recipeBuilder()
+                .input(curvedPrefix, material)
+                .output(plate, material)
+                .duration((int) Math.max(material.getMass(), 1L))
+                .EUt(GTUtility.scaleVoltage(24, workingTier))
+                .buildAndRegister();
+
+        // Hand-crafting for low-tier materials: hammer + plate → curved plate
+        if (workingTier <= HV && !material.hasFlag(NO_SMASHING)) {
+            ModHandler.addShapedRecipe(String.format("curved_plate_%s", material),
+                    OreDictUnifier.get(curvedPrefix, material),
+                    "h", "P", "d", 'P', new UnificationEntry(plate, material));
+        }
+    }
+
+    public static void processCasingSmall(OrePrefix casingPrefix, Material material, IngotProperty property) {
+        int workingTier = material.getWorkingTier();
+
+        BENDER_RECIPES.recipeBuilder()
+                .input(plate, material)
+                .output(casingPrefix, material, 2)
+                .circuitMeta(2)
+                .duration((int) Math.max(material.getMass(), 1L))
+                .EUt(GTUtility.scaleVoltage(24, workingTier))
+                .buildAndRegister();
+
+        if (workingTier <= HV) {
+            ModHandler.addShapedRecipe(String.format("casing_small_%s", material),
+                    OreDictUnifier.get(casingPrefix, material, 2),
+                    "h", "P", 'P', new UnificationEntry(plate, material));
         }
     }
 
@@ -413,6 +491,30 @@ public class PartsRecipeHandler {
                     .duration((int) Math.max((material.getMass() / 2f) * 0.95f, 1f))
                     .buildAndRegister();
         }
+    }
+
+    public static void processChain(OrePrefix chainPrefix, Material material, IngotProperty property) {
+        int workingTier = material.getWorkingTier();
+
+        if (workingTier <= HV) {
+            ModHandler.addShapedRecipe(String.format("chain_%s", material),
+                    OreDictUnifier.get(chainPrefix, material),
+                    "hR", "Rf", 'R', new UnificationEntry(ring, material));
+        }
+
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(ring, material, 2)
+                .circuitMeta(2)
+                .output(chainPrefix, material)
+                .buildAndRegister();
+
+        RecipeMaps.ASSEMBLER_RECIPES.recipeBuilder()
+                .input(ring, material, 2)
+                .circuitMeta(2)
+                .output(chainPrefix, material)
+                .duration((int) material.getMass() * 2)
+                .EUt(GTUtility.scaleVoltage(VA[ULV], workingTier))
+                .buildAndRegister();
     }
 
     public static void processSpringSmall(OrePrefix springPrefix, Material material, IngotProperty property) {
@@ -677,5 +779,32 @@ public class PartsRecipeHandler {
 
     private static long getVoltageMultiplier(Material material) {
         return material.getBlastTemperature() > 2800 ? VA[LV] : VA[ULV];
+    }
+
+    // GT6: Tiny plate (1/9 plate) - hammer plate → 9 plateTiny; pack 9 → plate
+    public static void processPlateTiny(OrePrefix plateTinyPrefix, Material material, DustProperty property) {
+        // Skip if plate is ignored for this material (e.g. BorosilicateGlass)
+        if (plate.isIgnored(material)) return;
+
+        int workingTier = material.getWorkingTier();
+
+        RecipeMaps.FORGE_HAMMER_RECIPES.recipeBuilder()
+                .input(plate, material)
+                .outputs(OreDictUnifier.get(plateTinyPrefix, material, 9))
+                .duration(30).EUt(GTUtility.scaleVoltage(16, workingTier))
+                .buildAndRegister();
+
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(plateTinyPrefix, material, 9)
+                .circuitMeta(1)
+                .output(plate, material)
+                .buildAndRegister();
+
+        if (workingTier <= HV) {
+            ModHandler.addShapedRecipe(String.format("plate_tiny_combine_%s", material),
+                    OreDictUnifier.get(plate, material),
+                    "BBB", "BBB", "BBB",
+                    'B', new UnificationEntry(plateTinyPrefix, material));
+        }
     }
 }

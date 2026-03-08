@@ -5,6 +5,7 @@ import gregtech.api.recipes.ModHandler;
 import gregtech.api.recipes.ingredients.GTRecipeItemInput;
 import gregtech.api.recipes.ingredients.GTRecipeOreInput;
 import gregtech.common.ConfigHolder;
+
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -25,16 +26,17 @@ public class CompressedBlockRecipes {
     }
 
     private static void processCompressedBlocks() {
-
         List<ResourceLocation> recipesToRemove = new ArrayList<>();
 
-        if(ConfigHolder.recipes.disableManualCompressionForOtherMaterials) {
+        if (ConfigHolder.recipes.disableManualCompressionForOtherMaterials) {
             for (IRecipe recipe : CraftingManager.REGISTRY) {
                 int ingredientSize = recipe.getIngredients().size();
                 if (ingredientSize == 9 || ingredientSize == 4) {
                     // There is a pre-existing config that deals with GT materials and MC blocks
-                    if (!(recipe.getRegistryName().getNamespace().equals(GTValues.MODID) || recipe.getRegistryName().getNamespace().equals("minecraft"))) {
-                        if (!recipe.getRecipeOutput().isEmpty() && !(Block.getBlockFromItem(recipe.getRecipeOutput().getItem()) == Blocks.AIR)) {
+                    if (!(recipe.getRegistryName().getNamespace().equals(GTValues.MODID) ||
+                            recipe.getRegistryName().getNamespace().equals("minecraft"))) {
+                        if (!recipe.getRecipeOutput().isEmpty() &&
+                                !(Block.getBlockFromItem(recipe.getRecipeOutput().getItem()) == Blocks.AIR)) {
 
                             Ingredient[] inputStack = new Ingredient[ingredientSize];
                             // Gather all the ingredients into an array
@@ -72,7 +74,8 @@ public class CompressedBlockRecipes {
                                         oreDictNames.add(oreIds);
                                     }
 
-                                    // If we have not found an item in all matching stacks with only 1 ore dict, attempt to find
+                                    // If we have not found an item in all matching stacks with only 1 ore dict, attempt
+                                    // to find
                                     // the common oredict between all items
                                     if (finalOreDictName.isEmpty()) {
                                         List<Integer> matchingIds = new ArrayList<>();
@@ -83,12 +86,14 @@ public class CompressedBlockRecipes {
                                             } else {
                                                 List<Integer> realMatchingIDs = new ArrayList<>();
                                                 for (int id : ids) {
-                                                    // If the list of matching ore dict ids contains the current id, add it to the new list
+                                                    // If the list of matching ore dict ids contains the current id, add
+                                                    // it to the new list
                                                     if (matchingIds.contains(id)) {
                                                         realMatchingIDs.add(id);
                                                     }
                                                 }
-                                                // Replace the list of matching ids with the updated list of matching ids
+                                                // Replace the list of matching ids with the updated list of matching
+                                                // ids
                                                 if (!realMatchingIDs.isEmpty()) {
                                                     matchingIds = realMatchingIDs;
                                                 }
@@ -102,7 +107,6 @@ public class CompressedBlockRecipes {
                                     // If there are no matching stacks, just take the item
                                     inputItemStack = recipe.getIngredients().get(0).getMatchingStacks()[0];
                                 }
-
 
                                 // Register Compressor recipes for the removed crafting table compression recipes
                                 if (!inputItemStack.isEmpty()) {
@@ -127,7 +131,6 @@ public class CompressedBlockRecipes {
                 }
             }
         }
-
 
         for (ResourceLocation r : recipesToRemove) {
             ModHandler.removeRecipeByName(r);

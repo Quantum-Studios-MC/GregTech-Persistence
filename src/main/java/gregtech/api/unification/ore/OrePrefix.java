@@ -68,6 +68,24 @@ public class OrePrefix {
             ENABLE_UNIFICATION, hasOreProperty);
     public static final OrePrefix oreBasalt = new OrePrefix("oreBasalt", -1, null, MaterialIconType.ore,
             ENABLE_UNIFICATION, hasOreProperty);
+    public static final OrePrefix oreKomatiite = new OrePrefix("oreKomatiite", -1, null, MaterialIconType.ore,
+            ENABLE_UNIFICATION, hasOreProperty);
+    public static final OrePrefix oreKimberlite = new OrePrefix("oreKimberlite", -1, null, MaterialIconType.ore,
+            ENABLE_UNIFICATION, hasOreProperty);
+    public static final OrePrefix oreLimestone = new OrePrefix("oreLimestone", -1, null, MaterialIconType.ore,
+            ENABLE_UNIFICATION, hasOreProperty);
+    public static final OrePrefix oreQuartzite = new OrePrefix("oreQuartzite", -1, null, MaterialIconType.ore,
+            ENABLE_UNIFICATION, hasOreProperty);
+    public static final OrePrefix oreGreenSchist = new OrePrefix("oreGreenSchist", -1, null, MaterialIconType.ore,
+            ENABLE_UNIFICATION, hasOreProperty);
+    public static final OrePrefix oreBlueSchist = new OrePrefix("oreBlueSchist", -1, null, MaterialIconType.ore,
+            ENABLE_UNIFICATION, hasOreProperty);
+    public static final OrePrefix oreShale = new OrePrefix("oreShale", -1, null, MaterialIconType.ore,
+            ENABLE_UNIFICATION, hasOreProperty);
+    public static final OrePrefix oreSlate = new OrePrefix("oreSlate", -1, null, MaterialIconType.ore,
+            ENABLE_UNIFICATION, hasOreProperty);
+    public static final OrePrefix oreGneiss = new OrePrefix("oreGneiss", -1, null, MaterialIconType.ore,
+            ENABLE_UNIFICATION, hasOreProperty);
 
     // In case of an Sand-Ores Mod. Ore -> Material is a Oneway Operation!
     public static final OrePrefix oreSand = new OrePrefix("oreSand", -1, null, MaterialIconType.ore, ENABLE_UNIFICATION,
@@ -90,15 +108,6 @@ public class OrePrefix {
             ENABLE_UNIFICATION, hasOreProperty,
             mat -> Collections.singletonList(I18n.format("metaitem.crushed.tooltip.purify")));
 
-    // Introduced by Mekanism
-    public static final OrePrefix shard = new OrePrefix("shard", -1, null, null, ENABLE_UNIFICATION, null);
-    public static final OrePrefix clump = new OrePrefix("clump", -1, null, null, ENABLE_UNIFICATION, null);
-    public static final OrePrefix reduced = new OrePrefix("reduced", -1, null, null, ENABLE_UNIFICATION, null);
-    public static final OrePrefix crystalline = new OrePrefix("crystalline", -1, null, null, ENABLE_UNIFICATION, null);
-
-    public static final OrePrefix cleanGravel = new OrePrefix("cleanGravel", -1, null, null, ENABLE_UNIFICATION, null);
-    public static final OrePrefix dirtyGravel = new OrePrefix("dirtyGravel", -1, null, null, ENABLE_UNIFICATION, null);
-
     // A hot Ingot, which has to be cooled down by a Vacuum Freezer.
     public static final OrePrefix ingotHot = new OrePrefix("ingotHot", M, null, MaterialIconType.ingotHot,
             ENABLE_UNIFICATION,
@@ -106,6 +115,18 @@ public class OrePrefix {
     // A regular Ingot. Introduced by Eloraam
     public static final OrePrefix ingot = new OrePrefix("ingot", M, null, MaterialIconType.ingot, ENABLE_UNIFICATION,
             hasIngotProperty);
+    // 2 Ingots combined in one Item
+    public static final OrePrefix ingotDouble = new OrePrefix("ingotDouble", M * 2, null, MaterialIconType.ingotDouble,
+            ENABLE_UNIFICATION, mat -> mat.hasFlag(GENERATE_DOUBLE_INGOT));
+    // 3 Ingots combined in one Item
+    public static final OrePrefix ingotTriple = new OrePrefix("ingotTriple", M * 3, null, MaterialIconType.ingotTriple,
+            ENABLE_UNIFICATION, mat -> mat.hasFlag(GENERATE_DOUBLE_INGOT));
+    // 4 Ingots combined in one Item
+    public static final OrePrefix ingotQuadruple = new OrePrefix("ingotQuadruple", M * 4, null,
+            MaterialIconType.ingotQuadruple, ENABLE_UNIFICATION, mat -> mat.hasFlag(GENERATE_DOUBLE_INGOT));
+    // 5 Ingots combined in one Item
+    public static final OrePrefix ingotQuintuple = new OrePrefix("ingotQuintuple", M * 5, null,
+            MaterialIconType.ingotQuintuple, ENABLE_UNIFICATION, mat -> mat.hasFlag(GENERATE_DOUBLE_INGOT));
 
     // A regular Gem worth one Dust. Introduced by Eloraam
     public static final OrePrefix gem = new OrePrefix("gem", M, null, MaterialIconType.gem, ENABLE_UNIFICATION,
@@ -151,6 +172,21 @@ public class OrePrefix {
     public static final OrePrefix plateDouble = new OrePrefix("plateDouble", M * 2, null, MaterialIconType.plateDouble,
             ENABLE_UNIFICATION, hasIngotProperty
                     .and(mat -> mat.hasFlags(GENERATE_PLATE, GENERATE_DOUBLE_PLATE) && !mat.hasFlag(NO_SMASHING)));
+    // Curved Plate made of one Plate
+    public static final OrePrefix plateCurved = new OrePrefix("plateCurved", M, null, MaterialIconType.plateCurved,
+            ENABLE_UNIFICATION, mat -> mat.hasFlag(GENERATE_CURVED_PLATE));
+    // 3 Plates combined in one Item
+    public static final OrePrefix plateTriple = new OrePrefix("plateTriple", M * 3, null, MaterialIconType.plateTriple,
+            ENABLE_UNIFICATION, hasIngotProperty
+                    .and(mat -> mat.hasFlags(GENERATE_PLATE, GENERATE_DOUBLE_PLATE) && !mat.hasFlag(NO_SMASHING)));
+    // 4 Plates combined in one Item
+    public static final OrePrefix plateQuadruple = new OrePrefix("plateQuadruple", M * 4, null,
+            MaterialIconType.plateQuadruple, ENABLE_UNIFICATION, hasIngotProperty
+                    .and(mat -> mat.hasFlags(GENERATE_PLATE, GENERATE_DOUBLE_PLATE) && !mat.hasFlag(NO_SMASHING)));
+    // 5 Plates combined in one Item
+    public static final OrePrefix plateQuintuple = new OrePrefix("plateQuintuple", M * 5, null,
+            MaterialIconType.plateQuintuple, ENABLE_UNIFICATION, hasIngotProperty
+                    .and(mat -> mat.hasFlags(GENERATE_PLATE, GENERATE_DOUBLE_PLATE) && !mat.hasFlag(NO_SMASHING)));
     // Regular Plate made of one Ingot/Dust. Introduced by Calclavia
     public static final OrePrefix plate = new OrePrefix("plate", M, null, MaterialIconType.plate, ENABLE_UNIFICATION,
             mat -> mat.hasFlag(GENERATE_PLATE));
@@ -178,6 +214,9 @@ public class OrePrefix {
     // consisting out of 1/2 Stick.
     public static final OrePrefix ring = new OrePrefix("ring", M / 4, null, MaterialIconType.ring, ENABLE_UNIFICATION,
             mat -> mat.hasFlag(GENERATE_RING));
+    // consisting out of 2 Rings.
+    public static final OrePrefix chain = new OrePrefix("chain", M / 2, null, MaterialIconType.chain,
+            ENABLE_UNIFICATION, mat -> mat.hasFlag(GENERATE_RING));
     // consisting out of 1 Fine Wire.
     public static final OrePrefix springSmall = new OrePrefix("springSmall", M / 4, null, MaterialIconType.springSmall,
             ENABLE_UNIFICATION, mat -> mat.hasFlag(GENERATE_SPRING_SMALL) && !mat.hasFlag(NO_SMASHING));
@@ -198,6 +237,55 @@ public class OrePrefix {
     // 3/4 of a Plate or Gem used to shape a Lens. Normally only used on Transparent Materials.
     public static final OrePrefix lens = new OrePrefix("lens", (M * 3) / 4, null, MaterialIconType.lens,
             ENABLE_UNIFICATION, mat -> mat.hasFlag(GENERATE_LENS));
+
+    // Small Casing made of Plates and Frame
+    public static final OrePrefix casingSmall = new OrePrefix("casingSmall", M * 2, null,
+            MaterialIconType.casingSmall, ENABLE_UNIFICATION,
+            mat -> mat.hasFlags(GENERATE_PLATE, GENERATE_FRAME));
+
+    // GT6: Billet, 2/3 of an ingot (cast in billet mold)
+    public static final OrePrefix billet = new OrePrefix("billet", M * 2 / 3, null,
+            MaterialIconType.billet, ENABLE_UNIFICATION, hasIngotProperty);
+    // GT6: Chunk of metal, 1/4 of an ingot
+    public static final OrePrefix chunkGt = new OrePrefix("chunkGt", M / 4, null,
+            MaterialIconType.chunkGt, ENABLE_UNIFICATION, hasIngotProperty);
+    // GT6: Tiny plate, 1/9 of a regular plate
+    public static final OrePrefix plateTiny = new OrePrefix("plateTiny", M / 9, null,
+            MaterialIconType.plateTiny, ENABLE_UNIFICATION, mat -> mat.hasFlag(GENERATE_PLATE));
+    // GT6: Legendary gem worth 8 dusts
+    public static final OrePrefix gemLegendary = new OrePrefix("gemLegendary", M * 8, null,
+            MaterialIconType.gemLegendary, ENABLE_UNIFICATION, hasGemProperty);
+    // GT6: Raw ore (as mined, 1M worth) - disabled, not to be implemented
+    public static final OrePrefix rawOre = new OrePrefix("rawOre", M, null,
+            MaterialIconType.rawOre, 0, hasOreProperty);
+    // GT6: Raw ore chunk - removed
+    // GT6: Extremely tiny dust, 1/72 of a full dust unit
+    public static final OrePrefix dustDiv72 = new OrePrefix("dustDiv72", M / 72, null,
+            MaterialIconType.dustDiv72, ENABLE_UNIFICATION, hasDustProperty);
+    // GT6: Tiny crushed ore, 1/9 of regular crushed
+    public static final OrePrefix crushedTiny = new OrePrefix("crushedTiny", -1, null,
+            MaterialIconType.crushedTiny, ENABLE_UNIFICATION, hasOreProperty);
+    // GT6: Tiny purified crushed ore
+    public static final OrePrefix crushedPurifiedTiny = new OrePrefix("crushedPurifiedTiny", -1, null,
+            MaterialIconType.crushedPurifiedTiny, ENABLE_UNIFICATION, hasOreProperty);
+    // GT6: Tiny centrifuged crushed ore
+    public static final OrePrefix crushedCentrifugedTiny = new OrePrefix("crushedCentrifugedTiny", -1, null,
+            MaterialIconType.crushedCentrifugedTiny, ENABLE_UNIFICATION, hasOreProperty);
+    // GT6/Railcraft: Poor ore, yields 1/4 material compared to regular ore
+    public static final OrePrefix orePoor = new OrePrefix("orePoor", -1, null,
+            MaterialIconType.orePoor, ENABLE_UNIFICATION, hasOreProperty);
+    // GT6: Small rock found on the surface, indicates underground stone/ore composition.
+    // Only generates for ore-bearing materials and pure stone/earth dust materials (not metals or gems).
+    public static final OrePrefix rockGt = new OrePrefix("rockGt", M / 4, null,
+            MaterialIconType.rockGt, ENABLE_UNIFICATION,
+            hasOreProperty.or(hasDustProperty
+                    .and(mat -> !mat.hasProperty(PropertyKey.INGOT))
+                    .and(mat -> !mat.hasProperty(PropertyKey.GEM))));
+
+    // GT6: Compressed dust block - 9 dusts into 1 block, acts like sand (gravity, shovel harvest)
+    public static final OrePrefix blockDust = new OrePrefix("blockDust", M * 9, null,
+            MaterialIconType.blockDust, ENABLE_UNIFICATION,
+            hasDustProperty.and(mat -> !mat.hasProperty(PropertyKey.INGOT) && !mat.hasProperty(PropertyKey.GEM)));
 
     // made of 4 Ingots.
     public static final OrePrefix toolHeadBuzzSaw = new OrePrefix("toolHeadBuzzSaw", M * 4, null,
@@ -375,7 +463,6 @@ public class OrePrefix {
         ingotHot.heatDamageFunction = (temp) -> ((temp - 1750) / 1000.0F) + 2;
         gemFlawless.maxStackSize = 32;
         gemExquisite.maxStackSize = 16;
-
         plateDouble.maxStackSize = 32;
         plateDense.maxStackSize = 7;
         rotor.maxStackSize = 16;
@@ -495,6 +582,7 @@ public class OrePrefix {
         cableGtHex.addSecondaryMaterial(new MaterialStack(Materials.Rubber, plate.materialAmount * 5));
 
         plate.setIgnored(Materials.BorosilicateGlass);
+        plateTiny.setIgnored(Materials.BorosilicateGlass);
         foil.setIgnored(Materials.BorosilicateGlass);
 
         dustSmall.setIgnored(Materials.Lapotron);
@@ -512,6 +600,97 @@ public class OrePrefix {
 
         stick.modifyMaterialAmount(Materials.Blaze, 4);
         stick.modifyMaterialAmount(Materials.Bone, 5);
+
+        // --- GT6-style Familiar Prefix Setup ---
+        // Ingot family: all ingot-based forms are familiar to each other
+        linkFamiliarGroup(ingot, ingotHot, ingotDouble, ingotTriple, ingotQuadruple, ingotQuintuple,
+                billet, chunkGt, nugget);
+
+        // Dust family: all dust-based forms
+        linkFamiliarGroup(dust, dustSmall, dustTiny, dustDiv72);
+
+        // Impure/pure dust: familiar with regular dust
+        dustImpure.addFamiliarPrefixWithReversal(dust);
+        dustPure.addFamiliarPrefixWithReversal(dust);
+
+        // Gem family: all gem forms
+        linkFamiliarGroup(gem, gemChipped, gemFlawed, gemFlawless, gemExquisite, gemLegendary);
+
+        // Plate family: all plate forms
+        linkFamiliarGroup(plate, plateDouble, plateTriple, plateQuadruple, plateQuintuple,
+                plateDense, plateTiny, plateCurved);
+
+        // Crushed ore family
+        linkFamiliarGroup(crushed, crushedPurified, crushedCentrifuged,
+                crushedTiny, crushedPurifiedTiny, crushedCentrifugedTiny);
+
+        // Ore family: all standard ore variants
+        linkFamiliarGroup(ore, oreGranite, oreDiorite, oreAndesite, oreBlackgranite, oreRedgranite,
+                oreMarble, oreBasalt, oreSand, oreRedSand, oreNetherrack, oreEndstone, orePoor);
+
+        // Wire family
+        linkFamiliarGroup(wireGtSingle, wireGtDouble, wireGtQuadruple, wireGtOctal, wireGtHex, wireFine);
+
+        // Cable family
+        linkFamiliarGroup(cableGtSingle, cableGtDouble, cableGtQuadruple, cableGtOctal, cableGtHex);
+
+        // Rod/stick family
+        linkFamiliarGroup(stick, stickLong, bolt, screw);
+
+        // Ring-based family
+        linkFamiliarGroup(ring, chain, springSmall);
+
+        // Spring family
+        spring.addFamiliarPrefixWithReversal(stickLong);
+
+        // Gear family
+        gear.addFamiliarPrefixWithReversal(gearSmall);
+
+        // Pipe family (fluid)
+        linkFamiliarGroup(pipeTinyFluid, pipeSmallFluid, pipeNormalFluid, pipeLargeFluid, pipeHugeFluid,
+                pipeQuadrupleFluid, pipeNonupleFluid);
+
+        // Pipe family (item)
+        linkFamiliarGroup(pipeTinyItem, pipeSmallItem, pipeNormalItem, pipeLargeItem, pipeHugeItem);
+
+        // Cross-family links: ingot <-> plate (processing), ingot <-> dust (processing)
+        ingot.addFamiliarPrefixWithReversal(plate);
+        ingot.addFamiliarPrefixWithReversal(dust);
+        gem.addFamiliarPrefixWithReversal(dust);
+        gem.addFamiliarPrefixWithReversal(plate);
+
+        // Block is familiar with its base forms
+        block.addFamiliarPrefixWithReversal(ingot);
+        block.addFamiliarPrefixWithReversal(gem);
+        block.addFamiliarPrefixWithReversal(dust);
+
+        // Lens and foil from plate
+        lens.addFamiliarPrefixWithReversal(plate);
+        foil.addFamiliarPrefixWithReversal(plate);
+
+        // Round from nugget
+        round.addFamiliarPrefixWithReversal(nugget);
+
+        // Frame from stick
+        frameGt.addFamiliarPrefixWithReversal(stick);
+
+        // Rotor from plate
+        rotor.addFamiliarPrefixWithReversal(plate);
+
+        // Casing from plate
+        casingSmall.addFamiliarPrefixWithReversal(plate);
+    }
+
+    /**
+     * Link all given prefixes as familiar to each other (bidirectional).
+     * Every prefix in the group will have every other prefix as a familiar prefix.
+     */
+    private static void linkFamiliarGroup(OrePrefix... prefixes) {
+        for (int i = 0; i < prefixes.length; i++) {
+            for (int j = i + 1; j < prefixes.length; j++) {
+                prefixes[i].addFamiliarPrefixWithReversal(prefixes[j]);
+            }
+        }
     }
 
     private static void excludeAllGems(Material material) {
@@ -551,6 +730,13 @@ public class OrePrefix {
     private final Object2FloatMap<Material> materialAmounts = new Object2FloatOpenHashMap<>();
     private boolean isMarkerPrefix = false;
 
+    /**
+     * GT6-style familiar prefix system: a set of prefixes that are considered "related" to this prefix.
+     * For example, dust has dustSmall, dustTiny, and dustDiv72 as familiar prefixes, and vice versa.
+     * Used by the JEI Material Tree to auto-discover which prefixes to display.
+     */
+    private final Set<OrePrefix> familiarPrefixes = new HashSet<>();
+
     public byte maxStackSize = 64;
     public final List<MaterialStack> secondaryMaterials = new ArrayList<>();
     public Function<Integer, Float> heatDamageFunction = null; // Negative for Frost Damage
@@ -589,6 +775,40 @@ public class OrePrefix {
     public void addSecondaryMaterial(MaterialStack secondaryMaterial) {
         Preconditions.checkNotNull(secondaryMaterial, "secondaryMaterial");
         secondaryMaterials.add(secondaryMaterial);
+    }
+
+    /**
+     * Add a familiar prefix to this prefix. Familiar prefixes are considered related forms
+     * of the same material (e.g., dust -> dustSmall, dustTiny, dustDiv72).
+     * This is a one-way association; call {@link #addFamiliarPrefixWithReversal} for bidirectional.
+     *
+     * @param prefix the prefix to add as familiar
+     */
+    public void addFamiliarPrefix(@NotNull OrePrefix prefix) {
+        Preconditions.checkNotNull(prefix, "prefix");
+        if (prefix != this) {
+            familiarPrefixes.add(prefix);
+        }
+    }
+
+    /**
+     * Add a familiar prefix relationship in both directions.
+     * Both {@code this} and {@code prefix} will consider each other familiar.
+     *
+     * @param prefix the prefix to link bidirectionally
+     */
+    public void addFamiliarPrefixWithReversal(@NotNull OrePrefix prefix) {
+        addFamiliarPrefix(prefix);
+        prefix.addFamiliarPrefix(this);
+    }
+
+    /**
+     * Get the set of prefixes that are familiar/related to this prefix.
+     *
+     * @return an unmodifiable view of the familiar prefixes
+     */
+    public @NotNull Set<OrePrefix> getFamiliarPrefixes() {
+        return Collections.unmodifiableSet(familiarPrefixes);
     }
 
     public void setMarkerPrefix(boolean isMarkerPrefix) {

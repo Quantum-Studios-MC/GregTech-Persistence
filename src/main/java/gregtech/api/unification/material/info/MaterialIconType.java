@@ -52,6 +52,7 @@ public class MaterialIconType {
     public static final MaterialIconType plateQuadruple = new MaterialIconType("plateQuadruple");
     public static final MaterialIconType plateQuintuple = new MaterialIconType("plateQuintuple");
     public static final MaterialIconType plateDense = new MaterialIconType("plateDense");
+    public static final MaterialIconType plateCurved = new MaterialIconType("plateCurved");
 
     public static final MaterialIconType stick = new MaterialIconType("stick");
     public static final MaterialIconType lens = new MaterialIconType("lens");
@@ -59,6 +60,7 @@ public class MaterialIconType {
     public static final MaterialIconType bolt = new MaterialIconType("bolt");
     public static final MaterialIconType screw = new MaterialIconType("screw");
     public static final MaterialIconType ring = new MaterialIconType("ring");
+    public static final MaterialIconType chain = new MaterialIconType("chain");
     public static final MaterialIconType wireFine = new MaterialIconType("wireFine");
     public static final MaterialIconType gearSmall = new MaterialIconType("gearSmall");
     public static final MaterialIconType rotor = new MaterialIconType("rotor");
@@ -84,6 +86,21 @@ public class MaterialIconType {
     public static final MaterialIconType toolHeadWrench = new MaterialIconType("toolHeadWrench");
 
     public static final MaterialIconType turbineBlade = new MaterialIconType("turbineBlade");
+    public static final MaterialIconType casingSmall = new MaterialIconType("casingSmall");
+
+    // GT6 icon types
+    public static final MaterialIconType billet = new MaterialIconType("billet");
+    public static final MaterialIconType chunkGt = new MaterialIconType("chunkGt");
+    public static final MaterialIconType plateTiny = new MaterialIconType("plateTiny");
+    public static final MaterialIconType gemLegendary = new MaterialIconType("gemLegendary");
+    public static final MaterialIconType rawOre = new MaterialIconType("rawOre");
+    public static final MaterialIconType dustDiv72 = new MaterialIconType("dustDiv72");
+    public static final MaterialIconType crushedTiny = new MaterialIconType("crushedTiny");
+    public static final MaterialIconType crushedPurifiedTiny = new MaterialIconType("crushedPurifiedTiny");
+    public static final MaterialIconType crushedCentrifugedTiny = new MaterialIconType("crushedCentrifugedTiny");
+    public static final MaterialIconType orePoor = new MaterialIconType("orePoor");
+    public static final MaterialIconType blockDust = new MaterialIconType("blockDust");
+    public static final MaterialIconType rockGt = new MaterialIconType("rockGt");
 
     public static final MaterialIconType fuelRod = new MaterialIconType("fuelRod");
     public static final MaterialIconType fuelRodDepleted = new MaterialIconType("fuelRodDepleted");

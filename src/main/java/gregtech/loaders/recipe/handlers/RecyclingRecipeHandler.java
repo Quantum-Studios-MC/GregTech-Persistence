@@ -23,6 +23,15 @@ public class RecyclingRecipeHandler {
             OrePrefix.springSmall, OrePrefix.block, OrePrefix.wireFine,
             OrePrefix.rotor, OrePrefix.lens, OrePrefix.turbineBlade,
             OrePrefix.round, OrePrefix.plateDouble, OrePrefix.dust,
+            // GT6 parity prefixes
+            OrePrefix.ingotDouble, OrePrefix.ingotTriple, OrePrefix.ingotQuadruple, OrePrefix.ingotQuintuple,
+            OrePrefix.plateTriple, OrePrefix.plateQuadruple, OrePrefix.plateQuintuple,
+            OrePrefix.plateCurved,
+            OrePrefix.casingSmall, OrePrefix.chain,
+            // GT6: additional part prefixes
+            OrePrefix.billet, OrePrefix.chunkGt,
+            OrePrefix.plateTiny, OrePrefix.crushedTiny, OrePrefix.crushedPurifiedTiny, OrePrefix.crushedCentrifugedTiny,
+            OrePrefix.dustDiv72,
             (Predicate<OrePrefix>) orePrefix -> orePrefix.name().startsWith("toolHead"),
             (Predicate<OrePrefix>) orePrefix -> orePrefix.name().startsWith("gem"),
             (Predicate<OrePrefix>) orePrefix -> orePrefix.name().startsWith("cableGt"),

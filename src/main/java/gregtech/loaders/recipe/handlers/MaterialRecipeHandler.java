@@ -19,6 +19,7 @@ import gregtech.api.unification.stack.UnificationEntry;
 import gregtech.api.util.GTUtility;
 import gregtech.common.ConfigHolder;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.blocks.StoneVariantBlock;
 import gregtech.common.items.MetaItems;
 import gregtech.loaders.recipe.CraftingComponents;
 
@@ -52,20 +53,75 @@ public class MaterialRecipeHandler {
 
     public static void register() {
         OrePrefix.ingot.addProcessingHandler(PropertyKey.INGOT, MaterialRecipeHandler::processIngot);
+        OrePrefix.ingotDouble.addProcessingHandler(PropertyKey.INGOT,
+                (p, m, prop) -> processMultiIngot(p, m, 2));
+        OrePrefix.ingotTriple.addProcessingHandler(PropertyKey.INGOT,
+                (p, m, prop) -> processMultiIngot(p, m, 3));
+        OrePrefix.ingotQuadruple.addProcessingHandler(PropertyKey.INGOT,
+                (p, m, prop) -> processMultiIngot(p, m, 4));
+        OrePrefix.ingotQuintuple.addProcessingHandler(PropertyKey.INGOT,
+                (p, m, prop) -> processMultiIngot(p, m, 5));
         OrePrefix.nugget.addProcessingHandler(PropertyKey.DUST, MaterialRecipeHandler::processNugget);
 
         OrePrefix.block.addProcessingHandler(PropertyKey.DUST, MaterialRecipeHandler::processBlock);
+        OrePrefix.blockDust.addProcessingHandler(PropertyKey.DUST, MaterialRecipeHandler::processBlockDust);
         OrePrefix.frameGt.addProcessingHandler(PropertyKey.DUST, MaterialRecipeHandler::processFrame);
 
         OrePrefix.dust.addProcessingHandler(PropertyKey.DUST, MaterialRecipeHandler::processDust);
         OrePrefix.dustSmall.addProcessingHandler(PropertyKey.DUST, MaterialRecipeHandler::processSmallDust);
         OrePrefix.dustTiny.addProcessingHandler(PropertyKey.DUST, MaterialRecipeHandler::processTinyDust);
+        OrePrefix.rockGt.addProcessingHandler(PropertyKey.DUST, MaterialRecipeHandler::processRock);
+
+        // GT6 prefix handlers
+        OrePrefix.billet.addProcessingHandler(PropertyKey.INGOT, MaterialRecipeHandler::processBillet);
+        OrePrefix.chunkGt.addProcessingHandler(PropertyKey.INGOT, MaterialRecipeHandler::processChunkGt);
+        OrePrefix.gemLegendary.addProcessingHandler(PropertyKey.GEM, MaterialRecipeHandler::processGemLegendary);
+        OrePrefix.dustDiv72.addProcessingHandler(PropertyKey.DUST, MaterialRecipeHandler::processDustDiv72);
 
         for (int i = 0; i < GEM_ORDER.size(); i++) {
             OrePrefix gemPrefix = GEM_ORDER.get(i);
             OrePrefix prevGemPrefix = i == 0 ? null : GEM_ORDER.get(i - 1);
             gemPrefix.addProcessingHandler(PropertyKey.GEM,
                     (p, material, property) -> processGemConversion(p, prevGemPrefix, material));
+        }
+
+        // Macerator recipes for stone variant blocks (smooth stone → dust)
+        registerStoneMaceratorRecipes();
+    }
+
+    /**
+     * Registers macerator recipes for all GT stone variant blocks.
+     * Smooth stone block → stone dust (1:1).
+     */
+    private static void registerStoneMaceratorRecipes() {
+        for (StoneVariantBlock.StoneType type : StoneVariantBlock.StoneType.values()) {
+            if (type.getOrePrefix() != OrePrefix.stone) continue;
+            Material material = type.getMaterial();
+            if (material == null || !material.hasProperty(PropertyKey.DUST)) continue;
+
+            ItemStack smoothStack = MetaBlocks.STONE_BLOCKS.get(StoneVariantBlock.StoneVariant.SMOOTH)
+                    .getItemVariant(type);
+            ItemStack cobbleStack = MetaBlocks.STONE_BLOCKS.get(StoneVariantBlock.StoneVariant.COBBLE)
+                    .getItemVariant(type);
+            if (smoothStack.isEmpty()) continue;
+
+            // Smooth stone → dust
+            RecipeMaps.MACERATOR_RECIPES.recipeBuilder()
+                    .inputs(smoothStack)
+                    .output(OrePrefix.dust, material)
+                    .duration(200)
+                    .EUt(2)
+                    .buildAndRegister();
+
+            // Cobblestone → dust
+            if (!cobbleStack.isEmpty()) {
+                RecipeMaps.MACERATOR_RECIPES.recipeBuilder()
+                        .inputs(cobbleStack)
+                        .output(OrePrefix.dust, material)
+                        .duration(200)
+                        .EUt(2)
+                        .buildAndRegister();
+            }
         }
     }
 
@@ -299,6 +355,86 @@ public class MaterialRecipeHandler {
                 .buildAndRegister();
     }
 
+    public static void processRock(OrePrefix orePrefix, Material material, DustProperty property) {
+        ItemStack rockStack = OreDictUnifier.get(orePrefix, material);
+        ItemStack dustStack = OreDictUnifier.get(OrePrefix.dust, material);
+        ItemStack dustSmallStack = OreDictUnifier.get(OrePrefix.dustSmall, material);
+        ItemStack dustTinyStack = OreDictUnifier.get(OrePrefix.dustTiny, material);
+
+        // Mortar: rock → dustTiny (hand grinding)
+        if (material.hasFlag(MORTAR_GRINDABLE)) {
+            ModHandler.addShapelessRecipe(String.format("rock_mortar_%s", material),
+                    dustTinyStack, 'm', new UnificationEntry(orePrefix, material));
+        }
+
+        // Packer: 4 rocks → dust
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(orePrefix, material, 4)
+                .circuitMeta(1)
+                .outputs(dustStack)
+                .buildAndRegister();
+
+        // Macerator: rock → dustTiny (machine grinding)
+        RecipeMaps.MACERATOR_RECIPES.recipeBuilder()
+                .input(orePrefix, material)
+                .output(OrePrefix.dustSmall, material)
+                .buildAndRegister();
+    }
+
+    public static void processDiv72Dust(OrePrefix orePrefix, Material material, DustProperty property) {
+        ItemStack div72Stack = OreDictUnifier.get(orePrefix, material);
+        ItemStack tinyDustStack = OreDictUnifier.get(OrePrefix.dustTiny, material);
+        ItemStack dustStack = OreDictUnifier.get(OrePrefix.dust, material);
+
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(orePrefix, material, 8)
+                .circuitMeta(1)
+                .outputs(tinyDustStack)
+                .buildAndRegister();
+
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(OrePrefix.dustTiny, material)
+                .circuitMeta(8)
+                .outputs(GTUtility.copy(8, div72Stack))
+                .buildAndRegister();
+
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(orePrefix, material, 72)
+                .circuitMeta(2)
+                .outputs(dustStack)
+                .buildAndRegister();
+    }
+
+    private static void processMultiIngot(OrePrefix ingotPrefix, Material material, int multiplier) {
+        int workingTier = material.getWorkingTier();
+
+        BENDER_RECIPES.recipeBuilder()
+                .input(ingot, material, multiplier)
+                .circuitMeta(multiplier)
+                .output(ingotPrefix, material)
+                .duration((int) Math.max(material.getMass() * (long) multiplier, 1L))
+                .EUt(GTUtility.scaleVoltage(96, workingTier))
+                .buildAndRegister();
+
+        PACKER_RECIPES.recipeBuilder()
+                .input(ingot, material, multiplier)
+                .circuitMeta(multiplier)
+                .output(ingotPrefix, material)
+                .buildAndRegister();
+
+        PACKER_RECIPES.recipeBuilder()
+                .input(ingotPrefix, material)
+                .circuitMeta(1)
+                .output(ingot, material, multiplier)
+                .buildAndRegister();
+
+        if (workingTier <= HV) {
+            ModHandler.addShapedRecipe(String.format("%s_assembling_%s", ingotPrefix.name(), material),
+                    OreDictUnifier.get(ingotPrefix, material),
+                    "h", "I", "I", 'I', new UnificationEntry(ingot, material));
+        }
+    }
+
     public static void processIngot(OrePrefix ingotPrefix, Material material, IngotProperty property) {
         int workingTier = material.getWorkingTier();
 
@@ -452,6 +588,31 @@ public class MaterialRecipeHandler {
                     .EUt(GTUtility.scaleVoltage(240, workingTier))
                     .buildAndRegister();
         }
+    }
+
+    public static void processGemSizeConversion(OrePrefix gemPrefix, Material material, int gemCount) {
+        ModHandler.addShapelessRecipe(String.format("%s_disassembling_%s", gemPrefix.name(), material),
+                OreDictUnifier.get(gem, material, gemCount),
+                new UnificationEntry(gemPrefix, material));
+
+        PACKER_RECIPES.recipeBuilder()
+                .input(gem, material, gemCount)
+                .circuitMeta(gemCount)
+                .output(gemPrefix, material)
+                .buildAndRegister();
+
+        PACKER_RECIPES.recipeBuilder()
+                .input(gemPrefix, material)
+                .circuitMeta(1)
+                .output(gem, material, gemCount)
+                .buildAndRegister();
+
+        // GT6 parity: Forge Hammer large gem -> regular gems
+        RecipeMaps.FORGE_HAMMER_RECIPES.recipeBuilder()
+                .input(gemPrefix, material)
+                .output(gem, material, gemCount)
+                .duration(10).EUt(16)
+                .buildAndRegister();
     }
 
     public static void processNugget(OrePrefix orePrefix, Material material, DustProperty property) {
@@ -612,7 +773,157 @@ public class MaterialRecipeHandler {
         }
     }
 
+    public static void processBlockDust(OrePrefix blockDustPrefix, Material material, DustProperty property) {
+        ItemStack blockStack = OreDictUnifier.get(blockDustPrefix, material);
+        if (blockStack.isEmpty()) return;
+        int workingTier = material.getWorkingTier();
+
+        if (!material.hasFlag(EXCLUDE_BLOCK_CRAFTING_RECIPES) &&
+                !material.hasFlag(EXCLUDE_BLOCK_CRAFTING_BY_HAND_RECIPES) &&
+                !ConfigHolder.recipes.disableManualCompression && workingTier <= HV) {
+            ModHandler.addShapelessRecipe(String.format("block_dust_compress_%s", material), blockStack,
+                    new UnificationEntry(dust, material), new UnificationEntry(dust, material),
+                    new UnificationEntry(dust, material), new UnificationEntry(dust, material),
+                    new UnificationEntry(dust, material), new UnificationEntry(dust, material),
+                    new UnificationEntry(dust, material), new UnificationEntry(dust, material),
+                    new UnificationEntry(dust, material));
+
+            ModHandler.addShapelessRecipe(String.format("block_dust_decompress_%s", material),
+                    GTUtility.copy(9, OreDictUnifier.get(dust, material)),
+                    new UnificationEntry(blockDustPrefix, material));
+        }
+
+        COMPRESSOR_RECIPES.recipeBuilder()
+                .input(dust, material, 9)
+                .outputs(blockStack)
+                .duration(300)
+                .EUt(GTUtility.scaleVoltage(2, workingTier))
+                .buildAndRegister();
+
+        FORGE_HAMMER_RECIPES.recipeBuilder()
+                .input(blockDustPrefix, material)
+                .output(dust, material, 9)
+                .duration(100)
+                .EUt(GTUtility.scaleVoltage(24, workingTier))
+                .buildAndRegister();
+    }
+
     private static long getVoltageMultiplier(Material material) {
         return material.getBlastTemperature() >= 2800 ? VA[LV] : VA[ULV];
+    }
+
+    // GT6: Billet (2/3 ingot)
+    public static void processBillet(OrePrefix billetPrefix, Material material, IngotProperty property) {
+        int workingTier = material.getWorkingTier();
+        // 2 ingots → 3 billets (alloy smelter)
+        ALLOY_SMELTER_RECIPES.recipeBuilder()
+                .input(ingot, material, 2)
+                .notConsumable(MetaItems.SHAPE_MOLD_CYLINDER)
+                .output(billetPrefix, material, 3)
+                .duration((int) material.getMass() * 2)
+                .EUt(GTUtility.scaleVoltage(VA[ULV], workingTier))
+                .buildAndRegister();
+        // 3 billets → 2 ingots (recovery)
+        PACKER_RECIPES.recipeBuilder()
+                .input(billetPrefix, material, 3)
+                .circuitMeta(1)
+                .output(ingot, material, 2)
+                .buildAndRegister();
+        // fluid solidification: pour 2/3 ingot worth into billet
+        if (material.hasFluid() && material.getProperty(PropertyKey.FLUID).solidifiesFrom() != null) {
+            FLUID_SOLIDFICATION_RECIPES.recipeBuilder()
+                    .notConsumable(MetaItems.SHAPE_MOLD_CYLINDER)
+                    .fluidInputs(material.getProperty(PropertyKey.FLUID).solidifiesFrom(L * 2 / 3))
+                    .output(billetPrefix, material)
+                    .duration(20)
+                    .EUt(GTUtility.scaleVoltage(VA[ULV], workingTier))
+                    .buildAndRegister();
+        }
+    }
+
+    // GT6: ChunkGt (1/4 ingot)
+    public static void processChunkGt(OrePrefix chunkPrefix, Material material, IngotProperty property) {
+        int workingTier = material.getWorkingTier();
+        // ingot → 4 chunks
+        ALLOY_SMELTER_RECIPES.recipeBuilder()
+                .input(ingot, material)
+                .notConsumable(MetaItems.SHAPE_MOLD_BALL)
+                .output(chunkPrefix, material, 4)
+                .duration((int) material.getMass())
+                .EUt(GTUtility.scaleVoltage(VA[ULV], workingTier))
+                .buildAndRegister();
+        // 4 chunks → ingot (recovery)
+        PACKER_RECIPES.recipeBuilder()
+                .input(chunkPrefix, material, 4)
+                .circuitMeta(1)
+                .output(ingot, material)
+                .buildAndRegister();
+        // fluid solidification: 1/4 ingot worth into chunk
+        if (material.hasFluid() && material.getProperty(PropertyKey.FLUID).solidifiesFrom() != null) {
+            FLUID_SOLIDFICATION_RECIPES.recipeBuilder()
+                    .notConsumable(MetaItems.SHAPE_MOLD_BALL)
+                    .fluidInputs(material.getProperty(PropertyKey.FLUID).solidifiesFrom(L / 4))
+                    .output(chunkPrefix, material)
+                    .duration(20)
+                    .EUt(GTUtility.scaleVoltage(VA[ULV], workingTier))
+                    .buildAndRegister();
+        }
+    }
+
+    // GT6: Legendary gem (8x dust value) - obtained only via Autoclave, not by compressing gems
+    public static void processGemLegendary(OrePrefix gemLegendaryPrefix, Material material,
+                                           gregtech.api.unification.material.properties.GemProperty property) {
+        int workingTier = material.getWorkingTier();
+
+        // GT6: Autoclave - 8 dust + fluid → gemLegendary (requires CRYSTALLIZABLE)
+        if (material.hasFlag(CRYSTALLIZABLE)) {
+            RecipeMaps.AUTOCLAVE_RECIPES.recipeBuilder()
+                    .input(dust, material, 8)
+                    .fluidInputs(Materials.Steam.getFluid(819200))
+                    .output(gemLegendaryPrefix, material)
+                    .duration(4800).EUt(GTUtility.scaleVoltage(24, workingTier))
+                    .buildAndRegister();
+
+            RecipeMaps.AUTOCLAVE_RECIPES.recipeBuilder()
+                    .input(dust, material, 8)
+                    .fluidInputs(Materials.DistilledWater.getFluid(400))
+                    .output(gemLegendaryPrefix, material)
+                    .duration(2400).EUt(GTUtility.scaleVoltage(24, workingTier))
+                    .buildAndRegister();
+        }
+
+        // GT6: Forge hammer (crusher) - gemLegendary → 2 gemExquisite
+        if (!OreDictUnifier.get(gemExquisite, material, 2).isEmpty()) {
+            FORGE_HAMMER_RECIPES.recipeBuilder()
+                    .input(gemLegendaryPrefix, material)
+                    .output(gemExquisite, material, 2)
+                    .duration(30).EUt(GTUtility.scaleVoltage(16, workingTier))
+                    .buildAndRegister();
+        }
+
+        // GT6: Macerator - gemLegendary → 8 dust
+        if (!OreDictUnifier.get(dust, material, 8).isEmpty()) {
+            MACERATOR_RECIPES.recipeBuilder()
+                    .input(gemLegendaryPrefix, material)
+                    .output(dust, material, 8)
+                    .duration(400).EUt(GTUtility.scaleVoltage(16, workingTier))
+                    .buildAndRegister();
+        }
+    }
+
+    // GT6: DustDiv72 (1/72 of a dust)
+    public static void processDustDiv72(OrePrefix dustDiv72Prefix, Material material, DustProperty property) {
+        // 8 dustDiv72 → dustTiny
+        PACKER_RECIPES.recipeBuilder()
+                .input(dustDiv72Prefix, material, 8)
+                .circuitMeta(1)
+                .output(dustTiny, material)
+                .buildAndRegister();
+        // dustTiny → 8 dustDiv72
+        PACKER_RECIPES.recipeBuilder()
+                .input(dustTiny, material)
+                .circuitMeta(8)
+                .output(dustDiv72Prefix, material, 8)
+                .buildAndRegister();
     }
 }

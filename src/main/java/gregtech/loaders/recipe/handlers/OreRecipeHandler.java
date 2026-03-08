@@ -48,8 +48,19 @@ public class OreRecipeHandler {
         OrePrefix.crushed.addProcessingHandler(PropertyKey.ORE, OreRecipeHandler::processCrushedOre);
         OrePrefix.crushedPurified.addProcessingHandler(PropertyKey.ORE, OreRecipeHandler::processCrushedPurified);
         OrePrefix.crushedCentrifuged.addProcessingHandler(PropertyKey.ORE, OreRecipeHandler::processCrushedCentrifuged);
+
         OrePrefix.dustImpure.addProcessingHandler(PropertyKey.ORE, OreRecipeHandler::processDirtyDust);
+
         OrePrefix.dustPure.addProcessingHandler(PropertyKey.ORE, OreRecipeHandler::processPureDust);
+
+        // GT6 ore variant handlers
+        OrePrefix.orePoor.addProcessingHandler(PropertyKey.ORE, OreRecipeHandler::processPoorOre);
+        OrePrefix.rawOre.addProcessingHandler(PropertyKey.ORE, OreRecipeHandler::processRawOre);
+        OrePrefix.crushedTiny.addProcessingHandler(PropertyKey.ORE, OreRecipeHandler::processCrushedTiny);
+        OrePrefix.crushedPurifiedTiny.addProcessingHandler(PropertyKey.ORE,
+                OreRecipeHandler::processCrushedPurifiedTiny);
+        OrePrefix.crushedCentrifugedTiny.addProcessingHandler(PropertyKey.ORE,
+                OreRecipeHandler::processCrushedCentrifugedTiny);
     }
 
     private static void processMetalSmelting(OrePrefix crushedPrefix, Material material, OreProperty property) {
@@ -128,13 +139,8 @@ public class OreRecipeHandler {
         ItemStack impureDustStack = OreDictUnifier.get(OrePrefix.dustImpure, material);
         Material byproductMaterial = property.getOreByProduct(0, material);
 
-        // fallback for dirtyGravel, shard & clump
         if (impureDustStack.isEmpty()) {
-            impureDustStack = GTUtility.copyFirst(
-                    OreDictUnifier.get(OrePrefix.dirtyGravel, material),
-                    OreDictUnifier.get(OrePrefix.shard, material),
-                    OreDictUnifier.get(OrePrefix.clump, material),
-                    OreDictUnifier.get(OrePrefix.dust, material));
+            impureDustStack = OreDictUnifier.get(OrePrefix.dust, material);
         }
 
         RecipeMaps.FORGE_HAMMER_RECIPES.recipeBuilder()
@@ -359,13 +365,6 @@ public class OreRecipeHandler {
                     .buildAndRegister();
         }
 
-        if (dustStack.isEmpty()) {
-            // fallback for reduced & cleanGravel
-            dustStack = GTUtility.copyFirst(
-                    OreDictUnifier.get(OrePrefix.reduced, material),
-                    OreDictUnifier.get(OrePrefix.cleanGravel, material));
-        }
-
         RecipeMaps.CENTRIFUGE_RECIPES.recipeBuilder()
                 .input(purePrefix, material)
                 .outputs(dustStack)
@@ -382,6 +381,116 @@ public class OreRecipeHandler {
                 .duration(8).EUt(4).buildAndRegister();
 
         processMetalSmelting(purePrefix, material, property);
+    }
+
+    public static void processRefinedDust(OrePrefix refinedPrefix, Material material, OreProperty property) {
+        processPureDust(refinedPrefix, material, property);
+    }
+
+    // GT6: Poor ore - yields 1/4 of regular ore drop (forge hammer → 2 dustTiny, macerator → dustSmall + byproduct)
+    public static void processPoorOre(OrePrefix poorOrePrefix, Material material, OreProperty property) {
+        Material byproductMaterial = property.getOreByProduct(0, material);
+        ItemStack byproductStack = OreDictUnifier.get(OrePrefix.gem, byproductMaterial);
+        if (byproductStack.isEmpty()) byproductStack = OreDictUnifier.get(OrePrefix.dust, byproductMaterial);
+        ItemStack dustSmallStack = OreDictUnifier.get(OrePrefix.dustSmall, material);
+        if (dustSmallStack.isEmpty()) dustSmallStack = OreDictUnifier.get(OrePrefix.dust, material);
+        Material smeltingMaterial = property.getDirectSmeltResult() == null ? material :
+                property.getDirectSmeltResult();
+
+        if (!dustSmallStack.isEmpty()) {
+            RecipeMaps.FORGE_HAMMER_RECIPES.recipeBuilder()
+                    .input(poorOrePrefix, material)
+                    .outputs(OreDictUnifier.get(OrePrefix.dustTiny, material, 2))
+                    .duration(10).EUt(16).buildAndRegister();
+
+            RecipeMaps.MACERATOR_RECIPES.recipeBuilder()
+                    .input(poorOrePrefix, material)
+                    .outputs(dustSmallStack)
+                    .chancedOutput(byproductStack, 1400, 850)
+                    .duration(200).buildAndRegister();
+        }
+
+        if (smeltingMaterial.hasProperty(PropertyKey.INGOT) && doesMaterialUseNormalFurnace(smeltingMaterial)) {
+            ItemStack nuggetStack = OreDictUnifier.get(OrePrefix.nugget, smeltingMaterial);
+            if (!nuggetStack.isEmpty()) {
+                ModHandler.addSmeltingRecipe(new UnificationEntry(poorOrePrefix, material), nuggetStack, 0.5f);
+            }
+        } else if (smeltingMaterial.hasProperty(PropertyKey.GEM) && doesMaterialUseNormalFurnace(smeltingMaterial)) {
+            ItemStack gemStack = OreDictUnifier.get(OrePrefix.gem, smeltingMaterial);
+            if (!gemStack.isEmpty()) {
+                ModHandler.addSmeltingRecipe(new UnificationEntry(poorOrePrefix, material), gemStack, 0.5f);
+            }
+        }
+    }
+
+    // GT6: Raw ore - like a regular ore but as an item (1M worth)
+    public static void processRawOre(OrePrefix rawOrePrefix, Material material, OreProperty property) {
+        processOre(rawOrePrefix, material, property, 1);
+    }
+
+
+
+    // GT6: Tiny crushed ore - 1/9 of a regular crushed ore
+    public static void processCrushedTiny(OrePrefix crushedTinyPrefix, Material material, OreProperty property) {
+        // 9 crushedTiny → crushed (packer)
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(crushedTinyPrefix, material, 9)
+                .circuitMeta(1)
+                .output(OrePrefix.crushed, material)
+                .buildAndRegister();
+        // crushed → 9 crushedTiny
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(OrePrefix.crushed, material)
+                .circuitMeta(9)
+                .output(crushedTinyPrefix, material, 9)
+                .buildAndRegister();
+        // macerator: crushedTiny → dustTiny + byproduct chance
+        Material byproductMaterial = property.getOreByProduct(0, material);
+        ItemStack byproductStack = OreDictUnifier.get(OrePrefix.dustTiny, byproductMaterial);
+        if (byproductStack.isEmpty()) byproductStack = OreDictUnifier.get(OrePrefix.dust, byproductMaterial);
+        RecipeMaps.MACERATOR_RECIPES.recipeBuilder()
+                .input(crushedTinyPrefix, material)
+                .output(OrePrefix.dustTiny, material)
+                .chancedOutput(byproductStack, 1400, 850)
+                .duration(100).buildAndRegister();
+    }
+
+    // GT6: Tiny purified crushed ore
+    public static void processCrushedPurifiedTiny(OrePrefix crushedPurifiedTinyPrefix, Material material,
+                                                  OreProperty property) {
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(crushedPurifiedTinyPrefix, material, 9)
+                .circuitMeta(1)
+                .output(OrePrefix.crushedPurified, material)
+                .buildAndRegister();
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(OrePrefix.crushedPurified, material)
+                .circuitMeta(9)
+                .output(crushedPurifiedTinyPrefix, material, 9)
+                .buildAndRegister();
+        RecipeMaps.MACERATOR_RECIPES.recipeBuilder()
+                .input(crushedPurifiedTinyPrefix, material)
+                .output(OrePrefix.dustTiny, material)
+                .duration(100).buildAndRegister();
+    }
+
+    // GT6: Tiny centrifuged crushed ore
+    public static void processCrushedCentrifugedTiny(OrePrefix crushedCentrifugedTinyPrefix, Material material,
+                                                     OreProperty property) {
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(crushedCentrifugedTinyPrefix, material, 9)
+                .circuitMeta(1)
+                .output(OrePrefix.crushedCentrifuged, material)
+                .buildAndRegister();
+        RecipeMaps.PACKER_RECIPES.recipeBuilder()
+                .input(OrePrefix.crushedCentrifuged, material)
+                .circuitMeta(9)
+                .output(crushedCentrifugedTinyPrefix, material, 9)
+                .buildAndRegister();
+        RecipeMaps.MACERATOR_RECIPES.recipeBuilder()
+                .input(crushedCentrifugedTinyPrefix, material)
+                .output(OrePrefix.dustTiny, material)
+                .duration(100).buildAndRegister();
     }
 
     private static boolean doesMaterialUseNormalFurnace(Material material) {

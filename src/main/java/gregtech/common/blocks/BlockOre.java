@@ -1,9 +1,11 @@
 package gregtech.common.blocks;
 
 import gregtech.api.items.toolitem.ToolClasses;
+import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.material.Material;
 import gregtech.api.unification.material.info.MaterialFlags;
 import gregtech.api.unification.material.properties.PropertyKey;
+import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.ore.StoneType;
 import gregtech.api.unification.ore.StoneTypes;
 import gregtech.api.util.GTUtility;
@@ -28,6 +30,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,7 +40,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 public class BlockOre extends Block implements IBlockOre {
@@ -80,31 +82,40 @@ public class BlockOre extends Block implements IBlockOre {
         setDefaultState(stateContainer.getBaseState());
     }
 
-    @NotNull
     @Override
-    public Item getItemDropped(@NotNull IBlockState state, @NotNull Random rand, int fortune) {
-        StoneType stoneType = state.getValue(STONE_TYPE);
-        // if the stone type should be dropped as an item, or if it is within the first 16 block states
-        // don't do any special handling
-        if (stoneType.shouldBeDroppedAsItem || StoneType.STONE_TYPE_REGISTRY.getIDForObject(stoneType) < 16) {
-            return super.getItemDropped(state, rand, fortune);
+    public void getDrops(@NotNull NonNullList<ItemStack> drops, @NotNull IBlockAccess world,
+                         @NotNull BlockPos pos, @NotNull IBlockState state, int fortune) {
+        // Prefer raw ore item drops when they exist for this material.
+        ItemStack rawOreDrop = OreDictUnifier.get(OrePrefix.rawOre, this.material);
+        if (!rawOreDrop.isEmpty()) {
+            StoneType stoneType = state.getValue(STONE_TYPE);
+            int baseAmount = stoneType.oreDropMultiplier;
+            int amount = baseAmount;
+            if (fortune > 0) {
+                int bonus = RANDOM.nextInt(fortune + 2) - 1;
+                if (bonus > 0) {
+                    amount += bonus;
+                }
+            }
+            rawOreDrop = rawOreDrop.copy();
+            rawOreDrop.setCount(amount);
+            drops.add(rawOreDrop);
+            return;
         }
 
-        // always drop StoneTypes.STONE as the default
-        // this prevents stone types of id>15 from dropping the meta=0 variant of the block,
-        // which might not be the block with the vanilla stone type
-        IBlockState stoneOre = OreConfigUtils.getOreForMaterial(this.material).get(StoneTypes.STONE);
-        return Item.getItemFromBlock(stoneOre.getBlock());
+        StoneType stoneType = state.getValue(STONE_TYPE);
+        if (stoneType.shouldBeDroppedAsItem || StoneType.STONE_TYPE_REGISTRY.getIDForObject(stoneType) < 16) {
+            drops.add(new ItemStack(this, 1, getMetaFromState(state)));
+        } else {
+            IBlockState stoneOre = OreConfigUtils.getOreForMaterial(this.material).get(StoneTypes.STONE);
+            drops.add(new ItemStack(Item.getItemFromBlock(stoneOre.getBlock()), 1, 0));
+        }
     }
 
     @Override
-    public int damageDropped(@NotNull IBlockState state) {
-        StoneType stoneType = state.getValue(STONE_TYPE);
-        if (stoneType.shouldBeDroppedAsItem) {
-            return getMetaFromState(state);
-        } else {
-            return 0;
-        }
+    public boolean canSilkHarvest(@NotNull World world, @NotNull BlockPos pos, @NotNull IBlockState state,
+                                  @NotNull EntityPlayer player) {
+        return true;
     }
 
     @NotNull

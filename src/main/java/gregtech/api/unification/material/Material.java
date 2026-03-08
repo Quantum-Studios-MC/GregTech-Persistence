@@ -15,6 +15,7 @@ import gregtech.api.unification.material.info.MaterialIconSet;
 import gregtech.api.unification.material.properties.BlastProperty;
 import gregtech.api.unification.material.properties.DustProperty;
 import gregtech.api.unification.material.properties.ExtraToolProperty;
+import gregtech.api.unification.material.properties.FluidDataProperty;
 import gregtech.api.unification.material.properties.FluidPipeProperties;
 import gregtech.api.unification.material.properties.FluidProperty;
 import gregtech.api.unification.material.properties.GemProperty;
@@ -1143,6 +1144,58 @@ public class Material implements Comparable<Material> {
 
         public Builder itemPipeProperties(int priority, float stacksPerSec) {
             properties.setProperty(PropertyKey.ITEM_PIPE, new ItemPipeProperties(priority, stacksPerSec));
+            return this;
+        }
+
+        /**
+         * Add a {@link FluidDataProperty} to this Material with the given parameters.
+         * <p>
+         * Defines physical fluid characteristics like viscosity, pH, density, etc.
+         * These are used for tooltips and pipe behavior.
+         *
+         * @param viscosity              Viscosity in cP (centipoise)
+         * @param pH                     pH value (0-14 scale)
+         * @param specificHeatCapacity   Specific heat capacity in J/(g*K)
+         * @param electricalConductivity Electrical conductivity in S/m
+         * @param surfaceTension         Surface tension in mN/m
+         * @param density                Density in g/cm^3
+         */
+        public Builder fluidData(double viscosity, double pH, double specificHeatCapacity,
+                                 double electricalConductivity, double surfaceTension, double density) {
+            properties.setProperty(PropertyKey.FLUID_DATA,
+                    new FluidDataProperty(viscosity, pH, specificHeatCapacity,
+                            electricalConductivity, surfaceTension, density));
+            return this;
+        }
+
+        /**
+         * Add a {@link FluidDataProperty} to this Material using a builder.
+         * <p>
+         * Example:
+         * 
+         * <pre>
+         * .fluidData(FluidDataProperty.Builder.create()
+         *     .viscosity(1.002).pH(7.0).density(1.0)
+         *     .build())
+         * </pre>
+         */
+        public Builder fluidData(@NotNull FluidDataProperty fluidDataProperty) {
+            properties.setProperty(PropertyKey.FLUID_DATA, fluidDataProperty);
+            return this;
+        }
+
+        /**
+         * Add a {@link FluidDataProperty} to this Material using a builder function.
+         * <p>
+         * Example:
+         * 
+         * <pre>
+         * .fluidData(b -> b.viscosity(1.002).pH(7.0).density(1.0))
+         * </pre>
+         */
+        public Builder fluidData(@NotNull java.util.function.UnaryOperator<FluidDataProperty.Builder> builderOp) {
+            properties.setProperty(PropertyKey.FLUID_DATA,
+                    builderOp.apply(FluidDataProperty.Builder.create()).build());
             return this;
         }
 
