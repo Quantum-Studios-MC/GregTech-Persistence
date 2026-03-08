@@ -33,11 +33,19 @@ public class StoneType implements Comparable<StoneType> {
     @SuppressWarnings("Guava")
     private final com.google.common.base.Predicate<IBlockState> predicate;
     public final boolean shouldBeDroppedAsItem;
+    /** Base multiplier for raw ore drops from ores in this stone type (e.g. 2 for nether, 3 for end). */
+    public final int oreDropMultiplier;
 
     public static final GTControlledRegistry<String, StoneType> STONE_TYPE_REGISTRY = new GTControlledRegistry<>(128);
 
     public StoneType(int id, String name, SoundType soundType, OrePrefix processingPrefix, Material stoneMaterial,
                      Supplier<IBlockState> stone, Predicate<IBlockState> predicate, boolean shouldBeDroppedAsItem) {
+        this(id, name, soundType, processingPrefix, stoneMaterial, stone, predicate, shouldBeDroppedAsItem, 1);
+    }
+
+    public StoneType(int id, String name, SoundType soundType, OrePrefix processingPrefix, Material stoneMaterial,
+                     Supplier<IBlockState> stone, Predicate<IBlockState> predicate, boolean shouldBeDroppedAsItem,
+                     int oreDropMultiplier) {
         Preconditions.checkArgument(
                 stoneMaterial.hasProperty(PropertyKey.DUST),
                 "Stone type must be made with a Material with the Dust Property!");
@@ -48,6 +56,7 @@ public class StoneType implements Comparable<StoneType> {
         this.stone = stone;
         this.predicate = predicate::test;
         this.shouldBeDroppedAsItem = shouldBeDroppedAsItem || ConfigHolder.worldgen.allUniqueStoneTypes;
+        this.oreDropMultiplier = Math.max(1, oreDropMultiplier);
         STONE_TYPE_REGISTRY.register(id, name, this);
         if (Mods.JustEnoughItems.isModLoaded() && this.shouldBeDroppedAsItem) {
             OreByProduct.addOreByProductPrefix(this.processingPrefix);

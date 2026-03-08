@@ -26,12 +26,12 @@ public class StoneTypes {
     public static StoneType NETHERRACK = new StoneType(1, "netherrack", SoundType.STONE, OrePrefix.oreNetherrack,
             Materials.Netherrack,
             Blocks.NETHERRACK::getDefaultState,
-            state -> state.getBlock() == Blocks.NETHERRACK, true);
+            state -> state.getBlock() == Blocks.NETHERRACK, true, 2);
 
     public static StoneType ENDSTONE = new StoneType(2, "endstone", SoundType.STONE, OrePrefix.oreEndstone,
             Materials.Endstone,
             Blocks.END_STONE::getDefaultState,
-            state -> state.getBlock() == Blocks.END_STONE, true);
+            state -> state.getBlock() == Blocks.END_STONE, true, 3);
 
     // Dummy Types used for better world generation
 
@@ -85,6 +85,51 @@ public class StoneTypes {
     public static StoneType BASALT = new StoneType(11, "basalt", SoundType.STONE, OrePrefix.oreBasalt, Materials.Basalt,
             () -> gtStoneState(StoneVariantBlock.StoneType.BASALT),
             state -> gtStonePredicate(state, StoneVariantBlock.StoneType.BASALT), false);
+
+    public static StoneType KOMATIITE = new StoneType(12, "komatiite", SoundType.STONE, OrePrefix.oreKomatiite,
+            Materials.Komatiite,
+            () -> gtStoneState(StoneVariantBlock.StoneType.KOMATIITE),
+            state -> gtStonePredicate(state, StoneVariantBlock.StoneType.KOMATIITE), false);
+
+    public static StoneType KIMBERLITE = new StoneType(13, "kimberlite", SoundType.STONE, OrePrefix.oreKimberlite,
+            Materials.Kimberlite,
+            () -> gtStoneState(StoneVariantBlock.StoneType.KIMBERLITE),
+            state -> gtStonePredicate(state, StoneVariantBlock.StoneType.KIMBERLITE), false);
+
+    public static StoneType LIMESTONE = new StoneType(14, "limestone", SoundType.STONE, OrePrefix.oreLimestone,
+            Materials.Limestone,
+            () -> gtStoneState(StoneVariantBlock.StoneType.LIMESTONE),
+            state -> gtStonePredicate(state, StoneVariantBlock.StoneType.LIMESTONE), false);
+
+    public static StoneType QUARTZITE_STONE = new StoneType(15, "quartzite", SoundType.STONE, OrePrefix.oreQuartzite,
+            Materials.Quartzite,
+            () -> gtStoneState(StoneVariantBlock.StoneType.QUARTZITE),
+            state -> gtStonePredicate(state, StoneVariantBlock.StoneType.QUARTZITE), false);
+
+    public static StoneType GREEN_SCHIST = new StoneType(16, "green_schist", SoundType.STONE, OrePrefix.oreGreenSchist,
+            Materials.GreenSchist,
+            () -> gtStoneState(StoneVariantBlock.StoneType.GREEN_SCHIST),
+            state -> gtStonePredicate(state, StoneVariantBlock.StoneType.GREEN_SCHIST), false);
+
+    public static StoneType BLUE_SCHIST = new StoneType(17, "blue_schist", SoundType.STONE, OrePrefix.oreBlueSchist,
+            Materials.BlueSchist,
+            () -> gtStoneState(StoneVariantBlock.StoneType.BLUE_SCHIST),
+            state -> gtStonePredicate(state, StoneVariantBlock.StoneType.BLUE_SCHIST), false);
+
+    public static StoneType SHALE = new StoneType(18, "shale", SoundType.STONE, OrePrefix.oreShale,
+            Materials.Shale,
+            () -> gtStoneState(StoneVariantBlock.StoneType.SHALE),
+            state -> gtStonePredicate(state, StoneVariantBlock.StoneType.SHALE), false);
+
+    public static StoneType SLATE = new StoneType(19, "slate", SoundType.STONE, OrePrefix.oreSlate,
+            Materials.Slate,
+            () -> gtStoneState(StoneVariantBlock.StoneType.SLATE),
+            state -> gtStonePredicate(state, StoneVariantBlock.StoneType.SLATE), false);
+
+    public static StoneType GNEISS = new StoneType(20, "gneiss", SoundType.STONE, OrePrefix.oreGneiss,
+            Materials.Gneiss,
+            () -> gtStoneState(StoneVariantBlock.StoneType.GNEISS),
+            state -> gtStonePredicate(state, StoneVariantBlock.StoneType.GNEISS), false);
 
     private static IBlockState gtStoneState(StoneVariantBlock.StoneType stoneType) {
         return MetaBlocks.STONE_BLOCKS.get(StoneVariant.SMOOTH).getState(stoneType);

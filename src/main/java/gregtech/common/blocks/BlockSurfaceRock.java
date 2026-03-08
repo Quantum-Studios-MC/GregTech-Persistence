@@ -85,7 +85,12 @@ public abstract class BlockSurfaceRock extends BlockMaterialBase {
     }
 
     private ItemStack getDropStack(IBlockState state, int amount) {
-        return OreDictUnifier.get(OrePrefix.dustTiny, getGtMaterial(state), amount);
+        Material mat = getGtMaterial(state);
+        ItemStack rockStack = OreDictUnifier.get(OrePrefix.rockGt, mat, amount);
+        if (rockStack.isEmpty()) {
+            return OreDictUnifier.get(OrePrefix.dustTiny, mat, amount);
+        }
+        return rockStack;
     }
 
     @Override
@@ -98,7 +103,7 @@ public abstract class BlockSurfaceRock extends BlockMaterialBase {
     @Override
     public void getDrops(NonNullList<ItemStack> drops, @NotNull IBlockAccess world, @NotNull BlockPos pos,
                          @NotNull IBlockState state, int fortune) {
-        int amount = 3 + GTValues.RNG.nextInt((int) (2 + fortune * 1.5));
+        int amount = 1 + GTValues.RNG.nextInt(2 + fortune);
         drops.add(getDropStack(state, amount));
     }
 

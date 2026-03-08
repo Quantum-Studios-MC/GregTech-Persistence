@@ -182,6 +182,10 @@ public class CachedGridEntry implements GridEntryInfo, IBlockGeneratorAccess, IB
                     ((VeinChunkPopulator) veinPopulator).populateChunk(world, chunkX, chunkZ, random, definition, this);
                 }
             }
+            // GTNH-style: scatter poor ores around veins as indicators
+            if (ConfigHolder.worldgen.generatePoorOres) {
+                generatePoorOreScatter(world, chunkX, chunkZ, random, chunkDataEntry);
+            }
             return true;
         }
         return false;
@@ -200,6 +204,62 @@ public class CachedGridEntry implements GridEntryInfo, IBlockGeneratorAccess, IB
             return blockStates;
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * GTNH-style placer ore generation: scatter poor ores at random positions
+     * throughout the chunk column as vein indicators.
+     */
+    private void generatePoorOreScatter(World world, int chunkX, int chunkZ, Random random,
+                                        ChunkDataEntry chunkDataEntry) {
+        MutableBlockPos pos = new MutableBlockPos();
+        int baseX = chunkX * 16;
+        int baseZ = chunkZ * 16;
+        int poorOresPerChunk = ConfigHolder.worldgen.poorOresPerChunk;
+
+        for (OreDepositDefinition definition : chunkDataEntry.generatedOres) {
+            if (!definition.isVein()) continue;
+
+            // Extract ore materials from the vein filler
+            Set<gregtech.api.unification.material.Material> veinMaterials = new LinkedHashSet<>();
+            for (gregtech.api.worldgen.filler.FillerEntry fillerEntry : definition.getBlockFiller()
+                    .getAllPossibleStates()) {
+                for (IBlockState state : fillerEntry.getPossibleResults()) {
+                    if (state.getBlock() instanceof gregtech.common.blocks.BlockOre) {
+                        veinMaterials.add(((gregtech.common.blocks.BlockOre) state.getBlock()).material);
+                    }
+                }
+            }
+            if (veinMaterials.isEmpty()) continue;
+
+            List<gregtech.api.unification.material.Material> materialList = new ArrayList<>(veinMaterials);
+
+            for (int i = 0; i < poorOresPerChunk; i++) {
+                gregtech.api.unification.material.Material material = materialList
+                        .get(random.nextInt(materialList.size()));
+                Map<gregtech.api.unification.ore.StoneType, IBlockState> poorOreMap = gregtech.api.worldgen.config.OreConfigUtils
+                        .getPoorOreForMaterial(material);
+                if (poorOreMap.isEmpty()) continue;
+
+                int x = baseX + random.nextInt(16);
+                int z = baseZ + random.nextInt(16);
+                // Random Y: 10 to min(170, world height) - like GTNH, scattered throughout the column
+                int maxY = Math.min(170, world.getActualHeight() - 1);
+                int y = 10 + random.nextInt(Math.max(1, maxY - 10));
+
+                pos.setPos(x, y, z);
+                IBlockState currentState = world.getBlockState(pos);
+                gregtech.api.unification.ore.StoneType stoneType = gregtech.api.unification.ore.StoneType
+                        .computeStoneType(currentState, world, pos);
+                if (stoneType == null) continue;
+
+                IBlockState poorOreState = poorOreMap.get(stoneType);
+                if (poorOreState == null) continue;
+
+                // set flags as 16 to avoid observer updates loading neighbour chunks
+                world.setBlockState(pos, poorOreState, 16);
+            }
+        }
     }
 
     private static GTWorldGenCapability retrieveCapability(World world, int chunkX, int chunkZ) {

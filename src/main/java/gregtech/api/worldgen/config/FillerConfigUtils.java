@@ -66,6 +66,20 @@ public class FillerConfigUtils {
             return FillerEntry.createSimpleFiller(fluid.getBlock().getDefaultState());
 
         } else if (stringDeclaration.startsWith("ore:")) {
+            String oreSpec = stringDeclaration.substring(4);
+            // Support ore:material@stone_type syntax to force a specific strata ore prefix
+            // e.g. ore:iron@granite forces iron ore to always use the granite ore prefix
+            if (oreSpec.contains("@")) {
+                int atIndex = oreSpec.indexOf('@');
+                String materialName = oreSpec.substring(0, atIndex);
+                String stoneTypeName = oreSpec.substring(atIndex + 1);
+                Map<StoneType, IBlockState> fullMap = OreConfigUtils.getOreStateMap("ore:" + materialName);
+                StoneType targetType = OreConfigUtils.getStoneTypeByName(stoneTypeName);
+                IBlockState forcedState = fullMap.get(targetType);
+                Preconditions.checkNotNull(forcedState,
+                        "No ore variant found for material %s in stone type %s", materialName, stoneTypeName);
+                return new ForcedStrataOreFilterEntry(fullMap, targetType, forcedState);
+            }
             Map<StoneType, IBlockState> blockStateMap = OreConfigUtils.getOreStateMap(stringDeclaration);
             return new OreFilterEntry(blockStateMap);
 
@@ -160,6 +174,39 @@ public class FillerConfigUtils {
         public IBlockState apply(IBlockState source, IBlockAccess blockAccess, BlockPos blockPos) {
             StoneType stoneType = StoneType.computeStoneType(source, blockAccess, blockPos);
             return blockStateMap.get(stoneType == null ? defaultValue : stoneType);
+        }
+
+        @Override
+        public Set<IBlockState> getPossibleResults() {
+            return allowedStates;
+        }
+    }
+
+    /**
+     * A filler entry that forces ores to use a specific stone type's ore variant,
+     * regardless of the actual stone type in the world. This allows configurations
+     * like "ore:iron@granite" which always places the granite variant of iron ore.
+     * <p>
+     * If the actual stone type in the world matches one in the full map, that variant
+     * is used; otherwise, the forced state from the specified stone type is used.
+     */
+    private static class ForcedStrataOreFilterEntry implements FillerEntry {
+
+        private final Map<StoneType, IBlockState> blockStateMap;
+        private final IBlockState forcedState;
+        private final ImmutableSet<IBlockState> allowedStates;
+
+        public ForcedStrataOreFilterEntry(Map<StoneType, IBlockState> blockStateMap,
+                                          StoneType targetType, IBlockState forcedState) {
+            this.blockStateMap = blockStateMap;
+            this.forcedState = forcedState;
+            this.allowedStates = ImmutableSet.of(forcedState);
+        }
+
+        @Override
+        public IBlockState apply(IBlockState source, IBlockAccess blockAccess, BlockPos blockPos) {
+            // Always use the forced strata variant
+            return forcedState;
         }
 
         @Override

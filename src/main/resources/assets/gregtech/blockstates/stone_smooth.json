@@ -1,4 +1,4 @@
-{
+﻿{
   "forge_marker": 1,
   "defaults": {
     "model": "minecraft:cube_all"
@@ -33,6 +33,51 @@
       "concrete_dark": {
         "textures": {
           "all": "gregtech:blocks/stones/concrete_dark/concrete_dark_smooth"
+        }
+      },
+      "komatiite": {
+        "textures": {
+          "all": "gregtech:blocks/stones/komatiite/komatiite_smooth"
+        }
+      },
+      "kimberlite": {
+        "textures": {
+          "all": "gregtech:blocks/stones/kimberlite/kimberlite_smooth"
+        }
+      },
+      "limestone": {
+        "textures": {
+          "all": "gregtech:blocks/stones/limestone/limestone_smooth"
+        }
+      },
+      "quartzite": {
+        "textures": {
+          "all": "gregtech:blocks/stones/quartzite/quartzite_smooth"
+        }
+      },
+      "green_schist": {
+        "textures": {
+          "all": "gregtech:blocks/stones/green_schist/green_schist_smooth"
+        }
+      },
+      "blue_schist": {
+        "textures": {
+          "all": "gregtech:blocks/stones/blue_schist/blue_schist_smooth"
+        }
+      },
+      "shale": {
+        "textures": {
+          "all": "gregtech:blocks/stones/shale/shale_smooth"
+        }
+      },
+      "slate": {
+        "textures": {
+          "all": "gregtech:blocks/stones/slate/slate_smooth"
+        }
+      },
+      "gneiss": {
+        "textures": {
+          "all": "gregtech:blocks/stones/gneiss/gneiss_smooth"
         }
       }
     }

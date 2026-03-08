@@ -58,7 +58,16 @@ public class StoneVariantBlock extends VariantBlock<StoneVariantBlock.StoneType>
         MARBLE("marble", MapColor.QUARTZ),
         BASALT("basalt", MapColor.BLACK_STAINED_HARDENED_CLAY),
         CONCRETE_LIGHT("concrete_light", MapColor.STONE, false),
-        CONCRETE_DARK("concrete_dark", MapColor.STONE, false);
+        CONCRETE_DARK("concrete_dark", MapColor.STONE, false),
+        KOMATIITE("komatiite", MapColor.GREEN_STAINED_HARDENED_CLAY),
+        KIMBERLITE("kimberlite", MapColor.BROWN_STAINED_HARDENED_CLAY),
+        LIMESTONE("limestone", MapColor.SAND),
+        QUARTZITE("quartzite", MapColor.SNOW),
+        GREEN_SCHIST("green_schist", MapColor.LIME_STAINED_HARDENED_CLAY),
+        BLUE_SCHIST("blue_schist", MapColor.BLUE_STAINED_HARDENED_CLAY),
+        SHALE("shale", MapColor.GRAY),
+        SLATE("slate", MapColor.GRAY_STAINED_HARDENED_CLAY),
+        GNEISS("gneiss", MapColor.BROWN);
 
         private final String name;
         private final boolean allowSpawn;
@@ -82,7 +91,9 @@ public class StoneVariantBlock extends VariantBlock<StoneVariantBlock.StoneType>
 
         public OrePrefix getOrePrefix() {
             return switch (this) {
-                case BLACK_GRANITE, RED_GRANITE, MARBLE, BASALT -> OrePrefix.stone;
+                case BLACK_GRANITE, RED_GRANITE, MARBLE, BASALT,
+                     KOMATIITE, KIMBERLITE, LIMESTONE, QUARTZITE,
+                     GREEN_SCHIST, BLUE_SCHIST, SHALE, SLATE, GNEISS -> OrePrefix.stone;
                 case CONCRETE_LIGHT, CONCRETE_DARK -> OrePrefix.block;
             };
         }
@@ -94,6 +105,15 @@ public class StoneVariantBlock extends VariantBlock<StoneVariantBlock.StoneType>
                 case MARBLE -> Materials.Marble;
                 case BASALT -> Materials.Basalt;
                 case CONCRETE_LIGHT, CONCRETE_DARK -> Materials.Concrete;
+                case KOMATIITE -> Materials.Komatiite;
+                case KIMBERLITE -> Materials.Kimberlite;
+                case LIMESTONE -> Materials.Limestone;
+                case QUARTZITE -> Materials.Quartzite;
+                case GREEN_SCHIST -> Materials.GreenSchist;
+                case BLUE_SCHIST -> Materials.BlueSchist;
+                case SHALE -> Materials.Shale;
+                case SLATE -> Materials.Slate;
+                case GNEISS -> Materials.Gneiss;
             };
         }
 

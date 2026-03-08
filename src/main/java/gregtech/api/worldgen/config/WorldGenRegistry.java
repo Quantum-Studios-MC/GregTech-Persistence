@@ -14,6 +14,7 @@ import gregtech.api.worldgen.populator.IVeinPopulator;
 import gregtech.api.worldgen.populator.SurfaceBlockPopulator;
 import gregtech.api.worldgen.populator.SurfaceRockPopulator;
 import gregtech.api.worldgen.shape.*;
+import gregtech.common.worldgen.stoneLayer.WorldgenStoneLayers;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.world.WorldProvider;
@@ -51,7 +52,7 @@ public class WorldGenRegistry {
     public static final WorldGenRegistry INSTANCE = new WorldGenRegistry();
 
     private static final int FLUID_VEIN_VERSION = 2;
-    private static final int ORE_VEIN_VERSION = 1;
+    private static final int ORE_VEIN_VERSION = 2;
 
     private WorldGenRegistry() {}
 
@@ -109,6 +110,8 @@ public class WorldGenRegistry {
         registerShapeGenerator("plate", PlateGenerator::new);
         registerShapeGenerator("single", SingleBlockGenerator::new);
         registerShapeGenerator("layered", LayeredGenerator::new);
+        registerShapeGenerator("dike", DikeGenerator::new);
+        registerShapeGenerator("cloud", CloudGenerator::new);
         registerBlockFiller("simple", SimpleBlockFiller::new);
         registerBlockFiller("layered", LayeredBlockFiller::new);
         registerBlockFiller("ignore_bedrock",
@@ -116,6 +119,10 @@ public class WorldGenRegistry {
         registerVeinPopulator("surface_rock", SurfaceRockPopulator::new);
         registerVeinPopulator("fluid_spring", FluidSpringPopulator::new);
         registerVeinPopulator("surface_block", SurfaceBlockPopulator::new);
+
+        // Stone layer generator must run BEFORE ore gen to replace stone with layer types
+        WorldgenStoneLayers.init();
+        GameRegistry.registerWorldGenerator(WorldgenStoneLayers.INSTANCE, 0);
 
         GameRegistry.registerWorldGenerator(WorldGeneratorImpl.INSTANCE, 1);
         MinecraftForge.ORE_GEN_BUS.register(WorldGeneratorImpl.class);

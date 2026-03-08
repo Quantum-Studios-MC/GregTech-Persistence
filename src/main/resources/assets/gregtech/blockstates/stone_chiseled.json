@@ -1,4 +1,4 @@
-{
+﻿{
   "forge_marker": 1,
   "defaults": {
     "model": "minecraft:cube_all"
@@ -33,6 +33,51 @@
       "concrete_dark": {
         "textures": {
           "all": "gregtech:blocks/stones/concrete_dark/concrete_dark_chiseled"
+        }
+      },
+      "komatiite": {
+        "textures": {
+          "all": "gregtech:blocks/stones/komatiite/komatiite_chiseled"
+        }
+      },
+      "kimberlite": {
+        "textures": {
+          "all": "gregtech:blocks/stones/kimberlite/kimberlite_chiseled"
+        }
+      },
+      "limestone": {
+        "textures": {
+          "all": "gregtech:blocks/stones/limestone/limestone_chiseled"
+        }
+      },
+      "quartzite": {
+        "textures": {
+          "all": "gregtech:blocks/stones/quartzite/quartzite_chiseled"
+        }
+      },
+      "green_schist": {
+        "textures": {
+          "all": "gregtech:blocks/stones/green_schist/green_schist_chiseled"
+        }
+      },
+      "blue_schist": {
+        "textures": {
+          "all": "gregtech:blocks/stones/blue_schist/blue_schist_chiseled"
+        }
+      },
+      "shale": {
+        "textures": {
+          "all": "gregtech:blocks/stones/shale/shale_chiseled"
+        }
+      },
+      "slate": {
+        "textures": {
+          "all": "gregtech:blocks/stones/slate/slate_chiseled"
+        }
+      },
+      "gneiss": {
+        "textures": {
+          "all": "gregtech:blocks/stones/gneiss/gneiss_chiseled"
         }
       }
     }

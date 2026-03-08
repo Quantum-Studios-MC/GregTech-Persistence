@@ -75,11 +75,51 @@ public class OreConfigUtils {
         return stoneTypeMap;
     }
 
+    @NotNull
+    public static Map<StoneType, IBlockState> getPoorOreForMaterial(Material material) {
+        Map<StoneType, IBlockState> stoneTypeMap = new HashMap<>();
+        for (gregtech.common.blocks.BlockPoorOre blockPoorOre : MetaBlocks.POOR_ORES) {
+            if (blockPoorOre.material == material) {
+                for (StoneType stoneType : blockPoorOre.STONE_TYPE.getAllowedValues()) {
+                    IBlockState blockState = blockPoorOre.getOreBlock(stoneType);
+                    stoneTypeMap.put(stoneType, blockState);
+                }
+            }
+        }
+        return stoneTypeMap;
+    }
+
     public static Material getMaterialByName(String name) {
         Material material = GregTechAPI.materialManager.getMaterial(name);
         if (material == null || !material.hasProperty(PropertyKey.ORE))
             throw new IllegalArgumentException("Material with name " + name + " not found!");
         return material;
+    }
+
+    /**
+     * Looks up a {@link StoneType} by its registered name (e.g. "stone", "granite", "marble").
+     *
+     * @param name the stone type name
+     * @return the matching StoneType
+     * @throws IllegalArgumentException if no StoneType with that name exists
+     */
+    @NotNull
+    public static StoneType getStoneTypeByName(String name) {
+        for (StoneType stoneType : StoneType.STONE_TYPE_REGISTRY) {
+            if (stoneType.name.equals(name)) {
+                return stoneType;
+            }
+        }
+        throw new IllegalArgumentException("StoneType with name " + name + " not found! Valid types: " +
+                getStoneTypeNames());
+    }
+
+    private static String getStoneTypeNames() {
+        List<String> names = new ArrayList<>();
+        for (StoneType stoneType : StoneType.STONE_TYPE_REGISTRY) {
+            names.add(stoneType.name);
+        }
+        return String.join(", ", names);
     }
 
     public static Block getBlockByName(String name) {

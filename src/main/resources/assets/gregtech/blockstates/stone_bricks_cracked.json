@@ -1,4 +1,4 @@
-{
+﻿{
   "forge_marker": 1,
   "defaults": {
     "model": "minecraft:cube_all"
@@ -33,6 +33,51 @@
       "concrete_dark": {
         "textures": {
           "all": "gregtech:blocks/stones/concrete_dark/concrete_dark_bricks_cracked"
+        }
+      },
+      "komatiite": {
+        "textures": {
+          "all": "gregtech:blocks/stones/komatiite/komatiite_bricks_cracked"
+        }
+      },
+      "kimberlite": {
+        "textures": {
+          "all": "gregtech:blocks/stones/kimberlite/kimberlite_bricks_cracked"
+        }
+      },
+      "limestone": {
+        "textures": {
+          "all": "gregtech:blocks/stones/limestone/limestone_bricks_cracked"
+        }
+      },
+      "quartzite": {
+        "textures": {
+          "all": "gregtech:blocks/stones/quartzite/quartzite_bricks_cracked"
+        }
+      },
+      "green_schist": {
+        "textures": {
+          "all": "gregtech:blocks/stones/green_schist/green_schist_bricks_cracked"
+        }
+      },
+      "blue_schist": {
+        "textures": {
+          "all": "gregtech:blocks/stones/blue_schist/blue_schist_bricks_cracked"
+        }
+      },
+      "shale": {
+        "textures": {
+          "all": "gregtech:blocks/stones/shale/shale_bricks_cracked"
+        }
+      },
+      "slate": {
+        "textures": {
+          "all": "gregtech:blocks/stones/slate/slate_bricks_cracked"
+        }
+      },
+      "gneiss": {
+        "textures": {
+          "all": "gregtech:blocks/stones/gneiss/gneiss_bricks_cracked"
         }
       }
     }

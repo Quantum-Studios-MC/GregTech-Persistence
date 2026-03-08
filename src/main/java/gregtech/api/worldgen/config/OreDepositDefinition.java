@@ -10,9 +10,15 @@ import gregtech.api.worldgen.shape.ShapeGenerator;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.Biome;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -40,6 +46,13 @@ public class OreDepositDefinition implements IWorldgenDefinition {
 
     private BlockFiller blockFiller;
     private ShapeGenerator shapeGenerator;
+
+    /**
+     * Optional filter restricting which stone types (strata) this vein can generate in.
+     * When non-null, only blocks whose StoneType name is in this set will be replaced.
+     * Configured via the "strata_filter" JSON array, e.g. ["stone", "granite", "marble"].
+     */
+    private @Nullable Set<String> strataFilter;
 
     public OreDepositDefinition(String depositName) {
         this.depositName = depositName;
@@ -76,6 +89,22 @@ public class OreDepositDefinition implements IWorldgenDefinition {
         if (configRoot.has("generation_predicate")) {
             this.generationPredicate = PredicateConfigUtils
                     .createBlockStatePredicate(configRoot.get("generation_predicate"));
+        }
+        if (configRoot.has("strata_filter")) {
+            this.strataFilter = new HashSet<>();
+            JsonArray strataArray = configRoot.get("strata_filter").getAsJsonArray();
+            for (JsonElement element : strataArray) {
+                this.strataFilter.add(element.getAsString());
+            }
+            // Wrap the existing generation predicate so it additionally requires matching strata
+            final WorldBlockPredicate basePredicate = this.generationPredicate;
+            final Set<String> allowedStrata = Collections.unmodifiableSet(this.strataFilter);
+            this.generationPredicate = (state, world, pos) -> {
+                StoneType stoneType = StoneType.computeStoneType(state, world, pos);
+                if (stoneType == null) return false;
+                if (!allowedStrata.contains(stoneType.name)) return false;
+                return basePredicate.test(state, world, pos);
+            };
         }
         if (configRoot.has("vein_populator")) {
             JsonObject object = configRoot.get("vein_populator").getAsJsonObject();
@@ -162,6 +191,13 @@ public class OreDepositDefinition implements IWorldgenDefinition {
 
     public ShapeGenerator getShapeGenerator() {
         return shapeGenerator;
+    }
+
+    /**
+     * Returns the set of allowed stone type names for this vein, or null if all stone types are allowed.
+     */
+    public @Nullable Set<String> getStrataFilter() {
+        return strataFilter;
     }
 
     @Override
