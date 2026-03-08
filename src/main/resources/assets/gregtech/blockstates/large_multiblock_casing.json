@@ -1,0 +1,75 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minecraft:cube_all"
+  },
+  "variants": {
+    "variant": {
+      "macerator_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/macerator_casing"
+        }
+      },
+      "high_temperature_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/blast_casing"
+        }
+      },
+      "assembling_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/assembler_casing"
+        }
+      },
+      "stress_proof_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/stress_proof_casing"
+        }
+      },
+      "corrosion_proof_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/corrosion_proof_casing"
+        }
+      },
+      "vibration_safe_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/vibration_safe_casing"
+        }
+      },
+      "watertight_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/watertight_casing"
+        }
+      },
+      "cutter_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/cutter_casing"
+        }
+      },
+      "nonconducting_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/nonconducting_casing"
+        }
+      },
+      "mixer_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/mixer_casing"
+        }
+      },
+      "engraver_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/engraver_casing"
+        }
+      },
+      "atomic_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/atomic_casing"
+        }
+      },
+      "steam_casing": {
+        "textures": {
+          "all": "gregtech:blocks/casings/large_multiblock_casing/steam_casing"
+        }
+      }
+    }
+  }
+}
