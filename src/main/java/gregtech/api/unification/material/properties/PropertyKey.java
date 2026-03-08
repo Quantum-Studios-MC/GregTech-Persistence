@@ -24,8 +24,9 @@ public class PropertyKey<T extends IMaterialProperty> {
             FissionFuelProperty.class);
     public static final PropertyKey<RadioactiveProperty> RADIOACTIVE = new PropertyKey<>("radioactive",
             RadioactiveProperty.class);
+    public static final PropertyKey<FluidDataProperty> FLUID_DATA = new PropertyKey<>("fluid_data",
+            FluidDataProperty.class);
 
-    // Empty property used to allow property-less Materials without removing base type enforcement
     public static final PropertyKey<EmptyProperty> EMPTY = new PropertyKey<>("empty", EmptyProperty.class);
 
     private final String key;

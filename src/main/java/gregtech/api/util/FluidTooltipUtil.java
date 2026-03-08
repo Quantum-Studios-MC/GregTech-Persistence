@@ -4,6 +4,8 @@ import gregtech.api.GTValues;
 import gregtech.api.fluids.FluidState;
 import gregtech.api.fluids.GTFluid;
 import gregtech.api.unification.material.Material;
+import gregtech.api.unification.material.properties.FluidDataProperty;
+import gregtech.api.unification.material.properties.PropertyKey;
 import gregtech.client.utils.TooltipHelper;
 
 import net.minecraft.client.resources.I18n;
@@ -65,12 +67,65 @@ public class FluidTooltipUtil {
     public static void handleFluidTooltip(@NotNull RichTooltip tooltip, @Nullable Fluid fluid) {
         if (fluid == null) return;
 
+        if (fluid instanceof GTFluid gtFluid) {
+            handleGTFluidTooltip(tooltip, gtFluid);
+            return;
+        }
+
+        appendRegisteredTooltips(tooltip, fluid);
+    }
+
+    private static void appendRegisteredTooltips(@NotNull RichTooltip tooltip, @NotNull Fluid fluid) {
+
         var tooltipList = tooltips.get(fluid);
         if (tooltipList == null) return;
 
         for (var subList : tooltipList) {
             for (String tooltipStr : subList.get()) {
                 tooltip.addLine(IKey.str(tooltipStr));
+            }
+        }
+    }
+
+    private static void handleGTFluidTooltip(@NotNull RichTooltip tooltip, @NotNull GTFluid fluid) {
+        Material material = fluid instanceof GTFluid.GTMaterialFluid matFluid ? matFluid.getMaterial() : null;
+
+        if (material != null && !material.getChemicalFormula().isEmpty()) {
+            tooltip.addLine(KeyUtil.string(TextFormatting.YELLOW, material.getChemicalFormula()));
+        }
+
+        tooltip.addLine(IKey.lang("gregtech.fluid.temperature", fluid.getTemperature()));
+        tooltip.addLine(IKey.lang(fluid.getState().getTranslationKey()));
+
+        List<String> attributeLines = new ArrayList<>();
+        fluid.getAttributes().forEach(attribute -> attribute.appendFluidTooltips(attributeLines));
+        for (String attributeLine : attributeLines) {
+            if (!attributeLine.isEmpty()) {
+                tooltip.addLine(IKey.str(TextFormatting.GRAY + "- " + TextFormatting.RESET + attributeLine));
+            }
+        }
+
+        if (fluid.getTemperature() < CRYOGENIC_FLUID_THRESHOLD) {
+            tooltip.addLine(IKey.lang("gregtech.fluid.temperature.cryogenic"));
+        }
+
+        if (material != null && material.hasProperty(PropertyKey.FLUID_DATA)) {
+            FluidDataProperty data = material.getProperty(PropertyKey.FLUID_DATA);
+
+            tooltip.addLine(IKey.str(TextFormatting.DARK_GRAY + "----------------"));
+            tooltip.addLine(IKey.lang("gregtech.fluid_data.viscosity", String.format("%.1f", data.getViscosity()),
+                    I18n.format(data.getViscosityCategory())));
+            tooltip.addLine(IKey.lang("gregtech.fluid_data.ph", String.format("%.1f", data.getPH()),
+                    I18n.format(data.getPHCategory())));
+            tooltip.addLine(IKey.lang("gregtech.fluid_data.density", String.format("%.3f", data.getDensity())));
+            tooltip.addLine(IKey.lang("gregtech.fluid_data.heat_capacity",
+                    String.format("%.3f", data.getSpecificHeatCapacity())));
+            tooltip.addLine(IKey.lang("gregtech.fluid_data.surface_tension",
+                    String.format("%.1f", data.getSurfaceTension())));
+
+            if (data.getElectricalConductivity() > 0) {
+                tooltip.addLine(IKey.lang("gregtech.fluid_data.conductivity",
+                        String.format("%.2f", data.getElectricalConductivity())));
             }
         }
     }
@@ -131,6 +186,25 @@ public class FluidTooltipUtil {
                 tooltip.add(I18n.format("gregtech.fluid.temperature.cryogenic"));
             }
 
+            if (material != null && material.hasProperty(PropertyKey.FLUID_DATA)) {
+                FluidDataProperty data = material.getProperty(PropertyKey.FLUID_DATA);
+                tooltip.add(I18n.format("gregtech.fluid_data.viscosity", String.format("%.1f", data.getViscosity()),
+                        I18n.format(data.getViscosityCategory())));
+                tooltip.add(I18n.format("gregtech.fluid_data.ph", String.format("%.1f", data.getPH()),
+                        I18n.format(data.getPHCategory())));
+                tooltip.add(I18n.format("gregtech.fluid_data.density", String.format("%.3f", data.getDensity())));
+                if (TooltipHelper.isShiftDown()) {
+                    tooltip.add(I18n.format("gregtech.fluid_data.heat_capacity",
+                            String.format("%.3f", data.getSpecificHeatCapacity())));
+                    tooltip.add(I18n.format("gregtech.fluid_data.surface_tension",
+                            String.format("%.1f", data.getSurfaceTension())));
+                    if (data.getElectricalConductivity() > 0) {
+                        tooltip.add(I18n.format("gregtech.fluid_data.conductivity",
+                                String.format("%.2f", data.getElectricalConductivity())));
+                    }
+                }
+            }
+
             return tooltip;
         };
     }
@@ -178,14 +252,18 @@ public class FluidTooltipUtil {
     }
 
     public static @NotNull String getFluidModName(@NotNull Fluid fluid) {
-        ModContainer modContainer = Loader.instance().getIndexedModList().get(getFluidModID(fluid));
-        if (modContainer == null) throw new IllegalStateException(
-                "Tried to get the mod name of a fluid that isn't registered to the Forge FluidRegistry");
-        return "§9§o" + modContainer.getName() + "§r";
+        String fluidModId = getFluidModID(fluid);
+        ModContainer modContainer = Loader.instance().getIndexedModList().get(fluidModId);
+        String modName = modContainer != null ? modContainer.getName() : fluidModId;
+        return "§9§o" + modName + "§r";
     }
 
     public static @NotNull String getFluidModID(@NotNull Fluid fluid) {
         String fluidModName = FluidRegistry.getDefaultFluidName(fluid);
-        return fluidModName.substring(0, fluidModName.indexOf(":"));
+        if (fluidModName == null || fluidModName.isEmpty()) {
+            return "unknown";
+        }
+        int separatorIndex = fluidModName.indexOf(":");
+        return separatorIndex > 0 ? fluidModName.substring(0, separatorIndex) : fluidModName;
     }
 }
