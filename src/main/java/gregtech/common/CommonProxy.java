@@ -25,14 +25,20 @@ import gregtech.api.unification.stack.RecyclingData;
 import gregtech.api.util.AssemblyLineManager;
 import gregtech.api.util.GTLog;
 import gregtech.common.blocks.BlockCompressed;
+import gregtech.common.blocks.BlockDustCompressed;
+import gregtech.common.blocks.DustCompressedItemBlock;
 import gregtech.common.blocks.BlockFrame;
 import gregtech.common.blocks.BlockLamp;
 import gregtech.common.blocks.BlockOre;
+import gregtech.common.blocks.BlockPoorOre;
 import gregtech.common.blocks.BlockSurfaceRock;
+import gregtech.common.blocks.BlockStoneLayerRock;
+import gregtech.common.blocks.GCYMMetaBlocks;
 import gregtech.common.blocks.LampItemBlock;
 import gregtech.common.blocks.MaterialItemBlock;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.blocks.OreItemBlock;
+import gregtech.common.blocks.PoorOreItemBlock;
 import gregtech.common.blocks.StoneVariantBlock;
 import gregtech.common.items.MetaItems;
 import gregtech.common.items.ToolItems;
@@ -40,6 +46,8 @@ import gregtech.common.pipelike.cable.BlockCable;
 import gregtech.common.pipelike.cable.ItemBlockCable;
 import gregtech.common.pipelike.fluidpipe.BlockFluidPipe;
 import gregtech.common.pipelike.fluidpipe.ItemBlockFluidPipe;
+import gregtech.common.pipelike.glasspipe.BlockGlassPipe;
+import gregtech.common.pipelike.glasspipe.ItemBlockGlassPipe;
 import gregtech.common.pipelike.itempipe.BlockItemPipe;
 import gregtech.common.pipelike.itempipe.ItemBlockItemPipe;
 import gregtech.common.pipelike.laser.BlockLaserPipe;
@@ -109,6 +117,7 @@ public class CommonProxy {
             for (Material material : materialRegistry) {
                 if (material.hasProperty(PropertyKey.ORE) && !material.hasFlag(MaterialFlags.DISABLE_ORE_BLOCK)) {
                     createOreBlock(material);
+                    createPoorOreBlock(material);
                 }
 
                 if (material.hasProperty(PropertyKey.WIRE)) {
@@ -152,6 +161,7 @@ public class CommonProxy {
         }
         for (BlockOpticalPipe pipe : OPTICAL_PIPES) registry.register(pipe);
         for (BlockLaserPipe pipe : LASER_PIPES) registry.register(pipe);
+        for (BlockGlassPipe pipe : GLASS_PIPES) registry.register(pipe);
 
         registry.register(LD_ITEM_PIPE);
         registry.register(LD_FLUID_PIPE);
@@ -198,13 +208,22 @@ public class CommonProxy {
         registry.register(LARGE_METAL_SHEET);
         registry.register(STUDS);
 
+        registry.register(SIGNAL_BEACON);
+
         for (BlockLamp block : LAMPS.values()) registry.register(block);
         for (BlockLamp block : BORDERLESS_LAMPS.values()) registry.register(block);
 
         for (BlockCompressed block : COMPRESSED_BLOCKS) registry.register(block);
+        for (BlockDustCompressed block : DUST_COMPRESSED_BLOCKS) registry.register(block);
         for (BlockFrame block : FRAME_BLOCKS) registry.register(block);
         for (BlockSurfaceRock block : SURFACE_ROCK_BLOCKS) registry.register(block);
+        for (BlockStoneLayerRock block : STONE_LAYER_ROCK_BLOCKS) registry.register(block);
         for (BlockOre block : ORES) registry.register(block);
+        for (BlockPoorOre block : POOR_ORES) registry.register(block);
+
+        // GCYM Blocks
+        registry.register(GCYMMetaBlocks.LARGE_MULTIBLOCK_CASING);
+        registry.register(GCYMMetaBlocks.UNIQUE_CASING);
     }
 
     private static void createOreBlock(Material material) {
@@ -234,6 +253,27 @@ public class CommonProxy {
             GregTechAPI.oreBlockTable.computeIfAbsent(material, m -> new HashMap<>()).put(stoneType, block);
         }
         ORES.add(block);
+    }
+
+    private static void createPoorOreBlock(Material material) {
+        StoneType[] stoneTypeBuffer = new StoneType[16];
+        int generationIndex = 0;
+        for (StoneType stoneType : StoneType.STONE_TYPE_REGISTRY) {
+            int id = StoneType.STONE_TYPE_REGISTRY.getIDForObject(stoneType), index = id / 16;
+            if (index > generationIndex) {
+                createPoorOreBlock(material, copyNotNull(stoneTypeBuffer), generationIndex);
+                Arrays.fill(stoneTypeBuffer, null);
+            }
+            stoneTypeBuffer[id % 16] = stoneType;
+            generationIndex = index;
+        }
+        createPoorOreBlock(material, copyNotNull(stoneTypeBuffer), generationIndex);
+    }
+
+    private static void createPoorOreBlock(Material material, StoneType[] stoneTypes, int index) {
+        BlockPoorOre block = new BlockPoorOre(material, stoneTypes);
+        block.setRegistryName("ore_poor_" + material + "_" + index);
+        POOR_ORES.add(block);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -283,6 +323,7 @@ public class CommonProxy {
         }
         for (BlockOpticalPipe pipe : OPTICAL_PIPES) registry.register(createItemBlock(pipe, ItemBlockOpticalPipe::new));
         for (BlockLaserPipe pipe : LASER_PIPES) registry.register(createItemBlock(pipe, ItemBlockLaserPipe::new));
+        for (BlockGlassPipe pipe : GLASS_PIPES) registry.register(createItemBlock(pipe, ItemBlockGlassPipe::new));
 
         registry.register(createItemBlock(LD_ITEM_PIPE, ItemBlock::new));
         registry.register(createItemBlock(LD_FLUID_PIPE, ItemBlock::new));
@@ -336,9 +377,13 @@ public class CommonProxy {
         registry.register(createItemBlock(RUBBER_SAPLING, ItemBlock::new));
         registry.register(createItemBlock(POWDERBARREL, ItemBlock::new));
         registry.register(createItemBlock(ITNT, ItemBlock::new));
+        registry.register(createItemBlock(SIGNAL_BEACON, ItemBlock::new));
 
         for (BlockCompressed block : COMPRESSED_BLOCKS) {
             registry.register(createItemBlock(block, b -> new MaterialItemBlock(b, OrePrefix.block)));
+        }
+        for (BlockDustCompressed block : DUST_COMPRESSED_BLOCKS) {
+            registry.register(createItemBlock(block, DustCompressedItemBlock::new));
         }
         for (BlockFrame block : FRAME_BLOCKS) {
             registry.register(createItemBlock(block, b -> new MaterialItemBlock(b, OrePrefix.frameGt)));
@@ -346,6 +391,13 @@ public class CommonProxy {
         for (BlockOre block : ORES) {
             registry.register(createItemBlock(block, OreItemBlock::new));
         }
+        for (BlockPoorOre block : POOR_ORES) {
+            registry.register(createItemBlock(block, PoorOreItemBlock::new));
+        }
+
+        // GCYM Block Items
+        registry.register(createItemBlock(GCYMMetaBlocks.LARGE_MULTIBLOCK_CASING, VariantItemBlock::new));
+        registry.register(createItemBlock(GCYMMetaBlocks.UNIQUE_CASING, VariantItemBlock::new));
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

@@ -55,6 +55,7 @@ public interface IFilter {
     FilterType getType();
 
     enum FilterType {
+
         ITEM,
         FLUID;
 

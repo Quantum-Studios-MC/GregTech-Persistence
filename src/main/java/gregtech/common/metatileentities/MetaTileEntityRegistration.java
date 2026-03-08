@@ -24,6 +24,8 @@ import gregtech.common.metatileentities.electric.MetaTileEntityHull;
 import gregtech.common.metatileentities.electric.MetaTileEntityItemCollector;
 import gregtech.common.metatileentities.electric.MetaTileEntityMagicEnergyAbsorber;
 import gregtech.common.metatileentities.electric.MetaTileEntityMiner;
+import gregtech.common.metatileentities.electric.MetaTileEntityPipePump;
+import gregtech.common.metatileentities.electric.MetaTileEntityPressureSensor;
 import gregtech.common.metatileentities.electric.MetaTileEntityPump;
 import gregtech.common.metatileentities.electric.MetaTileEntityRockBreaker;
 import gregtech.common.metatileentities.electric.MetaTileEntitySingleCombustion;
@@ -688,7 +690,29 @@ final class MetaTileEntityRegistration {
         MetaTileEntities.CREATIVE_TANK = MetaTileEntities.registerMetaTileEntity(5652,
                 new MetaTileEntityCreativeTank(gregtechId("creative_tank")));
 
-        // Free IDs: 5660-5669
+        // Pipe Pumps, IDs 5660-5664
+        MetaTileEntities.PIPE_PUMP[0] = MetaTileEntities.registerMetaTileEntity(5660,
+                new MetaTileEntityPipePump(gregtechId("pipe_pump.lv"), GTValues.LV));
+        MetaTileEntities.PIPE_PUMP[1] = MetaTileEntities.registerMetaTileEntity(5661,
+                new MetaTileEntityPipePump(gregtechId("pipe_pump.mv"), GTValues.MV));
+        MetaTileEntities.PIPE_PUMP[2] = MetaTileEntities.registerMetaTileEntity(5662,
+                new MetaTileEntityPipePump(gregtechId("pipe_pump.hv"), GTValues.HV));
+        MetaTileEntities.PIPE_PUMP[3] = MetaTileEntities.registerMetaTileEntity(5663,
+                new MetaTileEntityPipePump(gregtechId("pipe_pump.ev"), GTValues.EV));
+        MetaTileEntities.PIPE_PUMP[4] = MetaTileEntities.registerMetaTileEntity(5664,
+                new MetaTileEntityPipePump(gregtechId("pipe_pump.iv"), GTValues.IV));
+
+        // Pressure Sensors, IDs 5665-5669
+        MetaTileEntities.PRESSURE_SENSOR[0] = MetaTileEntities.registerMetaTileEntity(5665,
+                new MetaTileEntityPressureSensor(gregtechId("pressure_sensor.lv"), GTValues.LV));
+        MetaTileEntities.PRESSURE_SENSOR[1] = MetaTileEntities.registerMetaTileEntity(5666,
+                new MetaTileEntityPressureSensor(gregtechId("pressure_sensor.mv"), GTValues.MV));
+        MetaTileEntities.PRESSURE_SENSOR[2] = MetaTileEntities.registerMetaTileEntity(5667,
+                new MetaTileEntityPressureSensor(gregtechId("pressure_sensor.hv"), GTValues.HV));
+        MetaTileEntities.PRESSURE_SENSOR[3] = MetaTileEntities.registerMetaTileEntity(5668,
+                new MetaTileEntityPressureSensor(gregtechId("pressure_sensor.ev"), GTValues.EV));
+        MetaTileEntities.PRESSURE_SENSOR[4] = MetaTileEntities.registerMetaTileEntity(5669,
+                new MetaTileEntityPressureSensor(gregtechId("pressure_sensor.iv"), GTValues.IV));
 
         // Energy Converter, IDs 5670-5729
         endPos = GregTechAPI.isHighTier() ? MetaTileEntities.ENERGY_CONVERTER[0].length : GTValues.UHV + 1;

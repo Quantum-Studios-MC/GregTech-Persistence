@@ -81,6 +81,7 @@ public class GregtechDataCodes {
     public static final int PIPE_OPTICAL_ACTIVE = assignId();
     public static final int PIPE_LASER_ACTIVE = assignId();
     public static final int CABLE_TEMPERATURE = assignId();
+    public static final int GLASS_PIPE_FLUID_UPDATE = assignId();
 
     // Multiblock implementation update codes
     public static final int SYNC_CONTROLLER = assignId();
@@ -194,6 +195,9 @@ public class GregtechDataCodes {
     // ME Parts
     public static final int UPDATE_AUTO_PULL = assignId();
     public static final int UPDATE_ONLINE_STATUS = assignId();
+
+    // Overload Warning
+    public static final int OVERLOAD_WARNING = assignId();
 
     // Everything below MUST be last in the class!
     public static final Int2ObjectMap<String> NAMES = new Int2ObjectArrayMap<>();

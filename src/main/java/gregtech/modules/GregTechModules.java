@@ -20,6 +20,8 @@ public final class GregTechModules implements IModuleContainer {
     public static final String MODULE_BAUBLES = "baubles_integration";
     public static final String MODULE_FR = "fr_integration";
     public static final String MODULE_CHISEL = "chisel_integration";
+    public static final String MODULE_TF = "tf_integration";
+    public static final String MODULE_TC = "tc_integration";
 
     @Override
     public String getID() {

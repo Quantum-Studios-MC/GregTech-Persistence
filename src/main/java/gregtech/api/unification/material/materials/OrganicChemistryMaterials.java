@@ -154,7 +154,7 @@ public class OrganicChemistryMaterials {
                 .build();
 
         Methane = Material.builder(1018, gregtechId("methane"))
-                .gas(new FluidBuilder().translation("gregtech.fluid.gas_generic"))
+                .gas(new FluidBuilder().translation("gregtech.fluid.gas_generic").attribute(FluidAttributes.FLAMMABLE))
                 .color(0xFF0078)
                 .components(Carbon, 1, Hydrogen, 4)
                 .build();
@@ -211,21 +211,21 @@ public class OrganicChemistryMaterials {
                 .build();
 
         Propane = Material.builder(1027, gregtechId("propane"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.FLAMMABLE))
                 .color(0xFAE250)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Carbon, 3, Hydrogen, 8)
                 .build();
 
         Propene = Material.builder(1028, gregtechId("propene"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.FLAMMABLE))
                 .color(0xFFDD55)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Carbon, 3, Hydrogen, 6)
                 .build();
 
         Ethane = Material.builder(1029, gregtechId("ethane"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.FLAMMABLE))
                 .color(0xC8C8FF)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Carbon, 2, Hydrogen, 6)
@@ -239,7 +239,7 @@ public class OrganicChemistryMaterials {
                 .build();
 
         Butane = Material.builder(1031, gregtechId("butane"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.FLAMMABLE))
                 .color(0xB6371E)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Carbon, 4, Hydrogen, 10)
@@ -287,7 +287,7 @@ public class OrganicChemistryMaterials {
                 .build();
 
         Dimethylhydrazine = Material.builder(1038, gregtechId("dimethylhydrazine"))
-                .fluid()
+                .liquid(new FluidBuilder().attribute(FluidAttributes.TOXIC).attribute(FluidAttributes.FLAMMABLE))
                 .color(0x000055)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Carbon, 2, Hydrogen, 8, Nitrogen, 2)
@@ -335,7 +335,7 @@ public class OrganicChemistryMaterials {
                 .build();
 
         Phenol = Material.builder(1045, gregtechId("phenol"))
-                .fluid()
+                .liquid(new FluidBuilder().attribute(FluidAttributes.TOXIC))
                 .color(0x784421)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Carbon, 6, Hydrogen, 6, Oxygen, 1)
@@ -356,21 +356,21 @@ public class OrganicChemistryMaterials {
                 .build();
 
         Ethylene = Material.builder(1048, gregtechId("ethylene"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.FLAMMABLE))
                 .color(0xE1E1E1)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Carbon, 2, Hydrogen, 4)
                 .build();
 
         Benzene = Material.builder(1049, gregtechId("benzene"))
-                .fluid()
+                .liquid(new FluidBuilder().attribute(FluidAttributes.FLAMMABLE).attribute(FluidAttributes.TOXIC))
                 .color(0x1A1A1A)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Carbon, 6, Hydrogen, 6)
                 .build();
 
         Acetone = Material.builder(1050, gregtechId("acetone"))
-                .fluid()
+                .liquid(new FluidBuilder().attribute(FluidAttributes.FLAMMABLE))
                 .color(0xAFAFAF)
                 .components(Carbon, 3, Hydrogen, 6, Oxygen, 1)
                 .build();
@@ -382,7 +382,7 @@ public class OrganicChemistryMaterials {
                 .build();
 
         Methanol = Material.builder(1052, gregtechId("methanol"))
-                .fluid()
+                .liquid(new FluidBuilder().attribute(FluidAttributes.FLAMMABLE).attribute(FluidAttributes.TOXIC))
                 .color(0xAA8800)
                 .components(Carbon, 1, Hydrogen, 4, Oxygen, 1)
                 .build();
@@ -390,14 +390,16 @@ public class OrganicChemistryMaterials {
         // FREE ID 1053
 
         Ethanol = Material.builder(1054, gregtechId("ethanol"))
-                .liquid(new FluidBuilder().customStill().alternativeName("bio.ethanol"))
+                .liquid(new FluidBuilder().customStill().alternativeName("bio.ethanol")
+                        .attribute(FluidAttributes.FLAMMABLE))
                 .color(0xFC4C04)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Carbon, 2, Hydrogen, 6, Oxygen, 1)
                 .build();
 
         Toluene = Material.builder(1055, gregtechId("toluene"))
-                .liquid(new FluidBuilder().customStill())
+                .liquid(new FluidBuilder().customStill().attribute(FluidAttributes.FLAMMABLE)
+                        .attribute(FluidAttributes.TOXIC))
                 .color(0x712400)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Carbon, 7, Hydrogen, 8)

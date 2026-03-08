@@ -44,12 +44,12 @@ public class SurfaceBlockPopulator implements VeinChunkPopulator {
      * block in
      * the chunk, at a random position in the chunk. Does not run on a Flat world type
      *
-     * @param world         - The Minecraft world. Used for finding the top most block and its state
-     * @param chunkX        - The X chunk coordinate
-     * @param chunkZ        - The Z chunk coordinate
-     * @param random        - A Random parameter. Used for determining the number of spawned Surface Blocks and their
+     * @param world        - The Minecraft world. Used for finding the top most block and its state
+     * @param chunkX       - The X chunk coordinate
+     * @param chunkZ       - The Z chunk coordinate
+     * @param random       - A Random parameter. Used for determining the number of spawned Surface Blocks and their
      *                      position
-     * @param definition    - The Ore Vein definition
+     * @param definition   - The Ore Vein definition
      * @param gridEntryInfo - Information about the ore generation grid for the current generation section
      */
     @Override

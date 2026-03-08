@@ -1,6 +1,7 @@
 package gregtech.client.renderer.pipe;
 
 import gregtech.api.unification.material.Material;
+import gregtech.api.util.GTLog;
 import gregtech.client.renderer.pipe.util.MaterialModelSupplier;
 import gregtech.client.renderer.texture.Textures;
 
@@ -55,13 +56,22 @@ public class PipeModelRedirector implements IBakedModel {
         this.gui3d = gui3d;
     }
 
+    private static boolean loggedGlassRedirect = false;
+
     @Override
     public @NotNull List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
         if (state instanceof IExtendedBlockState ext) {
             Optional<Material> mat = (Optional<Material>) ext.getUnlistedProperties()
                     .get(PipeRenderProperties.MATERIAL_PROPERTY);
+            AbstractPipeModel<?> model = supplier.getModel(mat == null ? null : mat.orElse(null));
+            if (!loggedGlassRedirect && model instanceof GlassPipeModel) {
+                loggedGlassRedirect = true;
+                GTLog.logger.info(
+                        "[GlassPipeDebug] PipeModelRedirector.getQuads(): state={}, side={}, mat={}, model={}",
+                        state.getBlock().getRegistryName(), side, mat, model.getClass().getSimpleName());
+            }
             // noinspection OptionalAssignedToNull
-            return supplier.getModel(mat == null ? null : mat.orElse(null)).getQuads(ext, side, rand);
+            return model.getQuads(ext, side, rand);
         }
         return Collections.emptyList();
     }

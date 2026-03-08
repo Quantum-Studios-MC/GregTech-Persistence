@@ -38,9 +38,13 @@ public class CTRecipeHelper {
         if (recipe.getFluidInputs().size() > 0) {
             builder.append("[");
             for (GTRecipeInput fluidIngredient : recipe.getFluidInputs()) {
-                builder.append("<liquid:")
-                        .append(fluidIngredient.getInputFluidStack().getFluid().getName())
-                        .append(">");
+                if (fluidIngredient.getInputFluidStack() == null) {
+                    builder.append("[property-based fluid]");
+                } else {
+                    builder.append("<liquid:")
+                            .append(fluidIngredient.getInputFluidStack().getFluid().getName())
+                            .append(">");
+                }
 
                 if (fluidIngredient.getAmount() > 1) {
                     builder.append(" * ")
@@ -81,9 +85,13 @@ public class CTRecipeHelper {
             builder.append("[");
             for (GTRecipeInput fluidStack : recipe.getFluidInputs()) {
 
-                builder.append("<liquid:")
-                        .append(fluidStack.getInputFluidStack().getFluid().getName())
-                        .append(">");
+                if (fluidStack.getInputFluidStack() == null) {
+                    builder.append("[property-based fluid]");
+                } else {
+                    builder.append("<liquid:")
+                            .append(fluidStack.getInputFluidStack().getFluid().getName())
+                            .append(">");
+                }
 
                 if (fluidStack.getAmount() > 1) {
                     builder.append(" * ")

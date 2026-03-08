@@ -15,7 +15,6 @@ import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.client.renderer.texture.cube.SimpleSidedCubeRenderer;
 import gregtech.common.covers.filter.FluidFilterContainer;
-import gregtech.common.covers.IOMode;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.EntityPlayer;
@@ -56,7 +55,6 @@ import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import org.jetbrains.annotations.NotNull;
-import gregtech.client.renderer.pipe.cover.CoverRenderer;
 import org.jetbrains.annotations.Nullable;
 
 public class CoverPump extends CoverBase implements CoverWithUI, ITickable, IControllable {

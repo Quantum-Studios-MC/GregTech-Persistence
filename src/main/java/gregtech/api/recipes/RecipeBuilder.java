@@ -12,6 +12,7 @@ import gregtech.api.recipes.chance.output.ChancedOutputLogic;
 import gregtech.api.recipes.chance.output.impl.ChancedFluidOutput;
 import gregtech.api.recipes.chance.output.impl.ChancedItemOutput;
 import gregtech.api.recipes.ingredients.GTRecipeFluidInput;
+import gregtech.api.recipes.ingredients.GTRecipeFluidPropertyInput;
 import gregtech.api.recipes.ingredients.GTRecipeInput;
 import gregtech.api.recipes.ingredients.GTRecipeItemInput;
 import gregtech.api.recipes.ingredients.GTRecipeOreInput;
@@ -25,6 +26,7 @@ import gregtech.api.recipes.properties.impl.CleanroomProperty;
 import gregtech.api.recipes.properties.impl.DimensionProperty;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.material.Material;
+import gregtech.api.unification.material.properties.FluidDataProperty;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.unification.stack.RecyclingData;
 import gregtech.api.util.EnumValidationResult;
@@ -846,6 +848,39 @@ public class RecipeBuilder<R extends RecipeBuilder<R>> {
     public R clearFluidInputs() {
         this.fluidInputs.clear();
         return (R) this;
+    }
+
+    // ---- Property-Based Fluid Inputs ----
+
+    /**
+     * Add a fluid input that matches any fluid whose {@link FluidDataProperty} satisfies the given predicate.
+     * <p>
+     * Recipes with property-based fluid inputs are stored separately and matched via linear scan.
+     *
+     * @param propertyInput the property-based fluid input
+     */
+    public R fluidInputs(@NotNull GTRecipeFluidPropertyInput propertyInput) {
+        this.fluidInputs.add(propertyInput);
+        return (R) this;
+    }
+
+    /**
+     * Add a fluid input that matches any fluid whose {@link FluidDataProperty} satisfies the given predicate.
+     *
+     * @param propertyMatcher predicate to test fluid properties
+     * @param amount          amount of fluid in mB
+     * @param description     human-readable description for JEI display
+     */
+    public R fluidInputByProperty(@NotNull java.util.function.Predicate<FluidDataProperty> propertyMatcher,
+                                  int amount, @NotNull String description) {
+        return fluidInputs(new GTRecipeFluidPropertyInput(propertyMatcher, amount, description));
+    }
+
+    /**
+     * @return a builder for composing property-based fluid input criteria
+     */
+    public static GTRecipeFluidPropertyInput.@NotNull Builder fluidPropertyInput(int amount) {
+        return GTRecipeFluidPropertyInput.builder(amount);
     }
 
     public R fluidOutputs(@NotNull Fluid fluid) {

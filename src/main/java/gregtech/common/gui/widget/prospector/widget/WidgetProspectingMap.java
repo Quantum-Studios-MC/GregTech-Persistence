@@ -302,19 +302,26 @@ public class WidgetProspectingMap extends Widget {
             } else if (this.mode == ProspectorMode.FLUID) {
                 tooltips.add(I18n.format("terminal.prospector.fluid"));
                 if (texture.map[cX][cZ] != null && !texture.map[cX][cZ].isEmpty()) {
-                    if (ProspectingTexture.SELECTED_ALL.equals(texture.getSelected()) ||
-                            texture.getSelected().equals(texture.map[cX][cZ].get((byte) 1))) {
-                        FluidStack fluidStack = FluidRegistry.getFluidStack(texture.map[cX][cZ].get((byte) 1), 1);
+                    String fluidName = texture.map[cX][cZ].get((byte) 1);
+                    if (fluidName != null && (ProspectingTexture.SELECTED_ALL.equals(texture.getSelected()) ||
+                            texture.getSelected().equals(fluidName))) {
+                        FluidStack fluidStack = FluidRegistry.getFluidStack(fluidName, 1);
                         if (fluidStack != null) {
+                            String amountText = texture.map[cX][cZ].get((byte) 2);
+                            String depletionText = texture.map[cX][cZ].get((byte) 3);
                             tooltips.add(I18n.format("terminal.prospector.fluid.info",
                                     fluidStack.getLocalizedName(),
-                                    texture.map[cX][cZ].get((byte) 2),
-                                    texture.map[cX][cZ].get((byte) 3)));
+                                    amountText == null ? "?" : amountText,
+                                    depletionText == null ? "?" : depletionText));
                             hoveredNames.add(fluidStack.getLocalizedName());
-                            int amount = Integer.parseInt(texture.map[cX][cZ].get((byte) 2));
-                            if (amount > maxAmount[0]) {
-                                maxAmount[0] = amount;
-                                color = fluidStack.getFluid().getColor(fluidStack);
+                            if (amountText != null) {
+                                try {
+                                    int amount = Integer.parseInt(amountText);
+                                    if (amount > maxAmount[0]) {
+                                        maxAmount[0] = amount;
+                                        color = fluidStack.getFluid().getColor(fluidStack);
+                                    }
+                                } catch (NumberFormatException ignored) {}
                             }
                         }
                     }

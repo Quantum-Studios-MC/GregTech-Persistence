@@ -116,4 +116,36 @@ public class StructureQuadCache {
             }
         }
     }
+
+    public void addCoresToList(List<BakedQuad> list, byte connectionMask, ColorData data) {
+        List<BakedQuad> quads = cache.getQuads(data);
+        for (EnumFacing facing : EnumFacing.VALUES) {
+            if (!GTUtility.evalMask(facing, connectionMask)) {
+                list.addAll(coreCoords.get(facing).getSublist(quads));
+            }
+        }
+    }
+
+    public void addTubesToList(List<BakedQuad> list, byte connectionMask, ColorData data) {
+        List<BakedQuad> quads = cache.getQuads(data);
+        for (EnumFacing facing : EnumFacing.VALUES) {
+            if (GTUtility.evalMask(facing, connectionMask)) {
+                list.addAll(tubeCoords.get(facing).getSublist(quads));
+            }
+        }
+    }
+
+    public void addCappersToList(List<BakedQuad> list, byte connectionMask, byte closedMask, byte coverMask,
+                                 ColorData data) {
+        List<BakedQuad> quads = cache.getQuads(data);
+        for (EnumFacing facing : EnumFacing.VALUES) {
+            if (GTUtility.evalMask(facing, connectionMask) && !GTUtility.evalMask(facing, coverMask)) {
+                if (GTUtility.evalMask(facing, closedMask)) {
+                    list.addAll(capperClosedCoords.get(facing).getSublist(quads));
+                } else {
+                    list.addAll(capperCoords.get(facing).getSublist(quads));
+                }
+            }
+        }
+    }
 }

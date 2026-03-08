@@ -9,6 +9,7 @@ import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.gui.widgets.ProgressWidget.MoveType;
 import gregtech.api.recipes.category.GTRecipeCategory;
 import gregtech.api.recipes.chance.boost.ChanceBoostFunction;
+import gregtech.api.recipes.ingredients.GTRecipeFluidPropertyInput;
 import gregtech.api.recipes.ingredients.GTRecipeInput;
 import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.recipes.map.AbstractMapIngredient;
@@ -124,6 +125,13 @@ public class RecipeMap<R extends RecipeBuilder<R>> {
     private final WeakHashMap<AbstractMapIngredient, WeakReference<AbstractMapIngredient>> fluidIngredientRoot = new WeakHashMap<>();
 
     private final Map<GTRecipeCategory, List<Recipe>> recipeByCategory = new Object2ObjectOpenHashMap<>();
+
+    /**
+     * Recipes containing {@link GTRecipeFluidPropertyInput} fluid inputs cannot be indexed
+     * in the ingredient tree (since they match by fluid properties, not identity).
+     * They are stored here and checked via linear scan during recipe lookup.
+     */
+    private final List<Recipe> propertyBasedRecipes = new ObjectArrayList<>();
 
     private final Map<ResourceLocation, RecipeBuildAction<R>> recipeBuildActions = new Object2ObjectOpenHashMap<>();
     protected @Nullable SoundEvent sound;
@@ -337,7 +345,10 @@ public class RecipeMap<R extends RecipeBuilder<R>> {
     }
 
     /**
-     * Compiles a recipe and adds it to the ingredient tree
+     * Compiles a recipe and adds it to the ingredient tree.
+     * <p>
+     * Recipes containing {@link GTRecipeFluidPropertyInput} fluid inputs are stored in a
+     * separate list and matched via linear scan, since they cannot be indexed by fluid identity.
      *
      * @param recipe the recipe to compile
      * @return if the recipe was successfully compiled
@@ -346,6 +357,18 @@ public class RecipeMap<R extends RecipeBuilder<R>> {
         if (recipe == null) {
             return false;
         }
+
+        // Check if this recipe has any property-based fluid inputs
+        if (hasPropertyBasedFluidInput(recipe)) {
+            propertyBasedRecipes.add(recipe);
+            recipeByCategory.compute(recipe.getRecipeCategory(), (k, v) -> {
+                if (v == null) v = new ArrayList<>();
+                v.add(recipe);
+                return v;
+            });
+            return true;
+        }
+
         List<List<AbstractMapIngredient>> items = fromRecipe(recipe);
         if (recurseIngredientTreeAdd(recipe, items, lookup, 0, 0)) {
             recipeByCategory.compute(recipe.getRecipeCategory(), (k, v) -> {
@@ -359,10 +382,37 @@ public class RecipeMap<R extends RecipeBuilder<R>> {
     }
 
     /**
+     * @return true if the recipe contains at least one {@link GTRecipeFluidPropertyInput}
+     */
+    private static boolean hasPropertyBasedFluidInput(@NotNull Recipe recipe) {
+        for (GTRecipeInput input : recipe.getFluidInputs()) {
+            if (input instanceof GTRecipeFluidPropertyInput) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @param recipe the recipe to remove
      * @return if removal was successful
      */
     public boolean removeRecipe(@NotNull Recipe recipe) {
+        // Try removing from property-based list first
+        if (hasPropertyBasedFluidInput(recipe)) {
+            if (propertyBasedRecipes.remove(recipe)) {
+                if (GroovyScriptModule.isCurrentlyRunning()) {
+                    this.getGroovyScriptRecipeMap().addBackup(recipe);
+                }
+                recipeByCategory.compute(recipe.getRecipeCategory(), (k, v) -> {
+                    if (v != null) v.remove(recipe);
+                    return v == null || v.isEmpty() ? null : v;
+                });
+                return true;
+            }
+            return false;
+        }
+
         List<List<AbstractMapIngredient>> items = fromRecipe(recipe);
         if (recurseIngredientTreeRemove(recipe, items, lookup, 0) != null) {
             if (GroovyScriptModule.isCurrentlyRunning()) {
@@ -386,9 +436,11 @@ public class RecipeMap<R extends RecipeBuilder<R>> {
     protected void removeAllRecipes() {
         if (GroovyScriptModule.isCurrentlyRunning()) {
             this.lookup.getRecipes(false).forEach(this.getGroovyScriptRecipeMap()::addBackup);
+            this.propertyBasedRecipes.forEach(this.getGroovyScriptRecipeMap()::addBackup);
         }
         this.lookup.getNodes().clear();
         this.lookup.getSpecialNodes().clear();
+        this.propertyBasedRecipes.clear();
         this.recipeByCategory.clear();
     }
 
@@ -566,8 +618,38 @@ public class RecipeMap<R extends RecipeBuilder<R>> {
                        @NotNull Predicate<Recipe> canHandle) {
         List<List<AbstractMapIngredient>> list = prepareRecipeFind(items, fluids);
         // couldn't build any inputs to use for search, so no recipe could be found
-        if (list == null) return null;
-        return recurseIngredientTreeFindRecipe(list, lookup, canHandle);
+        if (list == null && propertyBasedRecipes.isEmpty()) return null;
+
+        // First, try the fast ingredient tree lookup
+        Recipe result = null;
+        if (list != null) {
+            result = recurseIngredientTreeFindRecipe(list, lookup, canHandle);
+        }
+
+        // If not found, try the property-based recipes via linear scan
+        if (result == null && !propertyBasedRecipes.isEmpty()) {
+            result = findPropertyBasedRecipe(items, fluids, canHandle);
+        }
+        return result;
+    }
+
+    /**
+     * Linear scan of property-based recipes. These recipes have {@link GTRecipeFluidPropertyInput}
+     * fluid inputs that match by fluid physical properties rather than identity.
+     */
+    @Nullable
+    private Recipe findPropertyBasedRecipe(@NotNull Collection<ItemStack> items,
+                                           @NotNull Collection<FluidStack> fluids,
+                                           @NotNull Predicate<Recipe> canHandle) {
+        List<ItemStack> itemList = items instanceof List ? (List<ItemStack>) items : new ArrayList<>(items);
+        List<FluidStack> fluidList = fluids instanceof List ? (List<FluidStack>) fluids : new ArrayList<>(fluids);
+
+        for (Recipe recipe : propertyBasedRecipes) {
+            if (canHandle.test(recipe) && recipe.matches(false, itemList, fluidList)) {
+                return recipe;
+            }
+        }
+        return null;
     }
 
     /**
@@ -1250,8 +1332,10 @@ public class RecipeMap<R extends RecipeBuilder<R>> {
 
     public Collection<Recipe> getRecipeList() {
         ObjectOpenHashSet<Recipe> recipes = new ObjectOpenHashSet<>();
-        return lookup.getRecipes(true).filter(recipes::add).sorted(RECIPE_DURATION_THEN_EU)
-                .collect(Collectors.toList());
+        // Include both tree-indexed and property-based recipes
+        lookup.getRecipes(true).forEach(recipes::add);
+        recipes.addAll(propertyBasedRecipes);
+        return recipes.stream().sorted(RECIPE_DURATION_THEN_EU).collect(Collectors.toList());
     }
 
     public @Nullable SoundEvent getSound() {

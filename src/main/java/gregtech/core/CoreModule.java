@@ -34,6 +34,10 @@ import gregtech.api.unification.material.Materials;
 import gregtech.api.unification.material.event.MaterialEvent;
 import gregtech.api.unification.material.event.MaterialRegistryEvent;
 import gregtech.api.unification.material.event.PostMaterialEvent;
+import gregtech.api.unification.material.materials.AlloyBlastPropertyAddition;
+import gregtech.api.unification.material.materials.FluidDataPropertyAddition;
+import gregtech.api.unification.material.materials.FluidPipeConstraintProfileAddition;
+import gregtech.api.unification.material.materials.GCYMMaterialFlagAddition;
 import gregtech.api.unification.material.properties.CoolantProperty;
 import gregtech.api.unification.material.properties.FissionFuelProperty;
 import gregtech.api.unification.material.properties.PropertyKey;
@@ -52,6 +56,7 @@ import gregtech.common.MetaEntities;
 import gregtech.common.blocks.BlockBatteryPart;
 import gregtech.common.blocks.BlockCleanroomCasing;
 import gregtech.common.blocks.BlockWireCoil;
+import gregtech.common.blocks.GCYMMetaBlocks;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.command.CommandHand;
 import gregtech.common.command.CommandRecipeCheck;
@@ -62,6 +67,7 @@ import gregtech.common.covers.CoverBehaviors;
 import gregtech.common.covers.filter.oreglob.impl.OreGlobParser;
 import gregtech.common.items.MetaItems;
 import gregtech.common.items.ToolItems;
+import gregtech.common.metatileentities.GCYMMetaTileEntities;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.electric.MetaTileEntityAlarm;
 import gregtech.common.worldgen.LootTableHelper;
@@ -75,6 +81,10 @@ import gregtech.core.network.packets.PacketClipboardNBTUpdate;
 import gregtech.core.network.packets.PacketClipboardUIWidgetUpdate;
 import gregtech.core.network.packets.PacketFluidVeinList;
 import gregtech.core.network.packets.PacketItemMouseEvent;
+import gregtech.core.network.packets.PacketGPSAddWaypoint;
+import gregtech.core.network.packets.PacketGPSRemoveWaypoint;
+import gregtech.core.network.packets.PacketGPSDismissDeathPoint;
+import gregtech.core.network.packets.PacketGPSSetBeaconName;
 import gregtech.core.network.packets.PacketKeysPressed;
 import gregtech.core.network.packets.PacketNotifyCapeChange;
 import gregtech.core.network.packets.PacketPluginSynced;
@@ -205,6 +215,12 @@ public class CoreModule implements IGregTechModule {
         managerInternal.closeRegistries();
         MinecraftForge.EVENT_BUS.post(new PostMaterialEvent());
 
+        // GCYM: Add AlloyBlastProperty to qualifying materials (must be before freeze)
+        AlloyBlastPropertyAddition.init();
+        FluidDataPropertyAddition.init();
+        FluidPipeConstraintProfileAddition.init();
+        GCYMMaterialFlagAddition.initLate();
+
         // Freeze Material Registry before processing Items, Blocks, and Fluids
         managerInternal.freezeRegistries();
 
@@ -233,6 +249,7 @@ public class CoreModule implements IGregTechModule {
         OreDictUnifier.init();
 
         MetaBlocks.init();
+        GCYMMetaBlocks.init();
         logger.info("Registering Coils");
         MinecraftForge.EVENT_BUS.post(new CoilManager.CoilRegistryEvent());
 
@@ -246,6 +263,7 @@ public class CoreModule implements IGregTechModule {
         }
         logger.info("Registering GTCEu Meta Tile Entities");
         MetaTileEntities.init();
+        GCYMMetaTileEntities.init();
         /* End CEu MetaTileEntity Registration */
         /* Addons not done via an Event due to how much must be initialized for MTEs to register */
 
@@ -286,6 +304,10 @@ public class CoreModule implements IGregTechModule {
         GregTechAPI.networkHandler.registerPacket(PacketToolbeltSelectionChange.Server.class);
         GregTechAPI.networkHandler.registerPacket(PacketToolbeltSelectionChange.Client.class);
         GregTechAPI.networkHandler.registerPacket(PacketItemMouseEvent.class);
+        GregTechAPI.networkHandler.registerPacket(PacketGPSAddWaypoint.class);
+        GregTechAPI.networkHandler.registerPacket(PacketGPSRemoveWaypoint.class);
+        GregTechAPI.networkHandler.registerPacket(PacketGPSDismissDeathPoint.class);
+        GregTechAPI.networkHandler.registerPacket(PacketGPSSetBeaconName.class);
     }
 
     @Override

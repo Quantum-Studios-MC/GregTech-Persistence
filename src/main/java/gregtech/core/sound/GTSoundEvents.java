@@ -52,6 +52,9 @@ public class GTSoundEvents {
     public static SoundEvent BREAKDOWN_ELECTRICAL;
     public static SoundEvent BREAKDOWN_MECHANICAL;
 
+    // Overload
+    public static SoundEvent OVERLOAD_WARNING;
+
     // Misc
     public static SoundEvent DEFAULT_ALARM;
     public static SoundEvent CLICK;
@@ -98,6 +101,8 @@ public class GTSoundEvents {
 
         BREAKDOWN_ELECTRICAL = soundManager.registerSound("maintenance.electrical");
         BREAKDOWN_MECHANICAL = soundManager.registerSound("maintenance.mechanical");
+
+        OVERLOAD_WARNING = soundManager.registerSound("tick.overload_warning");
 
         DEFAULT_ALARM = soundManager.registerSound("alarm");
         CLICK = soundManager.registerSound("click");

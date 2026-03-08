@@ -1,5 +1,6 @@
 package gregtech.loaders.recipe.chemistry;
 
+import gregtech.api.recipes.ingredients.GTRecipeFluidPropertyInput;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.blocks.StoneVariantBlock;
 import gregtech.common.blocks.StoneVariantBlock.StoneVariant;
@@ -15,39 +16,22 @@ import static gregtech.api.unification.ore.OrePrefix.*;
 public class ChemicalBathRecipes {
 
     public static void init() {
+        // Paper-making: any water-like fluid works (Water, DistilledWater, SaltWater, etc.)
         CHEMICAL_BATH_RECIPES.recipeBuilder()
                 .input(dust, Wood)
-                .fluidInputs(Water.getFluid(100))
+                .fluidInputs(GTRecipeFluidPropertyInput.anyWater(100))
                 .output(Items.PAPER)
                 .duration(200).EUt(4).buildAndRegister();
 
         CHEMICAL_BATH_RECIPES.recipeBuilder()
                 .input(dust, Paper)
-                .fluidInputs(Water.getFluid(100))
+                .fluidInputs(GTRecipeFluidPropertyInput.anyWater(100))
                 .output(Items.PAPER)
                 .duration(100).EUt(4).buildAndRegister();
 
         CHEMICAL_BATH_RECIPES.recipeBuilder()
                 .input(Items.REEDS, 1, true)
-                .fluidInputs(Water.getFluid(100))
-                .output(Items.PAPER)
-                .duration(100).EUt(VA[ULV]).buildAndRegister();
-
-        CHEMICAL_BATH_RECIPES.recipeBuilder()
-                .input(dust, Wood)
-                .fluidInputs(DistilledWater.getFluid(100))
-                .output(Items.PAPER)
-                .duration(200).EUt(4).buildAndRegister();
-
-        CHEMICAL_BATH_RECIPES.recipeBuilder()
-                .input(dust, Paper)
-                .fluidInputs(DistilledWater.getFluid(100))
-                .output(Items.PAPER)
-                .duration(100).EUt(4).buildAndRegister();
-
-        CHEMICAL_BATH_RECIPES.recipeBuilder()
-                .input(Items.REEDS, 1, true)
-                .fluidInputs(DistilledWater.getFluid(100))
+                .fluidInputs(GTRecipeFluidPropertyInput.anyWater(100))
                 .output(Items.PAPER)
                 .duration(100).EUt(VA[ULV]).buildAndRegister();
 
@@ -79,9 +63,11 @@ public class ChemicalBathRecipes {
                 .output(dust, LithiumChloride, 4)
                 .duration(210).EUt(960).buildAndRegister();
 
+        // Hot ingot cooling: any water-like fluid works at standard speed.
+        // DistilledWater-specific recipes below give a speed bonus (found first in the ingredient tree).
         CHEMICAL_BATH_RECIPES.recipeBuilder()
                 .input(ingotHot, Kanthal)
-                .fluidInputs(Water.getFluid(100))
+                .fluidInputs(GTRecipeFluidPropertyInput.anyWater(100))
                 .output(ingot, Kanthal)
                 .duration(400).EUt(VA[MV]).buildAndRegister();
 
@@ -93,7 +79,7 @@ public class ChemicalBathRecipes {
 
         CHEMICAL_BATH_RECIPES.recipeBuilder()
                 .input(ingotHot, Silicon)
-                .fluidInputs(Water.getFluid(100))
+                .fluidInputs(GTRecipeFluidPropertyInput.anyWater(100))
                 .output(ingot, Silicon)
                 .duration(200).EUt(VA[MV]).buildAndRegister();
 
@@ -105,7 +91,7 @@ public class ChemicalBathRecipes {
 
         CHEMICAL_BATH_RECIPES.recipeBuilder()
                 .input(ingotHot, BlackSteel)
-                .fluidInputs(Water.getFluid(100))
+                .fluidInputs(GTRecipeFluidPropertyInput.anyWater(100))
                 .output(ingot, BlackSteel)
                 .duration(200).EUt(VA[MV]).buildAndRegister();
 
@@ -117,7 +103,7 @@ public class ChemicalBathRecipes {
 
         CHEMICAL_BATH_RECIPES.recipeBuilder()
                 .input(ingotHot, RedSteel)
-                .fluidInputs(Water.getFluid(100))
+                .fluidInputs(GTRecipeFluidPropertyInput.anyWater(100))
                 .output(ingot, RedSteel)
                 .duration(400).EUt(VA[MV]).buildAndRegister();
 
@@ -129,7 +115,7 @@ public class ChemicalBathRecipes {
 
         CHEMICAL_BATH_RECIPES.recipeBuilder()
                 .input(ingotHot, BlueSteel)
-                .fluidInputs(Water.getFluid(100))
+                .fluidInputs(GTRecipeFluidPropertyInput.anyWater(100))
                 .output(ingot, BlueSteel)
                 .duration(400).EUt(VA[MV]).buildAndRegister();
 

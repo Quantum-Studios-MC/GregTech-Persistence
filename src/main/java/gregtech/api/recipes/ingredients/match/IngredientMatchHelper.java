@@ -78,9 +78,10 @@ public final class IngredientMatchHelper {
         return match(matchers, matchables, fluidCounter);
     }
 
-    public static <T, H extends T> @NotNull MatchCalculation<H> match(@NotNull List<? extends Matcher<? super T>> matchers,
-                                                                      @NotNull List<@Nullable H> matchables,
-                                                                      @NotNull Counter<H> counter) {
+    public static <T,
+            H extends T> @NotNull MatchCalculation<H> match(@NotNull List<? extends Matcher<? super T>> matchers,
+                                                            @NotNull List<@Nullable H> matchables,
+                                                            @NotNull Counter<H> counter) {
         ensureCacheSize(matchers.size(), matchables.size());
         MatcherGraph graph = new MatcherGraph(matchers.size(), matchables.size());
         DefaultWeightedEdge[] matcherEdges = new DefaultWeightedEdge[matchers.size()];

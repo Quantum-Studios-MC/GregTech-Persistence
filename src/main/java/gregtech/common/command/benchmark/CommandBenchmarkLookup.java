@@ -157,7 +157,7 @@ public class CommandBenchmarkLookup extends CommandBase {
                 }
                 // if adding a fluid input would lead to recipe matching, do not add it
                 if (r.getFluidInputs().size() > 1) {
-                    r.getFluidInputs().stream().filter(i -> !seen.contains(i)).findAny()
+                    r.getFluidInputs().stream().filter(i -> !seen.contains(i) && i.getInputFluidStack() != null).findAny()
                             .ifPresent(input -> {
                                 FluidStack stack = input.getInputFluidStack().copy();
                                 stack.amount = input.getAmount();
@@ -201,7 +201,9 @@ public class CommandBenchmarkLookup extends CommandBase {
                     items.add(stack);
                 }
                 for (GTRecipeInput input : sample[i].getFluidInputs()) {
-                    FluidStack stack = input.getInputFluidStack().copy();
+                    FluidStack stack = input.getInputFluidStack();
+                    if (stack == null) continue;
+                    stack = stack.copy();
                     stack.amount = input.getAmount();
                     fluids.add(stack);
                 }
@@ -234,7 +236,9 @@ public class CommandBenchmarkLookup extends CommandBase {
                 items.add(stack);
             }
             for (GTRecipeInput input : sample[0].getFluidInputs()) {
-                FluidStack stack = input.getInputFluidStack().copy();
+                FluidStack stack = input.getInputFluidStack();
+                if (stack == null) continue;
+                stack = stack.copy();
                 stack.amount = input.getAmount();
                 fluids.add(stack);
             }

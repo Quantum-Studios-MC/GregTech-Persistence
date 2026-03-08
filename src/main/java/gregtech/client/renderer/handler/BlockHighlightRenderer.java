@@ -6,7 +6,6 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.pipenet.block.BlockPipe;
 import gregtech.api.pipenet.block.material.TileEntityMaterialPipeBase;
-import gregtech.api.pipenet.tile.TileEntityPipeBase;
 import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.BlockCompressed;
 import gregtech.common.blocks.BlockFrame;
@@ -137,7 +136,7 @@ public final class BlockHighlightRenderer {
             int tier = GTUtility.getTierByVoltage(voltage);
             if (tier >= 0 && tier < TIER_COLORS.length) return TIER_COLORS[tier];
         }
-        if (te instanceof TileEntityMaterialPipeBase<?, ?> materialPipe) {
+        if (te instanceof TileEntityMaterialPipeBase<?, ?>materialPipe) {
             return materialPipe.getPipeMaterial().getMaterialRGB();
         }
         return 0x808080;

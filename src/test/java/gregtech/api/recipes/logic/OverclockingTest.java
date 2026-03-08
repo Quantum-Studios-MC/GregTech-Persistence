@@ -3,6 +3,7 @@ package gregtech.api.recipes.logic;
 import gregtech.api.recipes.logic.old.OCParams;
 import gregtech.api.recipes.logic.old.OCResult;
 import gregtech.api.recipes.logic.old.OverclockingLogic;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 

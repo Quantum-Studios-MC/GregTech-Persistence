@@ -3,6 +3,8 @@ package gregtech.common.pipelike.itempipe.net;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.cover.Cover;
 import gregtech.api.cover.CoverHolder;
+import gregtech.api.unification.OreDictUnifier;
+import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.util.FacingPos;
 import gregtech.api.util.GTTransferUtils;
 import gregtech.api.util.ItemStackHashStrategy;
@@ -12,6 +14,8 @@ import gregtech.common.covers.CoverRoboticArm;
 import gregtech.common.covers.DistributionMode;
 import gregtech.common.covers.IOMode;
 import gregtech.common.covers.ItemFilterMode;
+import gregtech.common.pipelike.itempipe.ItemBlockItemPipe;
+import gregtech.common.pipelike.itempipe.ItemPipeType;
 import gregtech.common.pipelike.itempipe.tile.TileEntityItemPipe;
 
 import net.minecraft.item.ItemStack;
@@ -76,6 +80,19 @@ public class ItemNetHandler implements IItemHandler {
 
         if (net == null || pipe == null || pipe.isInvalid() || pipe.isFaceBlocked(facing)) {
             return stack;
+        }
+
+        // Check item size against pipe capacity - only for specific OrePrefix forms
+        ItemPipeType pipeType = pipe.getPipeType();
+        long maxSize = pipeType.getMaxItemSize();
+        if (maxSize >= 0) {
+            OrePrefix prefix = OreDictUnifier.getPrefix(stack);
+            if (prefix != null && isCheckedPrefix(prefix)) {
+                long amount = prefix.getMaterialAmount(null);
+                if (amount > maxSize) {
+                    return stack;
+                }
+            }
         }
 
         copyTransferred();
@@ -508,5 +525,16 @@ public class ItemNetHandler implements IItemHandler {
             this.transferred = transferred;
             this.routePath = routePath;
         }
+    }
+
+    /**
+     * Returns true if the given OrePrefix is one of the specific forms that item pipes check size against.
+     * General items, blocks, and other OrePrefix forms pass through freely.
+     */
+    private static boolean isCheckedPrefix(OrePrefix prefix) {
+        for (Object[] entry : ItemBlockItemPipe.SIZE_CHECKED_PREFIXES) {
+            if (entry[1] == prefix) return true;
+        }
+        return false;
     }
 }

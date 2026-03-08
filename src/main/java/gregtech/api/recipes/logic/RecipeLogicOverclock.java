@@ -1,11 +1,8 @@
 package gregtech.api.recipes.logic;
 
-import gregtech.api.recipes.properties.RecipeProperty;
 import gregtech.api.recipes.properties.impl.TemperatureProperty;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.GuardedData;
-import gregtech.common.ConfigHolder;
 
 import java.util.Map;
 
@@ -22,15 +19,18 @@ public abstract class RecipeLogicOverclock {
     }
 
     public static void overclockStandard(GuardedData<Map<MapKey<?>, Object>> data) {
-        overclockInternal(data, RecipeLogicConstants.OVERCLOCK_SPEED_FACTOR, RecipeLogicConstants.OVERCLOCK_VOLTAGE_FACTOR);
+        overclockInternal(data, RecipeLogicConstants.OVERCLOCK_SPEED_FACTOR,
+                RecipeLogicConstants.OVERCLOCK_VOLTAGE_FACTOR);
     }
 
     public static void overclockPerfect(GuardedData<Map<MapKey<?>, Object>> data) {
-        overclockInternal(data, RecipeLogicConstants.PERFECT_OVERCLOCK_SPEED_FACTOR, RecipeLogicConstants.OVERCLOCK_VOLTAGE_FACTOR);
+        overclockInternal(data, RecipeLogicConstants.PERFECT_OVERCLOCK_SPEED_FACTOR,
+                RecipeLogicConstants.OVERCLOCK_VOLTAGE_FACTOR);
     }
 
     public static void overclockFusion(GuardedData<Map<MapKey<?>, Object>> data) {
-        overclockInternal(data, RecipeLogicConstants.FUSION_OVERCLOCK_SPEED_FACTOR, RecipeLogicConstants.FUSION_OVERCLOCK_VOLTAGE_FACTOR);
+        overclockInternal(data, RecipeLogicConstants.FUSION_OVERCLOCK_SPEED_FACTOR,
+                RecipeLogicConstants.FUSION_OVERCLOCK_VOLTAGE_FACTOR);
     }
 
     protected static void overclockInternal(GuardedData<Map<MapKey<?>, Object>> data, double d, double v) {
@@ -63,7 +63,8 @@ public abstract class RecipeLogicOverclock {
             RecipeLogicCore.stateError("Attempted to perform overclocking logic without a loaded recipe view.");
             return;
         }
-        int tempDiff = COIL_TEMP_KEY.getInt(data.getTransientData()) - view.getRecipe().getProperty(TemperatureProperty.getInstance(), 0);
+        int tempDiff = COIL_TEMP_KEY.getInt(data.getTransientData()) -
+                view.getRecipe().getProperty(TemperatureProperty.getInstance(), 0);
         if (tempDiff <= 0) return;
         int vc = tempDiff / RecipeLogicConstants.COIL_VOLTAGE_DISCOUNT_TEMPERATURE;
         int pc = tempDiff / RecipeLogicConstants.COIL_PERFECT_OVERCLOCK_TEMPERATURE;

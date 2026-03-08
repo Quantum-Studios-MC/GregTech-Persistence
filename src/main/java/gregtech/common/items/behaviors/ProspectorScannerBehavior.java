@@ -86,7 +86,10 @@ public class ProspectorScannerBehavior implements IItemBehaviour, ItemUIFactory,
             return ProspectorMode.ORE;
         }
         if (tag.hasKey("Mode", Constants.NBT.TAG_INT)) {
-            return ProspectorMode.VALUES[tag.getInteger("Mode")];
+            int modeIndex = tag.getInteger("Mode");
+            if (modeIndex >= 0 && modeIndex < ProspectorMode.VALUES.length) {
+                return ProspectorMode.VALUES[modeIndex];
+            }
         }
         return ProspectorMode.ORE;
     }
@@ -110,7 +113,7 @@ public class ProspectorScannerBehavior implements IItemBehaviour, ItemUIFactory,
     @Override
     public ModularUI createUI(PlayerInventoryHolder holder, @NotNull EntityPlayer entityPlayer) {
         ProspectorMode mode = getMode(entityPlayer.getHeldItem(EnumHand.MAIN_HAND));
-        ModularUI.Builder builder = ModularUI.builder(GuiTextures.BACKGROUND, 332, 200);
+        ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 332, 200);
         this.widgetOreList = new WidgetOreList(32 * radius - 6, 18, 332 - 32 * radius, 176);
         builder.widget(this.widgetOreList);
         builder.widget(new WidgetProspectingMap(6, 18, radius, this.widgetOreList, mode, 1));

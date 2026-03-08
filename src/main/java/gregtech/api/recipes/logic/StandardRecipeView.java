@@ -1,8 +1,6 @@
 package gregtech.api.recipes.logic;
 
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.chance.BaseChanceEntry;
-import gregtech.api.recipes.chance.boost.ChanceBoostFunction;
 import gregtech.api.recipes.ingredients.match.MatchCalculation;
 
 import net.minecraft.item.ItemStack;
@@ -13,9 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class StandardRecipeView implements RecipeView {
 

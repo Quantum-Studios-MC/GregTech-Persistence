@@ -9,6 +9,7 @@ import gregtech.integration.hwyla.provider.ActiveTransformerDataProvider;
 import gregtech.integration.hwyla.provider.BatteryBufferDataProvider;
 import gregtech.integration.hwyla.provider.BlockOreDataProvider;
 import gregtech.integration.hwyla.provider.ControllableDataProvider;
+import gregtech.integration.hwyla.provider.FluidPipeDataProvider;
 import gregtech.integration.hwyla.provider.ConverterDataProvider;
 import gregtech.integration.hwyla.provider.DiodeDataProvider;
 import gregtech.integration.hwyla.provider.ElectricContainerDataProvider;
@@ -55,6 +56,7 @@ public class HWYLAModule extends IntegrationSubmodule implements IWailaPlugin {
         SteamBoilerDataProvider.INSTANCE.register(registrar);
         PrimitivePumpDataProvider.INSTANCE.register(registrar);
         // one day, if cover provider is ported to waila, register it right here
+        FluidPipeDataProvider.INSTANCE.register(registrar);
         BlockOreDataProvider.INSTANCE.register(registrar);
         LampDataProvider.INSTANCE.register(registrar);
         ActiveTransformerDataProvider.INSTANCE.register(registrar);

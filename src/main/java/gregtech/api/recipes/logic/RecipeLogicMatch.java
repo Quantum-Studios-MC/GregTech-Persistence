@@ -1,16 +1,14 @@
 package gregtech.api.recipes.logic;
 
-import com.github.bsideup.jabel.Desugar;
-
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.ingredients.match.IngredientMatchHelper;
 import gregtech.api.recipes.ingredients.match.MatchCalculation;
 import gregtech.api.util.GuardedData;
 
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.fluids.FluidStack;
 
+import com.github.bsideup.jabel.Desugar;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -18,9 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
-import java.util.function.IntFunction;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
 
 import static gregtech.api.recipes.logic.RecipeLogicSearch.SEARCH_RESULTS_KEY;
 
@@ -39,9 +34,9 @@ public abstract class RecipeLogicMatch {
     public static final MapKey.DoubleKey VOLTAGE_DISCOUNT_KEY = new MapKey.DoubleKey();
     public static final MapKey<RecipeView> RECIPE_VIEW_KEY = new MapKey<>();
 
-    //----------//
+    // ----------//
     // matching //
-    //----------//
+    // ----------//
 
     public static void loadMatchItems(GuardedData<Map<MapKey<?>, Object>> data, List<ItemStack> items) {
         MATCH_ITEMS_KEY.put(data.getTransientData(), items);
@@ -59,12 +54,14 @@ public abstract class RecipeLogicMatch {
         PARALLEL_LIMIT_KEY.put(data.getTransientData(), parallelLimit);
     }
 
-    public static void matchRecipe(GuardedData<Map<MapKey<?>, Object>> data, @NotNull BiPredicate<GuardedData<Map<MapKey<?>, Object>>, Recipe> predicate) {
+    public static void matchRecipe(GuardedData<Map<MapKey<?>, Object>> data,
+                                   @NotNull BiPredicate<GuardedData<Map<MapKey<?>, Object>>, Recipe> predicate) {
         Iterator<Recipe> results = SEARCH_RESULTS_KEY.getNonnull(data.getTransientData(), Collections.emptyIterator());
         while (results.hasNext()) {
             Recipe next = results.next();
             if (predicate.test(data, next)) {
-                int limit = (int) Math.min(PARALLEL_LIMIT_KEY.getInt(data.getTransientData(), 1), MATCH_VOLTAGE_KEY.getLong(data.getTransientData(), 1) / next.getEUt());
+                int limit = (int) Math.min(PARALLEL_LIMIT_KEY.getInt(data.getTransientData(), 1),
+                        MATCH_VOLTAGE_KEY.getLong(data.getTransientData(), 1) / next.getEUt());
                 if (limit <= 0) continue;
                 MatchCalculation<ItemStack> itemMatch = IngredientMatchHelper.matchItems(next.getInputs(),
                         MATCH_ITEMS_KEY.getNonnull(data.getTransientData(), Collections.emptyList()));
@@ -83,9 +80,9 @@ public abstract class RecipeLogicMatch {
         }
     }
 
-    //-------------//
+    // -------------//
     // recipe view //
-    //-------------//
+    // -------------//
 
     public static void loadTrimData(GuardedData<Map<MapKey<?>, Object>> data, @NotNull TrimData trim) {
         TRIM_KEY.put(data.getTransientData(), trim);
@@ -103,19 +100,24 @@ public abstract class RecipeLogicMatch {
         }
         TrimData trim = TRIM_KEY.getNonnull(data.getTransientData(), TrimData.NO_TRIM);
         double discount = VOLTAGE_DISCOUNT_KEY.getDouble(data.getTransientData(), 1);
-        if (recipe.getAllItemOutputs().size() < trim.itemLimit() && recipe.getAllFluidOutputs().size() < trim.fluidLimit()) {
-            RECIPE_VIEW_KEY.put(data.getTransientData(), new StandardRecipeView(recipe, ITEM_MATCH_KEY.get(data.getTransientData()),
-                    FLUID_MATCH_KEY.get(data.getTransientData()), discount, PARALLEL_KEY.getInt(data.getTransientData())));
+        if (recipe.getAllItemOutputs().size() < trim.itemLimit() &&
+                recipe.getAllFluidOutputs().size() < trim.fluidLimit()) {
+            RECIPE_VIEW_KEY.put(data.getTransientData(),
+                    new StandardRecipeView(recipe, ITEM_MATCH_KEY.get(data.getTransientData()),
+                            FLUID_MATCH_KEY.get(data.getTransientData()), discount,
+                            PARALLEL_KEY.getInt(data.getTransientData())));
         } else {
-            RECIPE_VIEW_KEY.put(data.getTransientData(), new TrimmedRecipeView(recipe, ITEM_MATCH_KEY.get(data.getTransientData()),
-                    FLUID_MATCH_KEY.get(data.getTransientData()), discount, PARALLEL_KEY.getInt(data.getTransientData()),
-                    trim.itemLimit(), trim.fluidLimit()));
+            RECIPE_VIEW_KEY.put(data.getTransientData(),
+                    new TrimmedRecipeView(recipe, ITEM_MATCH_KEY.get(data.getTransientData()),
+                            FLUID_MATCH_KEY.get(data.getTransientData()), discount,
+                            PARALLEL_KEY.getInt(data.getTransientData()),
+                            trim.itemLimit(), trim.fluidLimit()));
         }
     }
 
-    //------------//
+    // ------------//
     // recipe run //
-    //------------//
+    // ------------//
 
     public static void finalizeRecipe(GuardedData<Map<MapKey<?>, Object>> data) {
         RecipeView recipe = RECIPE_VIEW_KEY.get(data.getTransientData());
@@ -127,12 +129,13 @@ public abstract class RecipeLogicMatch {
         int duration = RecipeLogicOverclock.OC_DURATION_KEY.getInt(data.getTransientData(), recipe.getActualDuration());
     }
 
-    //------//
+    // ------//
     // misc //
-    //------//
+    // ------//
 
     @Desugar
     public record TrimData(int itemLimit, int fluidLimit) {
+
         public static final TrimData NO_TRIM = new TrimData(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
         public static TrimData items(int itemLimit) {

@@ -408,7 +408,9 @@ public class Recipe {
         List<FluidStack> otherFluidList = new ObjectArrayList<>(otherRecipe.fluidInputs.size());
         for (GTRecipeInput otherInputs : otherRecipe.fluidInputs) {
             FluidStack fluidStack = otherInputs.getInputFluidStack();
-            otherFluidList.add(fluidStack);
+            if (fluidStack != null) {
+                otherFluidList.add(fluidStack);
+            }
         }
         if (!this.matchesFluid(otherFluidList).getLeft()) {
             return false;
@@ -417,7 +419,9 @@ public class Recipe {
         List<FluidStack> thisFluidsList = new ObjectArrayList<>(this.fluidInputs.size());
         for (GTRecipeInput thisFluidInputs : this.fluidInputs) {
             FluidStack fluidStack = thisFluidInputs.getInputFluidStack();
-            thisFluidsList.add(fluidStack);
+            if (fluidStack != null) {
+                thisFluidsList.add(fluidStack);
+            }
         }
         return otherRecipe.matchesFluid(thisFluidsList).getLeft();
     }
@@ -573,6 +577,11 @@ public class Recipe {
     public boolean hasInputFluid(FluidStack fluid) {
         for (GTRecipeInput fluidInput : fluidInputs) {
             FluidStack fluidStack = fluidInput.getInputFluidStack();
+            if (fluidStack == null) {
+                // Property-based inputs match via acceptsFluid instead
+                if (fluidInput.acceptsFluid(fluid)) return true;
+                continue;
+            }
             if (fluid.getFluid() == fluidStack.getFluid()) {
                 return fluidStack.isFluidEqual(fluid);
             }

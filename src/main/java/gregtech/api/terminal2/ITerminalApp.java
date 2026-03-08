@@ -13,7 +13,8 @@ public interface ITerminalApp {
     /**
      * Create the UI for your app.
      */
-    IWidget buildWidgets(PlayerInventoryGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings, ModularPanel panel);
+    IWidget buildWidgets(PlayerInventoryGuiData guiData, PanelSyncManager guiSyncManager, UISettings settings,
+                         ModularPanel panel);
 
     /**
      * @return The drawable that will be used for the icon of your app on the terminal home screen.

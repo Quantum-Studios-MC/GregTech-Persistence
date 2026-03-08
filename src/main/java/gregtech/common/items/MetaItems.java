@@ -575,6 +575,8 @@ public final class MetaItems {
     public static MetaItem<?>.MetaValueItem MULTIBLOCK_BUILDER;
     public static MetaItem<?>.MetaValueItem COPY_TOOL;
 
+    public static MetaItem<?>.MetaValueItem GPS_DEVICE;
+
     private static final List<OrePrefix> orePrefixes = new ArrayList<>();
 
     static {
@@ -583,6 +585,7 @@ public final class MetaItems {
         orePrefixes.add(OrePrefix.dustTiny);
         orePrefixes.add(OrePrefix.dustImpure);
         orePrefixes.add(OrePrefix.dustPure);
+
         orePrefixes.add(OrePrefix.crushed);
         orePrefixes.add(OrePrefix.crushedPurified);
         orePrefixes.add(OrePrefix.crushedCentrifuged);
@@ -617,6 +620,39 @@ public final class MetaItems {
         orePrefixes.add(OrePrefix.toolHeadWrench);
         orePrefixes.add(OrePrefix.toolHeadBuzzSaw);
         orePrefixes.add(OrePrefix.toolHeadScrewdriver);
+
+        // GT6-style prefixes
+        orePrefixes.add(OrePrefix.plateCurved);
+        orePrefixes.add(OrePrefix.plateTriple);
+        orePrefixes.add(OrePrefix.plateQuadruple);
+        orePrefixes.add(OrePrefix.plateQuintuple);
+        orePrefixes.add(OrePrefix.ingotDouble);
+        orePrefixes.add(OrePrefix.ingotTriple);
+        orePrefixes.add(OrePrefix.ingotQuadruple);
+        orePrefixes.add(OrePrefix.ingotQuintuple);
+        orePrefixes.add(OrePrefix.chain);
+
+        orePrefixes.add(OrePrefix.casingSmall);
+
+        // GT6: ingot forms
+        orePrefixes.add(OrePrefix.billet);
+        orePrefixes.add(OrePrefix.chunkGt);
+        // GT6: plate forms
+        orePrefixes.add(OrePrefix.plateTiny);
+        // GT6: gem forms
+        orePrefixes.add(OrePrefix.gemLegendary);
+        // GT6: ore forms
+        orePrefixes.add(OrePrefix.rawOre);
+        // orePoor is a block, not an item - registered in MetaBlocks/CommonProxy
+        // GT6: crushed ore tiny forms
+        orePrefixes.add(OrePrefix.crushedTiny);
+        orePrefixes.add(OrePrefix.crushedPurifiedTiny);
+        orePrefixes.add(OrePrefix.crushedCentrifugedTiny);
+        // GT6: dust forms
+        orePrefixes.add(OrePrefix.dustDiv72);
+        // GT6: surface rock indicator
+        orePrefixes.add(OrePrefix.rockGt);
+
     }
 
     public static void init() {

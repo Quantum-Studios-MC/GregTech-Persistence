@@ -38,6 +38,12 @@ public class UniversalDistillationRecipeBuilder extends RecipeBuilder<UniversalD
             return;
         }
 
+        // Property-based fluid inputs cannot be used with distillery sub-recipes
+        if (this.fluidInputs.isEmpty() || this.fluidInputs.get(0).getInputFluidStack() == null) {
+            super.buildAndRegister();
+            return;
+        }
+
         for (int i = 0; i < fluidOutputs.size(); i++) {
             SimpleRecipeBuilder builder = RecipeMaps.DISTILLERY_RECIPES.recipeBuilder().copy()
                     .EUt(Math.max(1, this.EUt / 4)).circuitMeta(i + 1);

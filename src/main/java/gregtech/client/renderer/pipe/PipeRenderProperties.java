@@ -19,6 +19,7 @@ public final class PipeRenderProperties {
     public static UnlistedIntegerProperty COLOR_PROPERTY = new UnlistedIntegerProperty("color");
     // ActivablePipeModel
     public static final UnlistedBooleanProperty ACTIVE_PROPERTY = new UnlistedBooleanProperty("active");
+    public static final UnlistedIntegerProperty FLUID_COLOR_PROPERTY = new UnlistedIntegerProperty("fluid_color");
 
     private PipeRenderProperties() {}
 }

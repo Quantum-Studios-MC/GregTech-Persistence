@@ -145,7 +145,8 @@ public class OrientedOverlayRenderer implements ICubeRenderer {
             if (activeSprite == null) {
                 FMLClientHandler.instance().trackMissingTexture(new ResourceLocation(modID,
                         "blocks/" + basePath + "/overlay_" + overlayFace.toString().toLowerCase() + "_active"));
-                continue;
+                // Graceful fallback keeps legacy/front-only overlay packs visible when active variants are absent.
+                activeSprite = normalSprite;
             }
 
             final String paused = String.format("%s_paused", overlayPath);

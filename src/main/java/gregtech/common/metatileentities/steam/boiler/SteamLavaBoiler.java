@@ -8,6 +8,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.mui.GTGuiTextures;
+import gregtech.api.mui.MetaTileEntityGuiData;
 import gregtech.api.unification.material.Materials;
 import gregtech.client.particle.VanillaParticleEffects;
 import gregtech.client.renderer.texture.Textures;
@@ -24,7 +25,6 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import gregtech.api.mui.MetaTileEntityGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;

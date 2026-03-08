@@ -25,6 +25,8 @@ import gregtech.common.metatileentities.electric.MetaTileEntityHull;
 import gregtech.common.metatileentities.electric.MetaTileEntityItemCollector;
 import gregtech.common.metatileentities.electric.MetaTileEntityMagicEnergyAbsorber;
 import gregtech.common.metatileentities.electric.MetaTileEntityMiner;
+import gregtech.common.metatileentities.electric.MetaTileEntityPipePump;
+import gregtech.common.metatileentities.electric.MetaTileEntityPressureSensor;
 import gregtech.common.metatileentities.electric.MetaTileEntityPump;
 import gregtech.common.metatileentities.electric.MetaTileEntityRockBreaker;
 import gregtech.common.metatileentities.electric.MetaTileEntityTransformer;
@@ -214,6 +216,8 @@ public final class MetaTileEntities {
     public static final MetaTileEntityQuantumTank[] QUANTUM_TANK = new MetaTileEntityQuantumTank[10];
     public static final MetaTileEntityBuffer[] BUFFER = new MetaTileEntityBuffer[3];
     public static final MetaTileEntityPump[] PUMP = new MetaTileEntityPump[8];
+    public static final MetaTileEntityPipePump[] PIPE_PUMP = new MetaTileEntityPipePump[5];
+    public static final MetaTileEntityPressureSensor[] PRESSURE_SENSOR = new MetaTileEntityPressureSensor[5];
     public static final MetaTileEntityBlockBreaker[] BLOCK_BREAKER = new MetaTileEntityBlockBreaker[4];
     public static final MetaTileEntityItemCollector[] ITEM_COLLECTOR = new MetaTileEntityItemCollector[4];
     public static final MetaTileEntityFisher[] FISHER = new MetaTileEntityFisher[4];

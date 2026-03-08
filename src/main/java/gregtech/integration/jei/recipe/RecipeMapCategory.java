@@ -9,10 +9,10 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.gui.widgets.SlotWidget;
 import gregtech.api.gui.widgets.TankWidget;
+import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.category.GTRecipeCategory;
-import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.properties.impl.ResearchProperty;
 import gregtech.api.recipes.properties.impl.ResearchPropertyData;
 import gregtech.api.util.AssemblyLineManager;
@@ -283,7 +283,7 @@ public class RecipeMapCategory implements IRecipeCategory<GTRecipeWrapper> {
         int totalOutputs = recipe.getOutputs().size() + recipe.getChancedOutputs().getChancedEntries().size();
         int inputCount = recipe.getInputs().size();
         int fluidInputCount = recipe.getFluidInputs().size();
-        
+
         // Adjust based on input density
         if (inputCount + fluidInputCount >= 8) {
             return Math.min(totalOutputs, 3 * 12); // 3 cols x 12 rows = 36 slots, severely limited

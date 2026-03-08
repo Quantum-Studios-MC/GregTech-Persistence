@@ -11,6 +11,8 @@ import gregtech.api.util.GTTransferUtils;
 import gregtech.api.util.virtualregistry.EntryTypes;
 import gregtech.api.util.virtualregistry.VirtualEnderRegistry;
 import gregtech.api.util.virtualregistry.entries.VirtualTank;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.IOMode;
@@ -35,9 +37,6 @@ import com.cleanroommc.modularui.value.sync.EnumSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.widget.ParentWidget;
 import org.jetbrains.annotations.NotNull;
-
-import gregtech.client.renderer.pipe.cover.CoverRenderer;
-import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 
 import java.util.UUID;
 

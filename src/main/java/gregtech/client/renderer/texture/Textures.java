@@ -587,6 +587,13 @@ public class Textures {
         public static final SpriteInformationWrapper[] INSULATION = SpriteInformationWrapper
                 .array(PipeModelRegistry.CABLE_MODEL_COUNT - 1);
 
+        public static final SpriteInformationWrapper GLASS_PIPE_IN = new SpriteInformationWrapper();
+        public static final SpriteInformationWrapper GLASS_PIPE_SIDE_BASIC = new SpriteInformationWrapper();
+        public static final SpriteInformationWrapper GLASS_PIPE_SIDE_TEMPERED = new SpriteInformationWrapper();
+        public static final SpriteInformationWrapper GLASS_PIPE_SIDE_BOROSILICATE = new SpriteInformationWrapper();
+        public static final SpriteInformationWrapper GLASS_PIPE_SIDE_LAMINATED = new SpriteInformationWrapper();
+        public static final SpriteInformationWrapper GLASS_PIPE_SIDE_FUSION = new SpriteInformationWrapper();
+
         private PipeTextures() {}
     }
 
@@ -653,6 +660,19 @@ public class Textures {
         PipeTextures.LASER_PIPE_OVERLAY_EMISSIVE.accept(textureMap
                 .registerSprite(new ResourceLocation(GTValues.MODID, "blocks/pipe/pipe_laser_side_overlay_emissive")),
                 0);
+
+        PipeTextures.GLASS_PIPE_IN.accept(textureMap
+                .registerSprite(gregtechId("blocks/pipe/pipe_glass_in")), -1);
+        PipeTextures.GLASS_PIPE_SIDE_BASIC.accept(textureMap
+                .registerSprite(gregtechId("blocks/pipe/pipe_glass_side_basic")), -1);
+        PipeTextures.GLASS_PIPE_SIDE_TEMPERED.accept(textureMap
+                .registerSprite(gregtechId("blocks/pipe/pipe_glass_side_tempered")), -1);
+        PipeTextures.GLASS_PIPE_SIDE_BOROSILICATE.accept(textureMap
+                .registerSprite(gregtechId("blocks/pipe/pipe_glass_side_borosilicate")), -1);
+        PipeTextures.GLASS_PIPE_SIDE_LAMINATED.accept(textureMap
+                .registerSprite(gregtechId("blocks/pipe/pipe_glass_side_laminated")), -1);
+        PipeTextures.GLASS_PIPE_SIDE_FUSION.accept(textureMap
+                .registerSprite(gregtechId("blocks/pipe/pipe_glass_side_fusion")), -1);
 
         for (MaterialIconSet iconSet : MaterialIconSet.ICON_SETS.values()) {
             textureMap.registerSprite(MaterialIconType.frameGt.getBlockTexturePath(iconSet));

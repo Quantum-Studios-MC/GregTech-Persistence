@@ -5,6 +5,8 @@ import gregtech.api.capability.IControllable;
 import gregtech.api.cover.*;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,9 +38,6 @@ import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import gregtech.client.renderer.pipe.cover.CoverRenderer;
-import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

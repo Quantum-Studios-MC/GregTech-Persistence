@@ -95,7 +95,10 @@ public class CommandRecipeCheck extends CommandBase {
                 List<FluidStack> fluidInputs = currentRecipe.getFluidInputs()
                         // set volume of fluids to Integer.MAX_VALUE to detect conflicts only occurring if batching the
                         // recipe
-                        .stream().map(stack -> new FluidStack(stack.getInputFluidStack(), Integer.MAX_VALUE))
+                        .stream()
+                        .map(GTRecipeInput::getInputFluidStack)
+                        .filter(java.util.Objects::nonNull)
+                        .map(stack -> new FluidStack(stack, Integer.MAX_VALUE))
                         .collect(Collectors.toList());
 
                 Set<Recipe> collidingRecipeSet = recipeMap.findRecipeCollisions(
@@ -215,8 +218,9 @@ public class CommandRecipeCheck extends CommandBase {
         if (!recipe.getFluidInputs().isEmpty()) {
             output.append("Fluid inputs:\n");
             for (GTRecipeInput fluid : recipe.getFluidInputs()) {
+                FluidStack fluidStack = fluid.getInputFluidStack();
                 output.append("    ")
-                        .append(fluid.getInputFluidStack().getUnlocalizedName())
+                        .append(fluidStack != null ? fluidStack.getUnlocalizedName() : fluid.toString())
                         .append(" * ")
                         .append(fluid.getAmount())
                         .append("\n");

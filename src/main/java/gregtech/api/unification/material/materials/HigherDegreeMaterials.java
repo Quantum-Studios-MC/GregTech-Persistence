@@ -139,7 +139,12 @@ public class HigherDegreeMaterials {
                         .vacuumStats(VA[EV], 200))
                 .build();
 
-        // FREE ID: 2521
+        BlueSchist = Material.builder(2521, gregtechId("blue_schist"))
+                .dust()
+                .color(0x6464C8).iconSet(ROUGH)
+                .flags(NO_SMASHING, DECOMPOSITION_BY_CENTRIFUGING)
+                .components(Sodium, 2, Iron, 2, SiliconDioxide, 3)
+                .build();
 
         IridiumMetalResidue = Material.builder(2522, gregtechId("iridium_metal_residue"))
                 .dust()
@@ -183,6 +188,13 @@ public class HigherDegreeMaterials {
                 .flags(GENERATE_PLATE, GENERATE_BOLT_SCREW, DISABLE_DECOMPOSITION)
                 .components(Electrotine, 4, Silver, 1)
                 .cableProperties(GTValues.V[GTValues.HV], 2, 1)
+                .build();
+
+        Gneiss = Material.builder(2528, gregtechId("gneiss"))
+                .dust()
+                .color(0x8C6E5A).iconSet(ROUGH)
+                .flags(NO_SMASHING, DECOMPOSITION_BY_CENTRIFUGING)
+                .components(SiliconDioxide, 4, Biotite, 1, Calcium, 1)
                 .build();
     }
 }

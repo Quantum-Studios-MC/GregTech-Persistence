@@ -21,6 +21,7 @@ public final class GTRecipeManager {
         MachineRecipeLoader.init();
         CraftingRecipeLoader.init();
         MetaTileEntityLoader.init();
+        GCYMMetaTileEntityLoader.init();
         MetaTileEntityMachineRecipeLoader.init();
         RecipeHandlerList.register();
         ForgeRegistries.RECIPES.register(new DyeableRecipes());

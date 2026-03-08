@@ -2,7 +2,6 @@ package gregtech.api.recipes.logic;
 
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
-
 import gregtech.api.util.GuardedData;
 
 import net.minecraft.item.ItemStack;
@@ -51,5 +50,4 @@ public abstract class RecipeLogicSearch {
             }
         }
     }
-
 }

@@ -165,7 +165,8 @@ public interface ItemStackHashStrategy extends Hash.Strategy<ItemStack> {
                     if (b == null || b.isEmpty()) return false;
 
                     return (!item || a.getItem() == b.getItem()) &&
-                            (!resourceLocation || Objects.equals(a.getItem().getRegistryName(), b.getItem().getRegistryName())) &&
+                            (!resourceLocation ||
+                                    Objects.equals(a.getItem().getRegistryName(), b.getItem().getRegistryName())) &&
                             (!count || a.getCount() == b.getCount()) &&
                             (!damage || a.getItemDamage() == b.getItemDamage()) &&
                             (!meta || a.getMetadata() == b.getMetadata()) &&

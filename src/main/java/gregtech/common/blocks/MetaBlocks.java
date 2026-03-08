@@ -46,6 +46,10 @@ import gregtech.common.pipelike.fluidpipe.FluidPipeType;
 import gregtech.common.pipelike.fluidpipe.longdistance.LDFluidPipeType;
 import gregtech.common.pipelike.fluidpipe.tile.TileEntityFluidPipe;
 import gregtech.common.pipelike.fluidpipe.tile.TileEntityFluidPipeTickable;
+import gregtech.common.pipelike.glasspipe.BlockGlassPipe;
+import gregtech.common.pipelike.glasspipe.GlassPipeType;
+import gregtech.common.pipelike.glasspipe.tile.TileEntityGlassPipe;
+import gregtech.common.pipelike.glasspipe.tile.TileEntityGlassPipeTickable;
 import gregtech.common.pipelike.itempipe.BlockItemPipe;
 import gregtech.common.pipelike.itempipe.ItemPipeType;
 import gregtech.common.pipelike.itempipe.longdistance.LDItemPipeType;
@@ -121,6 +125,7 @@ public class MetaBlocks {
     public static final Map<String, BlockItemPipe[]> ITEM_PIPES = new Object2ObjectOpenHashMap<>();
     public static final BlockOpticalPipe[] OPTICAL_PIPES = new BlockOpticalPipe[OpticalPipeType.values().length];
     public static final BlockLaserPipe[] LASER_PIPES = new BlockLaserPipe[OpticalPipeType.values().length];
+    public static final BlockGlassPipe[] GLASS_PIPES = new BlockGlassPipe[GlassPipeType.VALUES.length];
     public static BlockLongDistancePipe LD_ITEM_PIPE;
     public static BlockLongDistancePipe LD_FLUID_PIPE;
 
@@ -177,15 +182,22 @@ public class MetaBlocks {
     public static BlockColored LARGE_METAL_SHEET;
     public static BlockColored STUDS;
 
+    public static BlockSignalBeacon SIGNAL_BEACON;
+
     public static final Map<Material, BlockCompressed> COMPRESSED = new Object2ObjectOpenHashMap<>();
     public static final Map<Material, BlockFrame> FRAMES = new Object2ObjectOpenHashMap<>();
     public static final Map<Material, BlockSurfaceRock> SURFACE_ROCK = new Object2ObjectOpenHashMap<>();
+    public static final Map<Material, BlockDustCompressed> DUST_COMPRESSED = new Object2ObjectOpenHashMap<>();
+    public static final Map<Material, BlockStoneLayerRock> STONE_LAYER_ROCK = new Object2ObjectOpenHashMap<>();
 
     public static final List<BlockCompressed> COMPRESSED_BLOCKS = new ArrayList<>();
     public static final List<BlockFrame> FRAME_BLOCKS = new ArrayList<>();
     public static final List<BlockSurfaceRock> SURFACE_ROCK_BLOCKS = new ArrayList<>();
+    public static final List<BlockDustCompressed> DUST_COMPRESSED_BLOCKS = new ArrayList<>();
+    public static final List<BlockStoneLayerRock> STONE_LAYER_ROCK_BLOCKS = new ArrayList<>();
 
     public static final List<BlockOre> ORES = new ArrayList<>();
+    public static final List<BlockPoorOre> POOR_ORES = new ArrayList<>();
     public static final List<BlockFluidBase> FLUID_BLOCKS = new ArrayList<>();
 
     public static void init() {
@@ -227,6 +239,12 @@ public class MetaBlocks {
             LASER_PIPES[type.ordinal()] = new BlockLaserPipe(type);
             LASER_PIPES[type.ordinal()].setRegistryName(String.format("laser_pipe_%s", type.getName()));
             LASER_PIPES[type.ordinal()].setTranslationKey(String.format("laser_pipe_%s", type.getName()));
+        }
+
+        for (GlassPipeType type : GlassPipeType.VALUES) {
+            GLASS_PIPES[type.ordinal()] = new BlockGlassPipe(type);
+            GLASS_PIPES[type.ordinal()].setRegistryName(String.format("glass_pipe_%s", type.getName()));
+            GLASS_PIPES[type.ordinal()].setTranslationKey(String.format("glass_pipe_%s", type.getName()));
         }
 
         LD_ITEM_PIPE = new BlockLongDistancePipe(LDItemPipeType.INSTANCE);
@@ -339,15 +357,26 @@ public class MetaBlocks {
                 EnumDyeColor.BLACK);
         STUDS.setRegistryName("studs");
 
+        SIGNAL_BEACON = new BlockSignalBeacon();
+        SIGNAL_BEACON.setRegistryName("signal_beacon");
+
         createGeneratedBlock(m -> m.hasProperty(PropertyKey.DUST) && m.hasFlag(GENERATE_FRAME),
                 MetaBlocks::createFrameBlock);
         createGeneratedBlock(m -> m.hasProperty(PropertyKey.ORE) && m.hasProperty(PropertyKey.DUST),
                 MetaBlocks::createSurfaceRockBlock);
+        createGeneratedBlock(m -> m.hasProperty(PropertyKey.DUST),
+                MetaBlocks::createStoneLayerRockBlock);
 
         createGeneratedBlock(
                 material -> (material.hasProperty(PropertyKey.INGOT) || material.hasProperty(PropertyKey.GEM) ||
                         material.hasFlag(FORCE_GENERATE_BLOCK)) && !OrePrefix.block.isIgnored(material),
                 MetaBlocks::createCompressedBlock);
+
+        createGeneratedBlock(
+                material -> material.hasProperty(PropertyKey.DUST) &&
+                        !material.hasProperty(PropertyKey.INGOT) && !material.hasProperty(PropertyKey.GEM) &&
+                        !OrePrefix.blockDust.isIgnored(material),
+                MetaBlocks::createDustCompressedBlock);
 
         registerTileEntity();
 
@@ -410,6 +439,15 @@ public class MetaBlocks {
         COMPRESSED_BLOCKS.add(block);
     }
 
+    private static void createDustCompressedBlock(String modid, Material[] materials, int index) {
+        BlockDustCompressed block = BlockDustCompressed.create(materials);
+        block.setRegistryName(modid, "meta_block_dust_compressed_" + index);
+        for (Material m : materials) {
+            DUST_COMPRESSED.put(m, block);
+        }
+        DUST_COMPRESSED_BLOCKS.add(block);
+    }
+
     private static void createFrameBlock(String modid, Material[] materials, int index) {
         BlockFrame block = BlockFrame.create(materials);
         block.setRegistryName(modid, "meta_block_frame_" + index);
@@ -428,6 +466,15 @@ public class MetaBlocks {
         SURFACE_ROCK_BLOCKS.add(block);
     }
 
+    private static void createStoneLayerRockBlock(String modid, Material[] materials, int index) {
+        BlockStoneLayerRock block = BlockStoneLayerRock.create(materials);
+        block.setRegistryName(modid, "meta_block_stone_layer_rock_" + index);
+        for (Material m : materials) {
+            STONE_LAYER_ROCK.put(m, block);
+        }
+        STONE_LAYER_ROCK_BLOCKS.add(block);
+    }
+
     public static void registerTileEntity() {
         GameRegistry.registerTileEntity(MetaTileEntityHolder.class, gregtechId("machine"));
         GameRegistry.registerTileEntity(TileEntityCable.class, gregtechId("cable"));
@@ -436,8 +483,11 @@ public class MetaBlocks {
         GameRegistry.registerTileEntity(TileEntityItemPipe.class, gregtechId("item_pipe"));
         GameRegistry.registerTileEntity(TileEntityOpticalPipe.class, gregtechId("optical_pipe"));
         GameRegistry.registerTileEntity(TileEntityLaserPipe.class, gregtechId("laser_pipe"));
+        GameRegistry.registerTileEntity(TileEntityGlassPipe.class, gregtechId("glass_pipe"));
+        GameRegistry.registerTileEntity(TileEntityGlassPipeTickable.class, gregtechId("glass_pipe_active"));
         GameRegistry.registerTileEntity(TileEntityFluidPipeTickable.class, gregtechId("fluid_pipe_active"));
         GameRegistry.registerTileEntity(TileEntityItemPipeTickable.class, gregtechId("item_pipe_active"));
+        GameRegistry.registerTileEntity(TileEntitySignalBeacon.class, gregtechId("signal_beacon"));
     }
 
     @SideOnly(Side.CLIENT)
@@ -473,6 +523,11 @@ public class MetaBlocks {
             ModelBakery.registerItemVariants(item, decoy);
         }
         for (BlockLaserPipe pipe : LASER_PIPES) {
+            Item item = Item.getItemFromBlock(pipe);
+            ModelLoader.setCustomMeshDefinition(item, stack -> pipe.getPipeType().getModel().getLoc());
+            ModelBakery.registerItemVariants(item, decoy);
+        }
+        for (BlockGlassPipe pipe : GLASS_PIPES) {
             Item item = Item.getItemFromBlock(pipe);
             ModelLoader.setCustomMeshDefinition(item, stack -> pipe.getPipeType().getModel().getLoc());
             ModelBakery.registerItemVariants(item, decoy);
@@ -539,8 +594,10 @@ public class MetaBlocks {
         for (BlockLamp lamp : BORDERLESS_LAMPS.values()) lamp.onModelRegister();
 
         for (BlockCompressed block : COMPRESSED_BLOCKS) block.onModelRegister();
+        for (BlockDustCompressed block : DUST_COMPRESSED_BLOCKS) block.onModelRegister();
         for (BlockFrame block : FRAME_BLOCKS) block.onModelRegister();
         for (BlockOre block : ORES) block.onModelRegister();
+        for (BlockPoorOre block : POOR_ORES) block.onModelRegister();
     }
 
     @SideOnly(Side.CLIENT)
@@ -592,11 +649,18 @@ public class MetaBlocks {
         for (BlockLaserPipe pipe : LASER_PIPES) {
             ModelLoader.setCustomStateMapper(pipe, new SimpleStateMapper(pipe.getPipeType().getModel().getLoc()));
         }
+        for (BlockGlassPipe pipe : GLASS_PIPES) {
+            ModelLoader.setCustomStateMapper(pipe, new SimpleStateMapper(pipe.getPipeType().getModel().getLoc()));
+        }
 
         IStateMapper normalStateMapper;
         normalStateMapper = new SimpleStateMapper(BlockSurfaceRock.MODEL_LOCATION);
         for (BlockSurfaceRock surfaceRock : SURFACE_ROCK_BLOCKS) {
             ModelLoader.setCustomStateMapper(surfaceRock, normalStateMapper);
+        }
+        IStateMapper stoneLayerRockMapper = new SimpleStateMapper(BlockStoneLayerRock.MODEL_LOCATION);
+        for (BlockStoneLayerRock stoneLayerRock : STONE_LAYER_ROCK_BLOCKS) {
+            ModelLoader.setCustomStateMapper(stoneLayerRock, stoneLayerRockMapper);
         }
 
         normalStateMapper = new StateMapperBase() {
@@ -639,6 +703,11 @@ public class MetaBlocks {
             itemColors.registerItemColorHandler((s, i) -> block.getGtMaterial(s).getMaterialRGB(), block);
         }
 
+        for (BlockDustCompressed block : DUST_COMPRESSED_BLOCKS) {
+            blockColors.registerBlockColorHandler((s, w, p, i) -> block.getGtMaterial(s).getMaterialRGB(), block);
+            itemColors.registerItemColorHandler((s, i) -> block.getGtMaterial(s).getMaterialRGB(), block);
+        }
+
         IBlockColor pipeBlockColor = (s, w, p, i) -> i;
         IItemColor pipeItemColor = (s, i) -> i;
         for (MaterialRegistry registry : GregTechAPI.materialManager.getRegistries()) {
@@ -657,6 +726,8 @@ public class MetaBlocks {
         itemColors.registerItemColorHandler(pipeItemColor, OPTICAL_PIPES);
         blockColors.registerBlockColorHandler(pipeBlockColor, LASER_PIPES);
         itemColors.registerItemColorHandler(pipeItemColor, LASER_PIPES);
+        blockColors.registerBlockColorHandler(pipeBlockColor, GLASS_PIPES);
+        itemColors.registerItemColorHandler(pipeItemColor, GLASS_PIPES);
 
         for (BlockFrame block : FRAME_BLOCKS) {
             blockColors.registerBlockColorHandler((s, w, p, i) -> block.getGtMaterial(s).getMaterialRGB(), block);
@@ -667,8 +738,18 @@ public class MetaBlocks {
             blockColors.registerBlockColorHandler((s, w, p, i) -> i == 1 ? block.getGtMaterial(s).getMaterialRGB() : -1,
                     block);
         }
+        for (BlockStoneLayerRock block : STONE_LAYER_ROCK_BLOCKS) {
+            blockColors.registerBlockColorHandler((s, w, p, i) -> i == 1 ? block.getGtMaterial(s).getMaterialRGB() : -1,
+                    block);
+        }
 
         for (BlockOre block : ORES) {
+            blockColors.registerBlockColorHandler((s, w, p, i) -> i == 1 ? block.material.getMaterialRGB() : 0xFFFFFF,
+                    block);
+            itemColors.registerItemColorHandler((s, i) -> i == 1 ? block.material.getMaterialRGB() : 0xFFFFFF, block);
+        }
+
+        for (BlockPoorOre block : POOR_ORES) {
             blockColors.registerBlockColorHandler((s, w, p, i) -> i == 1 ? block.material.getMaterialRGB() : 0xFFFFFF,
                     block);
             itemColors.registerItemColorHandler((s, i) -> i == 1 ? block.material.getMaterialRGB() : 0xFFFFFF, block);
@@ -729,6 +810,13 @@ public class MetaBlocks {
             OreDictUnifier.registerOre(itemStack, OrePrefix.block, material);
         }
 
+        for (Entry<Material, BlockDustCompressed> entry : DUST_COMPRESSED.entrySet()) {
+            Material material = entry.getKey();
+            BlockDustCompressed block = entry.getValue();
+            ItemStack itemStack = block.getItem(material);
+            OreDictUnifier.registerOre(itemStack, OrePrefix.blockDust, material);
+        }
+
         for (Entry<Material, BlockFrame> entry : FRAMES.entrySet()) {
             Material material = entry.getKey();
             BlockFrame block = entry.getValue();
@@ -743,6 +831,16 @@ public class MetaBlocks {
                 ItemStack normalStack = GTUtility.toItem(blockOre.getDefaultState()
                         .withProperty(blockOre.STONE_TYPE, stoneType));
                 OreDictUnifier.registerOre(normalStack, stoneType.processingPrefix, material);
+            }
+        }
+
+        for (BlockPoorOre blockPoorOre : POOR_ORES) {
+            Material material = blockPoorOre.material;
+            for (StoneType stoneType : blockPoorOre.STONE_TYPE.getAllowedValues()) {
+                if (stoneType == null) continue;
+                ItemStack poorStack = GTUtility.toItem(blockPoorOre.getDefaultState()
+                        .withProperty(blockPoorOre.STONE_TYPE, stoneType));
+                OreDictUnifier.registerOre(poorStack, OrePrefix.orePoor, material);
             }
         }
         for (MaterialRegistry registry : GregTechAPI.materialManager.getRegistries()) {

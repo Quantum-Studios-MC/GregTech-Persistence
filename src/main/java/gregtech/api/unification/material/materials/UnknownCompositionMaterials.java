@@ -43,12 +43,12 @@ public class UnknownCompositionMaterials {
                 .build();
 
         Creosote = Material.builder(1507, gregtechId("creosote"))
-                .liquid(new FluidBuilder().customStill())
+                .liquid(new FluidBuilder().customStill().attribute(FluidAttributes.FLAMMABLE))
                 .color(0x804000)
                 .flags(STICKY).build();
 
         Diesel = Material.builder(1508, gregtechId("diesel"))
-                .liquid(new FluidBuilder().customStill().alternativeName("fuel"))
+                .liquid(new FluidBuilder().customStill().alternativeName("fuel").attribute(FluidAttributes.FLAMMABLE))
                 .color(0xFCF404)
                 .flags(FLAMMABLE, EXPLOSIVE).build();
 
@@ -56,11 +56,11 @@ public class UnknownCompositionMaterials {
                 .fluid().flags(FLAMMABLE, EXPLOSIVE).color(0xBDB78C).build();
 
         Glue = Material.builder(1510, gregtechId("glue"))
-                .liquid(new FluidBuilder().customStill())
+                .liquid(new FluidBuilder().customStill().attribute(FluidAttributes.SLUDGE))
                 .color(0xFCCC8C).flags(STICKY).build();
 
         Lubricant = Material.builder(1511, gregtechId("lubricant"))
-                .liquid(new FluidBuilder().customStill())
+                .liquid(new FluidBuilder().customStill().attribute(FluidAttributes.SLUDGE))
                 .color(0xFEEDAF).build();
 
         McGuffium239 = Material.builder(1512, gregtechId("mc_guffium_239"))
@@ -77,7 +77,7 @@ public class UnknownCompositionMaterials {
                 .flags(STICKY, FLAMMABLE).build();
 
         DrillingFluid = Material.builder(1515, gregtechId("drilling_fluid"))
-                .fluid().color(0xFFFFAA).build();
+                .liquid(new FluidBuilder().attribute(FluidAttributes.SLUDGE)).color(0xFFFFAA).build();
 
         ConstructionFoam = Material.builder(1516, gregtechId("construction_foam"))
                 .fluid().color(0x808080).build();
@@ -177,7 +177,7 @@ public class UnknownCompositionMaterials {
                 .build();
 
         Naphtha = Material.builder(1535, gregtechId("naphtha"))
-                .liquid(new FluidBuilder().customStill())
+                .liquid(new FluidBuilder().customStill().attribute(FluidAttributes.FLAMMABLE))
                 .color(0xFFF404)
                 .flags(FLAMMABLE)
                 .build();
@@ -377,10 +377,10 @@ public class UnknownCompositionMaterials {
                 .fluid().color(0x808000).build();
 
         BacterialSludge = Material.builder(1585, gregtechId("bacterial_sludge"))
-                .fluid().color(0x355E3B).build();
+                .liquid(new FluidBuilder().attribute(FluidAttributes.SLUDGE)).color(0x355E3B).build();
 
         EnrichedBacterialSludge = Material.builder(1586, gregtechId("enriched_bacterial_sludge"))
-                .fluid().color(0x7FFF00).build();
+                .liquid(new FluidBuilder().attribute(FluidAttributes.SLUDGE)).color(0x7FFF00).build();
 
         // free id: 1587
 
@@ -394,7 +394,8 @@ public class UnknownCompositionMaterials {
                 .fluid().color(0xFF6400).flags(FLAMMABLE).build();
 
         Gasoline = Material.builder(1591, gregtechId("gasoline"))
-                .fluid().color(0xFAA500).flags(FLAMMABLE, EXPLOSIVE).build();
+                .liquid(new FluidBuilder().attribute(FluidAttributes.FLAMMABLE)).color(0xFAA500)
+                .flags(FLAMMABLE, EXPLOSIVE).build();
 
         HighOctaneGasoline = Material.builder(1592, gregtechId("gasoline_premium"))
                 .fluid().color(0xFFA500).flags(FLAMMABLE, EXPLOSIVE).build();
@@ -535,13 +536,13 @@ public class UnknownCompositionMaterials {
                 .build();
 
         RubySlurry = Material.builder(1620, gregtechId("ruby_slurry"))
-                .fluid().color(0xff6464).build();
+                .liquid(new FluidBuilder().attribute(FluidAttributes.SLUDGE)).color(0xff6464).build();
 
         SapphireSlurry = Material.builder(1621, gregtechId("sapphire_slurry"))
-                .fluid().color(0x6464c8).build();
+                .liquid(new FluidBuilder().attribute(FluidAttributes.SLUDGE)).color(0x6464c8).build();
 
         GreenSapphireSlurry = Material.builder(1622, gregtechId("green_sapphire_slurry"))
-                .fluid().color(0x64c882).build();
+                .liquid(new FluidBuilder().attribute(FluidAttributes.SLUDGE)).color(0x64c882).build();
 
         // These colors are much nicer looking than those in MC's EnumDyeColor
         DyeBlack = Material.builder(1623, gregtechId("dye_black"))
@@ -642,16 +643,16 @@ public class UnknownCompositionMaterials {
                 .fluid().color(0xD5D69C).build();
 
         BauxiteSlurry = Material.builder(1651, gregtechId("bauxite_slurry"))
-                .fluid().color(0x051650).build();
+                .liquid(new FluidBuilder().attribute(FluidAttributes.SLUDGE)).color(0x051650).build();
 
         CrackedBauxiteSlurry = Material.builder(1652, gregtechId("cracked_bauxite_slurry"))
                 .liquid(new FluidBuilder().temperature(775)).color(0x052C50).build();
 
         BauxiteSludge = Material.builder(1653, gregtechId("bauxite_sludge"))
-                .fluid().color(0x563D2D).build();
+                .liquid(new FluidBuilder().attribute(FluidAttributes.SLUDGE)).color(0x563D2D).build();
 
         DecalcifiedBauxiteSludge = Material.builder(1654, gregtechId("decalcified_bauxite_sludge"))
-                .fluid().color(0x6F2DA8).build();
+                .liquid(new FluidBuilder().attribute(FluidAttributes.SLUDGE)).color(0x6F2DA8).build();
 
         BauxiteSlag = Material.builder(1655, gregtechId("bauxite_slag"))
                 .dust(1)

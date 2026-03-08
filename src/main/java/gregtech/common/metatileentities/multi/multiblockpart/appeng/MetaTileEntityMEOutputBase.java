@@ -7,6 +7,7 @@ import gregtech.api.capability.INotifiableHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
+import gregtech.api.mui.MetaTileEntityGuiData;
 import gregtech.common.mui.widget.ScrollableTextWidget;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -24,7 +25,6 @@ import appeng.api.storage.IStorageChannel;
 import appeng.api.storage.data.IAEStack;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.drawable.IRichTextBuilder;
-import gregtech.api.mui.MetaTileEntityGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.utils.Alignment;

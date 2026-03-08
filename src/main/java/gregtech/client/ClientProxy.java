@@ -20,6 +20,7 @@ import gregtech.client.renderer.handler.FacadeRenderer;
 import gregtech.client.renderer.handler.MetaTileEntityRenderer;
 import gregtech.client.renderer.pipe.AbstractPipeModel;
 import gregtech.client.renderer.pipe.PipeModelRegistry;
+import gregtech.client.renderer.texture.GCYMTextures;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.client.utils.ItemRenderCompat;
 import gregtech.client.utils.RenderUtil;
@@ -29,6 +30,7 @@ import gregtech.common.ConfigHolder;
 import gregtech.common.MetaEntities;
 import gregtech.common.blocks.BlockCompressed;
 import gregtech.common.blocks.BlockFrame;
+import gregtech.common.blocks.GCYMMetaBlocks;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import gregtech.common.items.ToolItems;
@@ -71,6 +73,7 @@ import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
@@ -102,10 +105,12 @@ public class ClientProxy extends CommonProxy {
         }
 
         MetaTileEntityRenderer.preInit();
+        GCYMTextures.preInit();
         MetaEntities.initRenderers();
 
         MinecraftForge.EVENT_BUS.register(KeyBind.class);
         MinecraftForge.EVENT_BUS.register(MachineTooltipRenderer.class);
+        MinecraftForge.EVENT_BUS.register(MaterialTooltipRenderer.class);
     }
 
     @Override
@@ -139,6 +144,7 @@ public class ClientProxy extends CommonProxy {
     public static void registerModels(ModelRegistryEvent event) {
         MetaBlocks.registerStateMappers();
         MetaBlocks.registerItemModels();
+        GCYMMetaBlocks.registerItemModels();
         MetaItems.registerModels();
         ToolItems.registerModels();
     }
@@ -316,7 +322,7 @@ public class ClientProxy extends CommonProxy {
                         tooltip.remove(net.minecraft.util.text.translation.I18n
                                 .translateToLocal("endercore.tooltip.oreDictNames"));
                         for (int i : oreIds) {
-                            tooltip.remove("  - " + OreDictionary.getOreName(i));
+                            tooltip.remove(" - " + OreDictionary.getOreName(i));
                         }
                     }
                 }
@@ -446,5 +452,15 @@ public class ClientProxy extends CommonProxy {
     @SubscribeEvent
     public static void onGuiChange(GuiOpenEvent event) {
         isGUIClosingPermanently = (event.getGui() == null);
+    }
+
+    @SubscribeEvent
+    public static void onKeyInput(InputEvent.KeyInputEvent event) {
+        if (KeyBind.WIKI.isPressed()) {
+            Minecraft mc = Minecraft.getMinecraft();
+            if (mc.currentScreen == null) {
+                gregtech.wiki.WikiScreen.open();
+            }
+        }
     }
 }

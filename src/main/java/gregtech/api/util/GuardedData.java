@@ -1,11 +1,9 @@
 package gregtech.api.util;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-
 import net.minecraft.nbt.NBTTagCompound;
-
 import net.minecraftforge.common.util.INBTSerializable;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,6 +42,7 @@ public final class GuardedData<T> implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Sets the transient data storage.
+     * 
      * @param transientData the data to set to.
      */
     public void setTransientData(@Nullable T transientData) {
@@ -71,6 +70,7 @@ public final class GuardedData<T> implements INBTSerializable<NBTTagCompound> {
      * Transient data is always cleared on this operation, to protect from relying on
      * transient data from before the cache, and the transient data not being there
      * if a disk save & load interrupts.
+     * 
      * @apiNote This does not invalidate external references to unsaved data. If spooky
      *          action at a distance is suspected, call {@link #clearTransientData()} as well.
      * @return this object, for convenience.
@@ -89,6 +89,7 @@ public final class GuardedData<T> implements INBTSerializable<NBTTagCompound> {
     /**
      * Clears transient data and unsaved changes to data. Can be used to simulate a
      * disk save & load, or just undo an operation that was deemed undesirable after the fact.
+     * 
      * @return this object, for convenience.
      */
     @Contract("->this")
@@ -101,6 +102,7 @@ public final class GuardedData<T> implements INBTSerializable<NBTTagCompound> {
     /**
      * Clears transient data and invalidates any external references to unsaved data.
      * Useful if this object is about to be sent across threads.
+     * 
      * @return this object, for convenience.
      */
     @Contract("->this")
@@ -124,6 +126,7 @@ public final class GuardedData<T> implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Creates a complete copy of this object, including unsaved and saved data.
+     * 
      * @return the full copy
      */
     public GuardedData<T> copyFullState() {
@@ -138,6 +141,7 @@ public final class GuardedData<T> implements INBTSerializable<NBTTagCompound> {
 
     /**
      * Creates a copy of this object containing only the saved data.
+     * 
      * @return the safe copy
      */
     public GuardedData<T> copySafeState() {
@@ -149,6 +153,7 @@ public final class GuardedData<T> implements INBTSerializable<NBTTagCompound> {
     /**
      * Sets this object's unsaved state to a copy of the other object's unsaved state.
      * This object's saved state is not affected, unless {@link #cacheState()} is called.
+     * 
      * @param other the object to grab data from
      * @return this object, for convenience.
      */
@@ -170,6 +175,7 @@ public final class GuardedData<T> implements INBTSerializable<NBTTagCompound> {
     /**
      * Sets this object's unsaved state to a copy of the other object's saved state.
      * This object's saved state is not affected, unless {@link #cacheState()} is called.
+     * 
      * @param other the object to grab data from
      * @return this object, for convenience.
      */

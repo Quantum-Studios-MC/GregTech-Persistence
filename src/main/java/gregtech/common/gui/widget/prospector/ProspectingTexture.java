@@ -43,10 +43,10 @@ public class ProspectingTexture extends AbstractTexture {
         this.mode = mode;
         if (this.mode == ProspectorMode.FLUID) {
             // noinspection unchecked
-            map = new Byte2ObjectOpenHashMap[(radius * 2 - 1)][(radius * 2 - 1)];
+            map = new Map[(radius * 2 - 1)][(radius * 2 - 1)];
         } else {
             // noinspection unchecked
-            map = new Byte2ObjectOpenHashMap[(radius * 2 - 1) * 16][(radius * 2 - 1) * 16];
+            map = new Map[(radius * 2 - 1) * 16][(radius * 2 - 1) * 16];
         }
     }
 
@@ -54,7 +54,7 @@ public class ProspectingTexture extends AbstractTexture {
         int playerChunkX = packet.playerChunkX;
         int playerChunkZ = packet.playerChunkZ;
         playerXGui = packet.posX - (playerChunkX - this.radius + 1) * 16 + (packet.posX > 0 ? 1 : 0);
-        playerYGui = packet.posZ - (playerChunkZ - this.radius + 1) * 16 + (packet.posX > 0 ? 1 : 0);
+        playerYGui = packet.posZ - (playerChunkZ - this.radius + 1) * 16 + (packet.posZ > 0 ? 1 : 0);
 
         int ox;
         if ((packet.chunkX > 0 && playerChunkX > 0) || (packet.chunkX < 0 && playerChunkX < 0)) {
@@ -78,7 +78,7 @@ public class ProspectingTexture extends AbstractTexture {
 
         int currentColumn = (this.radius - 1) + ox;
         int currentRow = (this.radius - 1) + oy;
-        if (currentRow < 0) {
+        if (currentRow < 0 || currentColumn < 0 || currentRow >= map[0].length || currentColumn >= map.length) {
             return;
         }
 
@@ -160,8 +160,9 @@ public class ProspectingTexture extends AbstractTexture {
             for (int cx = 0; cx < this.radius * 2 - 1; cx++) {
                 for (int cz = 0; cz < this.radius * 2 - 1; cz++) {
                     if (this.map[cx][cz] != null && !this.map[cx][cz].isEmpty()) {
-                        Fluid fluid = FluidRegistry.getFluid(this.map[cx][cz].get((byte) 1));
-                        if (selected.equals(SELECTED_ALL) || selected.equals(fluid.getName())) {
+                        String fluidName = this.map[cx][cz].get((byte) 1);
+                        Fluid fluid = fluidName == null ? null : FluidRegistry.getFluid(fluidName);
+                        if (fluid != null && (selected.equals(SELECTED_ALL) || selected.equals(fluidName))) {
                             RenderUtil.drawFluidForGui(new FluidStack(fluid, 1), 1, x + cx * 16 + 1, y + cz * 16 + 1,
                                     16, 16);
                         }

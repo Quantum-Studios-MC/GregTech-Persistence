@@ -40,7 +40,8 @@ public enum KeyBind {
     ARMOR_HOVER("gregtech.key.armor_hover", KeyConflictContext.IN_GAME, Keyboard.KEY_H),
     ARMOR_CANCEL_INERTIA("gregtech.key.armor_cancel_inertia", KeyConflictContext.IN_GAME, Keyboard.KEY_I),
     ARMOR_CHARGING("gregtech.key.armor_charging", KeyConflictContext.IN_GAME, Keyboard.KEY_N),
-    TOOL_AOE_CHANGE("gregtech.key.tool_aoe_change", KeyConflictContext.IN_GAME, Keyboard.KEY_V);
+    TOOL_AOE_CHANGE("gregtech.key.tool_aoe_change", KeyConflictContext.IN_GAME, Keyboard.KEY_V),
+    WIKI("gregtech.key.wiki", KeyConflictContext.IN_GAME, Keyboard.KEY_G);
 
     public static final KeyBind[] VALUES = values();
 

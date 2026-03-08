@@ -63,11 +63,11 @@ public class AsyncTaskBuilder<T> {
         public T get() {
             for (int i = 0; i < tasks.size(); i++) {
                 Object task = tasks.get(i);
-                if (task instanceof BiConsumer<?,?> c) {
+                if (task instanceof BiConsumer<?, ?>c) {
                     helper((BiConsumer<T, ?>) c, tasks.get(++i));
-                } else if (task instanceof UnaryOperator<?> u) {
+                } else if (task instanceof UnaryOperator<?>u) {
                     shared = ((UnaryOperator<T>) u).apply(shared);
-                } else if (task instanceof Consumer<?> c) {
+                } else if (task instanceof Consumer<?>c) {
                     ((Consumer<T>) c).accept(shared);
                 }
             }
@@ -78,5 +78,4 @@ public class AsyncTaskBuilder<T> {
             consumer.accept(shared, (V) v);
         }
     }
-
 }

@@ -102,7 +102,12 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
         if (!sortedFluidInputs.isEmpty()) {
             List<FluidStack> list = new ArrayList<>();
             for (GTRecipeInput input : sortedFluidInputs) {
-                list.add(input.getInputFluidStack());
+                FluidStack fluidStack = input.getInputFluidStack();
+                if (fluidStack != null) {
+                    list.add(fluidStack);
+                }
+                // Property-based fluid inputs (getInputFluidStack() == null) are handled
+                // in tooltip/draw overlay instead
             }
             ingredients.setInputs(VanillaTypes.FLUID, list);
         }
@@ -297,7 +302,8 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
         int lineEnd = Math.min(recipeWidth - 14, 160);
         net.minecraft.client.gui.Gui.drawRect(0, yPosition - 3, lineEnd, yPosition - 2,
                 (0x40 << 24) | tierColor);
-        net.minecraft.client.gui.Gui.drawRect(0, yPosition - 2, 1, yPosition + (unhiddenCount + defaultLines) * LINE_HEIGHT,
+        net.minecraft.client.gui.Gui.drawRect(0, yPosition - 2, 1,
+                yPosition + (unhiddenCount + defaultLines) * LINE_HEIGHT,
                 (0x60 << 24) | tierColor);
 
         int textX = 4;
@@ -368,16 +374,16 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
         if (recipeTier >= GTValues.V.length - 1) return;
 
         java.util.List<long[]> ocTiers = new java.util.ArrayList<>();
-        
+
         for (int tier = Math.max(0, recipeTier - 1); tier <= recipeTier; tier++) {
             long newEUt = recipeEUt * (long) Math.pow(0.25, recipeTier - tier);
             int newDuration = (int) (recipeDuration * Math.pow(2.0, recipeTier - tier));
             if (newEUt >= GTValues.V[tier] && newDuration >= 1) {
-                ocTiers.add(new long[]{tier, newEUt, newDuration});
+                ocTiers.add(new long[] { tier, newEUt, newDuration });
             }
         }
-        
-        ocTiers.add(new long[]{recipeTier, recipeEUt, recipeDuration});
+
+        ocTiers.add(new long[] { recipeTier, recipeEUt, recipeDuration });
         long eut = recipeEUt;
         int duration = recipeDuration;
         for (int tier = recipeTier + 1; tier < GTValues.V.length; tier++) {
@@ -386,7 +392,7 @@ public class GTRecipeWrapper extends AdvancedRecipeWrapper {
             if (newEUt > GTValues.V[tier] || newDuration < 1) break;
             eut = newEUt;
             duration = newDuration;
-            ocTiers.add(new long[]{tier, eut, duration});
+            ocTiers.add(new long[] { tier, eut, duration });
         }
 
         if (ocTiers.size() <= 1) return;

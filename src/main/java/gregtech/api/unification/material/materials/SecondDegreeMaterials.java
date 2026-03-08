@@ -26,7 +26,12 @@ public class SecondDegreeMaterials {
                 .components(SiliconDioxide, 1)
                 .build();
 
-        // FREE ID 2001
+        Limestone = Material.builder(2001, gregtechId("limestone"))
+                .dust()
+                .color(0xE6C882).iconSet(ROUGH)
+                .flags(NO_SMASHING, DECOMPOSITION_BY_CENTRIFUGING)
+                .components(Calcite, 1)
+                .build();
 
         Borax = Material.builder(2002, gregtechId("borax"))
                 .dust(1)
@@ -78,8 +83,6 @@ public class SecondDegreeMaterials {
                 .flags(NO_SMELTING, MORTAR_GRINDABLE, DECOMPOSITION_BY_CENTRIFUGING) // todo burning flag
                 .components(DarkAsh, 1, Sulfur, 1)
                 .build();
-
-        // Free ID 2009
 
         Apatite = Material.builder(2010, gregtechId("apatite"))
                 .gem(1).ore(2, 2)
@@ -182,7 +185,12 @@ public class SecondDegreeMaterials {
                 .components(Aluminium, 2, PotassiumFeldspar, 1, Oxygen, 3)
                 .build();
 
-        // Free ID 2021
+        GreenSchist = Material.builder(2021, gregtechId("green_schist"))
+                .dust()
+                .color(0x69BE69).iconSet(ROUGH)
+                .flags(NO_SMASHING, DECOMPOSITION_BY_CENTRIFUGING)
+                .components(Iron, 3, SiliconDioxide, 2, Calcium, 1)
+                .build();
 
         VanadiumMagnetite = Material.builder(2022, gregtechId("vanadium_magnetite"))
                 .dust().ore()
@@ -203,8 +211,6 @@ public class SecondDegreeMaterials {
                 .color(0xF0D2D2)
                 .components(Caesium, 2, Aluminium, 2, Silicon, 4, Water, 2, Oxygen, 12)
                 .build();
-
-        // Free ID 2025
 
         Bentonite = Material.builder(2026, gregtechId("bentonite"))
                 .dust().ore(3, 1)
@@ -316,9 +322,12 @@ public class SecondDegreeMaterials {
                 .components(Asbestos, 4, Saltpeter, 1)
                 .build();
 
-        // FREE ID 2040
-
-        // FREE ID 2041
+        Kimberlite = Material.builder(2041, gregtechId("kimberlite"))
+                .dust()
+                .color(0x64460A).iconSet(ROUGH)
+                .flags(NO_SMASHING, DECOMPOSITION_BY_CENTRIFUGING)
+                .components(SiliconDioxide, 4, Iron, 2, Calcium, 1)
+                .build();
 
         NaquadahAlloy = Material.builder(2042, gregtechId("naquadah_alloy"))
                 .ingot(5).fluid()
@@ -384,6 +393,13 @@ public class SecondDegreeMaterials {
                 .toolStats(MaterialToolProperty.Builder.of(0.0F, 1.0F, 64, 1)
                         .enchantability(5).ignoreCraftingTools()
                         .enchantment(Enchantments.FIRE_ASPECT, 2).build())
+                .build();
+
+        Komatiite = Material.builder(2040, gregtechId("komatiite"))
+                .dust()
+                .color(0x626E5A).iconSet(ROUGH)
+                .flags(NO_SMASHING, DECOMPOSITION_BY_CENTRIFUGING)
+                .components(Olivine, 1, Calcite, 3, Flint, 8)
                 .build();
 
         Air = Material.builder(2050, gregtechId("air"))
@@ -491,6 +507,20 @@ public class SecondDegreeMaterials {
                 .color(0xC8C8DC).iconSet(ROUGH)
                 .flags(MORTAR_GRINDABLE, EXCLUDE_BLOCK_CRAFTING_BY_HAND_RECIPES)
                 .components(Sodium, 2, Lithium, 1, Aluminium, 2, Silicon, 2, Water, 6)
+                .build();
+
+        Shale = Material.builder(2009, gregtechId("shale"))
+                .dust()
+                .color(0x808080).iconSet(ROUGH)
+                .flags(NO_SMASHING, DECOMPOSITION_BY_CENTRIFUGING)
+                .components(Clay, 1, SiliconDioxide, 1)
+                .build();
+
+        Slate = Material.builder(2025, gregtechId("slate"))
+                .dust()
+                .color(0x6B6B6B).iconSet(ROUGH)
+                .flags(NO_SMASHING, DECOMPOSITION_BY_CENTRIFUGING)
+                .components(Clay, 1, SiliconDioxide, 2)
                 .build();
 
         Redstone = Material.builder(2064, gregtechId("redstone"))

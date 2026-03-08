@@ -51,8 +51,8 @@ import gregtech.common.items.behaviors.TooltipBehavior;
 import gregtech.common.items.behaviors.TricorderBehavior;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.items.behaviors.filter.OreDictFilterUIManager;
-import gregtech.common.items.behaviors.filter.SimpleItemFilterUIManager;
 import gregtech.common.items.behaviors.filter.SimpleFluidFilterUIManager;
+import gregtech.common.items.behaviors.filter.SimpleItemFilterUIManager;
 import gregtech.common.items.behaviors.filter.SmartFilterUIManager;
 import gregtech.common.items.behaviors.monitorplugin.AdvancedMonitorPluginBehavior;
 import gregtech.common.items.behaviors.monitorplugin.FakeGuiPluginBehavior;
@@ -1209,5 +1209,11 @@ public class MetaItem1 extends StandardMetaItem {
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Steel, M * 4)));
         SHAPE_MOLDS[22] = SHAPE_MOLD_PIPE_HUGE = addItem(1010, "shape.mold.pipe.huge")
                 .setRecyclingData(new RecyclingData(new MaterialStack(Materials.Steel, M * 4)));
+
+        // GPS Device
+        GPS_DEVICE = addItem(1011, "gps_device")
+                .addComponents(ElectricStats.createElectricItem(1000000L, GTValues.LV),
+                        new gregtech.common.items.behaviors.GPSDeviceBehavior())
+                .setMaxStackSize(1);
     }
 }

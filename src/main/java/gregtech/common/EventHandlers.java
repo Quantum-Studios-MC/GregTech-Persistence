@@ -5,6 +5,7 @@ import gregtech.api.configurator.playerdata.ConfiguratorDataRegistry;
 import gregtech.api.items.armor.ArmorMetaItem;
 import gregtech.api.items.toolitem.ToolClasses;
 import gregtech.api.items.toolitem.ToolHelper;
+import gregtech.common.items.ToolItems;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.pipenet.longdist.LongDistanceNetwork;
 import gregtech.api.pipenet.tile.IPipeTile;
@@ -158,6 +159,15 @@ public class EventHandlers {
         if (tool != null && !item.isEmpty() && ToolHelper.canMineWithPick(tool) &&
                 item.getItem().getToolClasses(item).contains(ToolClasses.PICKAXE)) {
             event.setNewSpeed(event.getNewSpeed() * 0.75f);
+        }
+        // Construction Pickaxe: 1/4 speed on ores (GT6 behavior)
+        if (!item.isEmpty() && item.getItem() == ToolItems.CONSTRUCTION_PICKAXE.get()) {
+            net.minecraft.block.Block block = event.getState().getBlock();
+            if (block instanceof gregtech.common.blocks.BlockOre ||
+                    GTUtility.isOre(new ItemStack(block, 1,
+                            block.getMetaFromState(event.getState())))) {
+                event.setNewSpeed(event.getNewSpeed() * 0.25f);
+            }
         }
     }
 
@@ -384,5 +394,22 @@ public class EventHandlers {
 
     private static boolean checkAEEntity(Entity entity) {
         return Mods.AppliedEnergistics2.isModLoaded() && entity instanceof EntitySingularity;
+    }
+
+    @SubscribeEvent
+    public static void onPlayerDeath(net.minecraftforge.event.entity.living.LivingDeathEvent event) {
+        if (!(event.getEntityLiving() instanceof EntityPlayer)) return;
+        EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+        if (player.world.isRemote) return;
+
+        for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+            ItemStack stack = player.inventory.getStackInSlot(i);
+            if (MetaItems.GPS_DEVICE.isItemEqual(stack)) {
+                gregtech.common.gps.WaypointManager.setDeathPoint(stack,
+                        (int) player.posX, (int) player.posZ,
+                        player.dimension);
+                break;
+            }
+        }
     }
 }

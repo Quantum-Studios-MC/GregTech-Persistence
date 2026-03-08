@@ -388,6 +388,16 @@
       }
     ]
   },
+  "tick.overload_warning" : {
+    "subtitle" : "gregtech.subtitle.overload_warning",
+    "category" : "block",
+    "sounds" : [
+      {
+        "name" : "gregtech:breakdown_electrical",
+        "stream" : false
+      }
+    ]
+  },
   "click" : {
     "subtitle" : "gregtech.subtitle.click",
     "category" : "players",

@@ -13,6 +13,7 @@ import gregtech.api.pipenet.WorldPipeNet;
 import gregtech.api.pipenet.tile.IPipeTile;
 import gregtech.api.pipenet.tile.PipeCoverableImplementation;
 import gregtech.api.pipenet.tile.TileEntityPipeBase;
+import gregtech.api.util.GTLog;
 import gregtech.api.util.GTUtility;
 import gregtech.client.renderer.pipe.PipeRenderProperties;
 import gregtech.client.renderer.pipe.cover.CoverRendererPackage;
@@ -797,12 +798,26 @@ public abstract class BlockPipe<PipeType extends Enum<PipeType> & IPipeType<Node
         return mask;
     }
 
+    private static boolean loggedGlassExtState = false;
+
     @Override
     public @NotNull IBlockState getExtendedState(@NotNull IBlockState state, @NotNull IBlockAccess world,
                                                  @NotNull BlockPos pos) {
         var tile = getPipeTileEntity(world, pos);
-        if (tile == null) return state;
-        else return tile.getRenderInformation((IExtendedBlockState) state.getActualState(world, pos));
+        if (tile == null) {
+            if (!loggedGlassExtState && this instanceof gregtech.common.pipelike.glasspipe.BlockGlassPipe) {
+                loggedGlassExtState = true;
+                TileEntity te = world.getTileEntity(pos);
+                GTLog.logger.warn(
+                        "[GlassPipeDebug] getExtendedState: tile is NULL for glass pipe at pos={}, rawTE={}, block={}, isThisPipeBlock={}",
+                        pos, te,
+                        te != null ?
+                                (te instanceof IPipeTile ? ((IPipeTile<?, ?>) te).getPipeBlock() : "notIPipeTile") :
+                                "null",
+                        this.getRegistryName());
+            }
+            return state;
+        } else return tile.getRenderInformation((IExtendedBlockState) state.getActualState(world, pos));
     }
 
     @SideOnly(Side.CLIENT)

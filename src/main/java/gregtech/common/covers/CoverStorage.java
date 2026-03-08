@@ -4,6 +4,8 @@ import gregtech.api.cover.CoverBase;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.CoverableView;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.Textures;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -25,13 +27,10 @@ import com.cleanroommc.modularui.factory.SidedPosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.value.sync.SyncHandlers;
-import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.cleanroommc.modularui.widgets.layout.Grid;
+import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import gregtech.client.renderer.pipe.cover.CoverRenderer;
-import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

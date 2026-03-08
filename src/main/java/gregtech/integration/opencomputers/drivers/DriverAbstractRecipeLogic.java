@@ -88,7 +88,8 @@ public class DriverAbstractRecipeLogic extends DriverSidedTileEntity {
                 fluidInputs.forEach(iR -> {
                     Map<String, Object> input = new Object2ObjectOpenHashMap<>();
                     input.put("amount", iR.getAmount());
-                    input.put("name", iR.getInputFluidStack().getFluid().getName());
+                    FluidStack fluidStack = iR.getInputFluidStack();
+                    input.put("name", fluidStack != null ? fluidStack.getFluid().getName() : iR.toString());
                     fluidInput.add(input);
                 });
                 if (!fluidInput.isEmpty()) {

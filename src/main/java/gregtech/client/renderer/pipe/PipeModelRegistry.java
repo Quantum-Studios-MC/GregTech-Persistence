@@ -43,9 +43,14 @@ public final class PipeModelRegistry {
     private static final ActivablePipeModel LASER;
     private static final PipeModelRedirector LASER_MODEL;
 
+    public static final int GLASS_PIPE_MODEL_COUNT = 5;
+    private static final GlassPipeModel[] GLASS_PIPE = new GlassPipeModel[GLASS_PIPE_MODEL_COUNT];
+    private static final PipeModelRedirector[] GLASS_PIPE_MODELS = new PipeModelRedirector[GLASS_PIPE_MODEL_COUNT];
+
     static {
         initPipes();
         initCables();
+        initGlassPipes();
         ResourceLocation loc = GTUtility.gregtechId("block/pipe_activable");
         OPTICAL = new ActivablePipeModel(
                 Textures.PipeTextures.OPTICAL_PIPE_IN, Textures.PipeTextures.OPTICAL_PIPE_SIDE,
@@ -96,6 +101,10 @@ public final class PipeModelRegistry {
         return LASER_MODEL;
     }
 
+    public static PipeModelRedirector getGlassPipeModel(@Range(from = 0, to = GLASS_PIPE_MODEL_COUNT - 1) int i) {
+        return GLASS_PIPE_MODELS[i];
+    }
+
     public static void registerModels(@NotNull IRegistry<ModelResourceLocation, IBakedModel> registry) {
         for (PipeModelRedirector redirector : PIPE_MODELS) {
             registry.putObject(redirector.getLoc(), redirector);
@@ -108,6 +117,9 @@ public final class PipeModelRegistry {
         }
         registry.putObject(OPTICAL_MODEL.getLoc(), OPTICAL_MODEL);
         registry.putObject(LASER_MODEL.getLoc(), LASER_MODEL);
+        for (PipeModelRedirector redirector : GLASS_PIPE_MODELS) {
+            registry.putObject(redirector.getLoc(), redirector);
+        }
     }
 
     public static PipeModelRedirector materialModel(@NotNull ResourceLocation loc, MaterialModelSupplier supplier,
@@ -231,5 +243,25 @@ public final class PipeModelRegistry {
             cached[i] = selected;
         }
         return selected;
+    }
+
+    private static void initGlassPipes() {
+        GLASS_PIPE[0] = new GlassPipeModel(Textures.PipeTextures.GLASS_PIPE_IN,
+                Textures.PipeTextures.GLASS_PIPE_SIDE_BASIC);
+        GLASS_PIPE[1] = new GlassPipeModel(Textures.PipeTextures.GLASS_PIPE_IN,
+                Textures.PipeTextures.GLASS_PIPE_SIDE_TEMPERED);
+        GLASS_PIPE[2] = new GlassPipeModel(Textures.PipeTextures.GLASS_PIPE_IN,
+                Textures.PipeTextures.GLASS_PIPE_SIDE_BOROSILICATE);
+        GLASS_PIPE[3] = new GlassPipeModel(Textures.PipeTextures.GLASS_PIPE_IN,
+                Textures.PipeTextures.GLASS_PIPE_SIDE_LAMINATED);
+        GLASS_PIPE[4] = new GlassPipeModel(Textures.PipeTextures.GLASS_PIPE_IN,
+                Textures.PipeTextures.GLASS_PIPE_SIDE_FUSION);
+
+        ResourceLocation loc = GTUtility.gregtechId("block/pipe_glass");
+        for (int i = 0; i < GLASS_PIPE_MODEL_COUNT; i++) {
+            int finalI = i;
+            GLASS_PIPE_MODELS[i] = new PipeModelRedirector(new ModelResourceLocation(loc, "glass_" + i),
+                    m -> GLASS_PIPE[finalI], s -> null);
+        }
     }
 }

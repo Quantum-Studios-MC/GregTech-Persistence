@@ -163,6 +163,77 @@ public class ConfigHolder {
                 "Default: true" })
         public boolean allowTickAcceleration = true;
 
+        @Config.Comment({ "Whether to enable sludge clogging and degradation mechanics for fluid pipes.",
+                "When disabled, sludge fluids will flow through pipes without causing clogging or integrity damage.",
+                "Default: true" })
+        public boolean enableSludgeMechanics = true;
+
+        @Config.Comment("Config options for Fluid Pipe Pressure System")
+        @Config.Name("Pressure Options")
+        public PressureOptions pressure = new PressureOptions();
+
+        public static class PressureOptions {
+
+            @Config.Comment({ "Whether to enable the fluid pressure system for pipe networks.",
+                    "When enabled, fluids require pressure to flow and pipes can burst under excess pressure.",
+                    "Default: true" })
+            public boolean enablePressureSystem = true;
+
+            @Config.Comment({ "Gravity penalty in milliBar per vertical block upward.",
+                    "Fluids flowing downward get free pressure; flowing upward costs this per block.",
+                    "Default: 100" })
+            @Config.RangeInt(min = 0, max = 10000)
+            public int gravityPenaltyPerBlock = 100;
+
+            @Config.Comment({ "Maximum flow rate in mB per tick regardless of pressure.",
+                    "Prevents single-tick tank drains on high-pressure networks.",
+                    "Default: 8000" })
+            @Config.RangeInt(min = 100, max = 1000000)
+            public int maxFlowPerTick = 8000;
+
+            @Config.Comment({ "Minimum effective pressure delta (mBar) to trigger fluid flow.",
+                    "Deltas below this are treated as zero to avoid pointless micro-transfers.",
+                    "Default: 10" })
+            @Config.RangeInt(min = 0, max = 1000)
+            public int minimumFlowThreshold = 10;
+
+            @Config.Comment({ "Base scalar used in the flow rate formula: flow = (effectiveDelta * baseScalar) / resistance.",
+                    "Higher values mean more throughput per milliBar of pressure.",
+                    "Default: 1000" })
+            @Config.RangeInt(min = 1, max = 100000)
+            public int flowBaseScalar = 1000;
+
+            @Config.Comment({ "Number of ticks a pipe can exceed its burst rating before rupturing.",
+                    "Gives players time to react with pressure sensors.",
+                    "Default: 100" })
+            @Config.RangeInt(min = 1, max = 6000)
+            public int burstCountdown = 100;
+
+            @Config.Comment({ "Default friction constant for pipes. Higher = more flow resistance.",
+                    "Default: 10" })
+            @Config.RangeInt(min = 1, max = 10000)
+            public int defaultPipeFriction = 10;
+
+            @Config.Comment({ "Whether to enable the siphon effect for pipes.",
+                    "When enabled, fluids can flow upward through pipes via natural siphoning without pumps,",
+                    "but only within reasonable height limits and with reduced effectiveness.",
+                    "Default: true" })
+            public boolean enableSiphon = true;
+
+            @Config.Comment({ "Maximum height in blocks a siphon can lift fluid.",
+                    "Limited by atmospheric pressure and surface tension in real physics.",
+                    "Default: 16" })
+            @Config.RangeInt(min = 1, max = 64)
+            public int maxSiphonHeight = 16;
+
+            @Config.Comment({ "Siphon efficiency factor (0.0 to 1.0). Multiplies the passive pressure from fill level.",
+                    "0.5 means siphon pressure is half the passive pressure of the lower source.",
+                    "This makes siphons weaker than pumps to maintain balance.",
+                    "Default: 0.5" })
+            @Config.RangeDouble(min = 0.0, max = 1.0)
+            public double siphonEfficiency = 0.5;
+        }
+
         public static class NuclearOptions {
 
             @Config.Comment({ "Nuclear Max Power multiplier for balancing purposes", "Default: 0.1" })
@@ -220,6 +291,17 @@ public class ConfigHolder {
         @Config.Comment({ "Should all Stone Types drop unique Ore Item Blocks?",
                 "Default: false (meaning only Stone, Netherrack, and Endstone" })
         public boolean allUniqueStoneTypes = false;
+
+        @Config.Comment({
+                "Whether to generate Poor Ores scattered around ore veins as indicators (GT6/GTNH-style placer ores).",
+                "Default: true" })
+        public boolean generatePoorOres = true;
+
+        @Config.Comment({ "Number of poor ore blocks to scatter per chunk per ore vein.",
+                "Higher values make poor ores more common around veins.",
+                "Default: 5" })
+        @Config.RangeInt(min = 1, max = 64)
+        public int poorOresPerChunk = 5;
     }
 
     public static class RecipeOptions {

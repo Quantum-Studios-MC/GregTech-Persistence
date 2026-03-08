@@ -4,6 +4,7 @@ import gregtech.api.items.itemhandlers.GTItemStackHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.mui.GTGuiTextures;
+import gregtech.api.mui.MetaTileEntityGuiData;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.recipes.category.ICategoryOverride;
 import gregtech.client.renderer.texture.Textures;
@@ -14,7 +15,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
-import gregtech.api.mui.MetaTileEntityGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.sync.DoubleSyncValue;

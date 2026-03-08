@@ -47,8 +47,18 @@ public class PacketProspecting {
     }
 
     public static PacketProspecting readPacketData(PacketBuffer buffer) {
-        PacketProspecting packet = new PacketProspecting(buffer.readInt(), buffer.readInt(), buffer.readInt(),
-                buffer.readInt(), buffer.readInt(), buffer.readInt(), ProspectorMode.VALUES[buffer.readInt()]);
+        int chunkX = buffer.readInt();
+        int chunkZ = buffer.readInt();
+        int playerChunkX = buffer.readInt();
+        int playerChunkZ = buffer.readInt();
+        int posX = buffer.readInt();
+        int posZ = buffer.readInt();
+        int modeOrdinal = buffer.readInt();
+        if (modeOrdinal < 0 || modeOrdinal >= ProspectorMode.VALUES.length) {
+            return null;
+        }
+        PacketProspecting packet = new PacketProspecting(chunkX, chunkZ, playerChunkX, playerChunkZ, posX, posZ,
+                ProspectorMode.VALUES[modeOrdinal]);
         int aSize = 0;
         if (packet.mode == ProspectorMode.ORE)
             aSize = 16;
@@ -57,7 +67,7 @@ public class PacketProspecting {
         int checkOut = 0;
         for (int i = 0; i < aSize; i++)
             for (int j = 0; j < aSize; j++) {
-                byte kSize = buffer.readByte();
+                int kSize = buffer.readUnsignedByte();
                 if (kSize == 0) continue;
                 packet.map[i][j] = new HashMap<>();
                 for (int k = 0; k < kSize; k++) {

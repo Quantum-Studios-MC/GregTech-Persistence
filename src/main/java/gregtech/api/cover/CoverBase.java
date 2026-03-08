@@ -85,7 +85,7 @@ public abstract class CoverBase implements Cover {
     }
 
     private static final CoverRenderer EMPTY_RENDERER = (quads, facing, renderPlate, renderBackside, renderLayer,
-            data) -> {};
+                                                         data) -> {};
 
     @Override
     @SideOnly(Side.CLIENT)

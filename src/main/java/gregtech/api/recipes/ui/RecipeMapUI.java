@@ -242,10 +242,11 @@ public class RecipeMapUI<R extends RecipeMap<?>> {
         if (outputCols < 9) {
             maxOutputRows = Math.min(20, 200 / 18); // Up to ~20 rows for narrow layouts
         }
-        
+
         int maxVisibleOutputs = Math.min(outputItemCount, outputCols * maxOutputRows);
-        int visibleOutputItemRows = maxVisibleOutputs > 0 ? (int) Math.ceil((double) maxVisibleOutputs / outputCols) : 0;
-        
+        int visibleOutputItemRows = maxVisibleOutputs > 0 ? (int) Math.ceil((double) maxVisibleOutputs / outputCols) :
+                0;
+
         int outputFluidCols = Math.min(outputCols, Math.max(1, outputFluidCount));
         int outputFluidRows = outputFluidCount > 0 ? (int) Math.ceil((double) outputFluidCount / outputFluidCols) : 0;
 

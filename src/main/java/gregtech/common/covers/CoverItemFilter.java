@@ -5,10 +5,12 @@ import gregtech.api.cover.CoverBase;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.CoverableView;
-import gregtech.api.mui.GTGuis;
 import gregtech.api.mui.GTGuiTextures;
+import gregtech.api.mui.GTGuis;
 import gregtech.api.util.GTLog;
 import gregtech.api.util.GTUtility;
+import gregtech.client.renderer.pipe.cover.CoverRenderer;
+import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 import gregtech.client.renderer.texture.cube.SimpleOverlayRenderer;
 import gregtech.common.covers.filter.BaseFilter;
 import gregtech.common.covers.filter.BaseFilterContainer;
@@ -47,9 +49,6 @@ import com.cleanroommc.modularui.widgets.ToggleButton;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import gregtech.client.renderer.pipe.cover.CoverRenderer;
-import gregtech.client.renderer.pipe.cover.CoverRendererBuilder;
 
 import java.io.IOException;
 

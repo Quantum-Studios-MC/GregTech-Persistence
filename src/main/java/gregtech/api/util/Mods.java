@@ -73,9 +73,11 @@ public enum Mods {
     Railcraft(Names.RAILCRAFT),
     RefinedStorage(Names.REFINED_STORAGE),
     TechReborn(Names.TECH_REBORN),
+    Thaumcraft(Names.THAUMCRAFT),
     TheOneProbe(Names.THE_ONE_PROBE),
     TinkersConstruct(Names.TINKERS_CONSTRUCT),
     TOPAddons(Names.TOP_ADDONS),
+    TwilightForest(Names.TWILIGHT_FOREST),
     VoxelMap(Names.VOXEL_MAP),
     XaerosMinimap(Names.XAEROS_MINIMAP),
     Vintagium(Names.VINTAGIUM),
@@ -150,9 +152,11 @@ public enum Mods {
         public static final String RAILCRAFT = "railcraft";
         public static final String REFINED_STORAGE = "refinedstorage";
         public static final String TECH_REBORN = "techreborn";
+        public static final String THAUMCRAFT = "thaumcraft";
         public static final String THE_ONE_PROBE = "theoneprobe";
         public static final String TINKERS_CONSTRUCT = "tconstruct";
         public static final String TOP_ADDONS = "topaddons";
+        public static final String TWILIGHT_FOREST = "twilightforest";
         public static final String VOXEL_MAP = "voxelmap";
         public static final String XAEROS_MINIMAP = "xaerominimap";
         public static final String VINTAGIUM = "vintagium";

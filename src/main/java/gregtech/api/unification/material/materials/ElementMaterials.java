@@ -2,6 +2,7 @@ package gregtech.api.unification.material.materials;
 
 import gregtech.api.GTValues;
 import gregtech.api.fluids.FluidBuilder;
+import gregtech.api.fluids.attribute.FluidAttributes;
 import gregtech.api.fluids.store.FluidStorageKeys;
 import gregtech.api.unification.Elements;
 import gregtech.api.unification.material.Material;
@@ -41,7 +42,7 @@ public class ElementMaterials {
 
         Americium = Material.builder(3, gregtechId("americium"))
                 .ingot(3)
-                .liquid(new FluidBuilder().temperature(1449))
+                .liquid(new FluidBuilder().temperature(1449).attribute(FluidAttributes.RADIOACTIVE))
                 .plasma()
                 .color(0x287869).iconSet(METALLIC)
                 .flags(EXT_METAL, GENERATE_FOIL, GENERATE_FINE_WIRE, GENERATE_DOUBLE_PLATE)
@@ -156,7 +157,7 @@ public class ElementMaterials {
                 .build();
 
         Chlorine = Material.builder(21, gregtechId("chlorine"))
-                .gas(new FluidBuilder().customStill())
+                .gas(new FluidBuilder().customStill().attribute(FluidAttributes.TOXIC))
                 .color(0x2D8C8C)
                 .element(Elements.Cl)
                 .build();
@@ -263,7 +264,7 @@ public class ElementMaterials {
                 .build();
 
         Fluorine = Material.builder(36, gregtechId("fluorine"))
-                .gas(new FluidBuilder().customStill())
+                .gas(new FluidBuilder().customStill().attribute(FluidAttributes.TOXIC))
                 .color(0x6EA7DC)
                 .element(Elements.F)
                 .build();
@@ -323,7 +324,7 @@ public class ElementMaterials {
                 .build();
 
         Hydrogen = Material.builder(45, gregtechId("hydrogen"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.FLAMMABLE))
                 .color(0x0000B5)
                 .element(Elements.H)
                 .build();
@@ -469,7 +470,7 @@ public class ElementMaterials {
                 .build();
 
         Mercury = Material.builder(63, gregtechId("mercury"))
-                .fluid()
+                .liquid(new FluidBuilder().attribute(FluidAttributes.TOXIC))
                 .color(0xE6DCDC).iconSet(DULL)
                 .element(Elements.Hg)
                 .build();
@@ -614,14 +615,14 @@ public class ElementMaterials {
 
         Plutonium239 = Material.builder(81, gregtechId("plutonium_239"))
                 .ingot(3)
-                .liquid(new FluidBuilder().temperature(913))
+                .liquid(new FluidBuilder().temperature(913).attribute(FluidAttributes.RADIOACTIVE))
                 .color(0xF03232).iconSet(METALLIC)
                 .element(Elements.Pu239)
                 .build();
 
         Plutonium241 = Material.builder(82, gregtechId("plutonium_241"))
                 .ingot(3)
-                .liquid(new FluidBuilder().temperature(913))
+                .liquid(new FluidBuilder().temperature(913).attribute(FluidAttributes.RADIOACTIVE))
                 .color(0xFA4646).iconSet(SHINY)
                 .flags(GENERATE_DOUBLE_PLATE)
                 .element(Elements.Pu241)
@@ -650,7 +651,7 @@ public class ElementMaterials {
                 .build();
 
         Radon = Material.builder(87, gregtechId("radon"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.RADIOACTIVE))
                 .color(0xFF39FF)
                 .element(Elements.Rn)
                 .build();
@@ -795,7 +796,7 @@ public class ElementMaterials {
 
         Thorium = Material.builder(109, gregtechId("thorium"))
                 .ingot()
-                .liquid(new FluidBuilder().temperature(2023))
+                .liquid(new FluidBuilder().temperature(2023).attribute(FluidAttributes.RADIOACTIVE))
                 .ore()
                 .color(0x001E00).iconSet(SHINY)
                 .flags(STD_METAL, GENERATE_ROD)
@@ -867,14 +868,14 @@ public class ElementMaterials {
 
         Uranium = Material.builder(116, gregtechId("uranium"))
                 .dust(3)
-                .liquid(new FluidBuilder().temperature(1405))
+                .liquid(new FluidBuilder().temperature(1405).attribute(FluidAttributes.RADIOACTIVE))
                 .color(0x32F032).iconSet(METALLIC)
                 .element(Elements.U)
                 .build();
 
         Uranium235 = Material.builder(117, gregtechId("uranium_235"))
                 .dust(3)
-                .liquid(new FluidBuilder().temperature(1405))
+                .liquid(new FluidBuilder().temperature(1405).attribute(FluidAttributes.RADIOACTIVE))
                 .color(0x46FA46).iconSet(SHINY)
                 .element(Elements.U235)
                 .build();

@@ -236,6 +236,8 @@ public abstract class GTRecipeInput implements Matcher<Object> {
             tag.setInteger("ore", input.getOreDict());
         } else if (input instanceof GTRecipeFluidInput) {
             tag.setTag("fluid", input.getInputFluidStack().writeToNBT(new NBTTagCompound()));
+        } else if (input instanceof GTRecipeFluidPropertyInput propertyInput) {
+            tag.setString("fluidProperty", propertyInput.getDescription());
         }
         tag.setInteger("amount", input.getAmount());
         return tag;

@@ -1,24 +1,22 @@
 package gregtech.common.terminal2;
 
-import com.cleanroommc.modularui.api.drawable.IKey;
-import com.cleanroommc.modularui.screen.RichTooltip;
-
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.terminal2.ITerminalApp;
 import gregtech.api.terminal2.Terminal2Theme;
 import gregtech.api.util.CapesRegistry;
-
 import gregtech.common.mui.widget.DrawableNoHoverWidget;
 
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import com.cleanroommc.modularui.api.drawable.IDrawable;
+import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.DynamicDrawable;
 import com.cleanroommc.modularui.drawable.UITexture;
 import com.cleanroommc.modularui.factory.PlayerInventoryGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.RichTooltip;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.value.sync.SyncHandler;

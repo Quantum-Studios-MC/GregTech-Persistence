@@ -1014,7 +1014,7 @@ public class FirstDegreeMaterials {
                 .build();
 
         SodiumPersulfate = Material.builder(378, gregtechId("sodium_persulfate"))
-                .liquid(new FluidBuilder().customStill())
+                .liquid(new FluidBuilder().customStill().attribute(FluidAttributes.CORROSIVE))
                 .color(0x045C5C)
                 .components(Sodium, 2, Sulfur, 2, Oxygen, 8)
                 .build();
@@ -1148,13 +1148,13 @@ public class FirstDegreeMaterials {
                 .build();
 
         NitrogenDioxide = Material.builder(399, gregtechId("nitrogen_dioxide"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.TOXIC))
                 .color(0xF05800)
                 .components(Nitrogen, 1, Oxygen, 2)
                 .build();
 
         HydrogenSulfide = Material.builder(400, gregtechId("hydrogen_sulfide"))
-                .gas(new FluidBuilder().customStill())
+                .gas(new FluidBuilder().customStill().attribute(FluidAttributes.TOXIC))
                 .color(0xFC5304)
                 .components(Hydrogen, 2, Sulfur, 1)
                 .build();
@@ -1169,6 +1169,7 @@ public class FirstDegreeMaterials {
         SulfuricAcid = Material.builder(402, gregtechId("sulfuric_acid"))
                 .liquid(new FluidBuilder()
                         .attribute(FluidAttributes.ACID)
+                        .attribute(FluidAttributes.CORROSIVE)
                         .customStill())
                 .color(0xFC5304)
                 .flags(DISABLE_DECOMPOSITION)
@@ -1195,7 +1196,7 @@ public class FirstDegreeMaterials {
                 .build();
 
         CarbonMonoxide = Material.builder(406, gregtechId("carbon_monoxide"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.TOXIC))
                 .color(0x0E4880)
                 .components(Carbon, 1, Oxygen, 1)
                 .build();
@@ -1207,13 +1208,13 @@ public class FirstDegreeMaterials {
                 .build();
 
         Ammonia = Material.builder(408, gregtechId("ammonia"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.TOXIC))
                 .color(0x3F3480)
                 .components(Nitrogen, 1, Hydrogen, 3)
                 .build();
 
         HydrofluoricAcid = Material.builder(409, gregtechId("hydrofluoric_acid"))
-                .liquid(new FluidBuilder().attribute(FluidAttributes.ACID))
+                .liquid(new FluidBuilder().attribute(FluidAttributes.ACID).attribute(FluidAttributes.CORROSIVE))
                 .color(0x0088AA)
                 .components(Hydrogen, 1, Fluorine, 1)
                 .build();
@@ -1225,21 +1226,21 @@ public class FirstDegreeMaterials {
                 .build();
 
         Iron3Chloride = Material.builder(411, gregtechId("iron_iii_chloride"))
-                .liquid()
+                .liquid(new FluidBuilder().attribute(FluidAttributes.CORROSIVE))
                 .color(0x060B0B)
                 .flags(DECOMPOSITION_BY_ELECTROLYZING)
                 .components(Iron, 1, Chlorine, 3)
                 .build();
 
         UraniumHexafluoride = Material.builder(412, gregtechId("uranium_hexafluoride"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.RADIOACTIVE).attribute(FluidAttributes.TOXIC))
                 .color(0x42D126)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Uranium, 1, Fluorine, 6)
                 .build();
 
         EnrichedUraniumHexafluoride = Material.builder(413, gregtechId("enriched_uranium_hexafluoride"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.RADIOACTIVE).attribute(FluidAttributes.TOXIC))
                 .color(0x4BF52A)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Uranium235, 1, Fluorine, 6)
@@ -1247,7 +1248,7 @@ public class FirstDegreeMaterials {
                 .setFormula("(U-235)F6", true);
 
         DepletedUraniumHexafluoride = Material.builder(414, gregtechId("depleted_uranium_hexafluoride"))
-                .gas()
+                .gas(new FluidBuilder().attribute(FluidAttributes.RADIOACTIVE))
                 .color(0x74BA66)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Uranium238, 1, Fluorine, 6)
@@ -1287,6 +1288,7 @@ public class FirstDegreeMaterials {
         HydrochloricAcid = Material.builder(419, gregtechId("hydrochloric_acid"))
                 .liquid(new FluidBuilder()
                         .attribute(FluidAttributes.ACID)
+                        .attribute(FluidAttributes.CORROSIVE)
                         .customStill())
                 .color(0xBCBCB5)
                 .components(Hydrogen, 1, Chlorine, 1)
@@ -1480,6 +1482,7 @@ public class FirstDegreeMaterials {
         FluoroantimonicAcid = Material.builder(438, gregtechId("fluoroantimonic_acid"))
                 .liquid(new FluidBuilder()
                         .attribute(FluidAttributes.ACID)
+                        .attribute(FluidAttributes.CORROSIVE)
                         .customStill())
                 .color(0x8CA4C4)
                 .components(Hydrogen, 2, Antimony, 1, Fluorine, 7)

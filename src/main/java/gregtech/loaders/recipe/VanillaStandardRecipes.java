@@ -4,6 +4,7 @@ import gregtech.api.GTValues;
 import gregtech.api.items.OreDictNames;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.recipes.RecipeMaps;
+import gregtech.api.recipes.ingredients.GTRecipeFluidPropertyInput;
 import gregtech.api.recipes.ingredients.GTRecipeOreInput;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.material.MarkerMaterials;
@@ -961,14 +962,13 @@ public class VanillaStandardRecipes {
                 .outputs(new ItemStack(Items.BOW, 1))
                 .duration(100).EUt(4).buildAndRegister();
 
+        // Snowball/Snow: any water-like fluid can be frozen
         FLUID_SOLIDFICATION_RECIPES.recipeBuilder().duration(128).EUt(4).notConsumable(SHAPE_MOLD_BALL)
-                .fluidInputs(Water.getFluid(250)).outputs(new ItemStack(Items.SNOWBALL)).buildAndRegister();
-        FLUID_SOLIDFICATION_RECIPES.recipeBuilder().duration(128).EUt(4).notConsumable(SHAPE_MOLD_BALL)
-                .fluidInputs(DistilledWater.getFluid(250)).outputs(new ItemStack(Items.SNOWBALL)).buildAndRegister();
+                .fluidInputs(GTRecipeFluidPropertyInput.anyWater(250))
+                .outputs(new ItemStack(Items.SNOWBALL)).buildAndRegister();
         FLUID_SOLIDFICATION_RECIPES.recipeBuilder().duration(512).EUt(4).notConsumable(SHAPE_MOLD_BLOCK)
-                .fluidInputs(Water.getFluid(1000)).outputs(new ItemStack(Blocks.SNOW)).buildAndRegister();
-        FLUID_SOLIDFICATION_RECIPES.recipeBuilder().duration(512).EUt(4).notConsumable(SHAPE_MOLD_BLOCK)
-                .fluidInputs(DistilledWater.getFluid(1000)).outputs(new ItemStack(Blocks.SNOW)).buildAndRegister();
+                .fluidInputs(GTRecipeFluidPropertyInput.anyWater(1000))
+                .outputs(new ItemStack(Blocks.SNOW)).buildAndRegister();
         FLUID_SOLIDFICATION_RECIPES.recipeBuilder().duration(1024).EUt(16).notConsumable(SHAPE_MOLD_BLOCK)
                 .fluidInputs(Lava.getFluid(1000)).outputs(new ItemStack(Blocks.OBSIDIAN)).buildAndRegister();
 

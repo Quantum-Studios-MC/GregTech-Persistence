@@ -70,6 +70,12 @@ public class MachineRecipeLoader {
         ComputerRecipes.init();
         DecorationRecipes.init();
         WoodRecipeLoader.registerRecipes();
+        GCYMCasingLoader.init();
+        GCYMMiscRecipes.init();
+        GCYMMixerRecipes.init();
+        ManualABSRecipes.register();
+        GlassPipeRecipeLoader.init();
+        GPSRecipeLoader.init();
 
         registerDecompositionRecipes();
         registerBlastFurnaceRecipes();
@@ -88,6 +94,27 @@ public class MachineRecipeLoader {
     }
 
     private static void registerTestLargeOutputRecipes() {
+        // Set up a dynamic JEI tooltip customizer for the test recipe map
+        TEST_LARGE_OUTPUT_RECIPES
+                .setJEITooltipCustomizer((recipe, slotIndex, isInput, isFluid, ingredient, tooltip) -> {
+                    if (!isInput && ingredient instanceof ItemStack stack && !stack.isEmpty()) {
+                        int outputIndex = slotIndex - TEST_LARGE_OUTPUT_RECIPES.getMaxInputs();
+                        tooltip.add("");
+                        tooltip.add(
+                                net.minecraft.util.text.TextFormatting.DARK_AQUA + "Output Slot #" + (outputIndex + 1));
+                        tooltip.add(net.minecraft.util.text.TextFormatting.GRAY + "Stack Size: " +
+                                net.minecraft.util.text.TextFormatting.WHITE + stack.getCount());
+                    }
+                    if (isInput && ingredient instanceof ItemStack) {
+                        tooltip.add("");
+                        tooltip.add(net.minecraft.util.text.TextFormatting.GREEN + "Recipe Input");
+                        tooltip.add(net.minecraft.util.text.TextFormatting.GRAY + "This item is consumed to produce " +
+                                net.minecraft.util.text.TextFormatting.AQUA +
+                                recipe.getOutputs().size() + net.minecraft.util.text.TextFormatting.GRAY + " outputs");
+                    }
+                });
+
+        // Test recipe 1: Single item input, many item outputs
         var builder = TEST_LARGE_OUTPUT_RECIPES.recipeBuilder()
                 .inputs(new ItemStack(Items.DIAMOND))
                 .duration(200)

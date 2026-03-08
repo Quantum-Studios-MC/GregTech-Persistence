@@ -219,7 +219,7 @@ public abstract class AbstractSprayBehavior implements IItemBehaviour {
                 BlockPos neighborPos = current.getPipePos().offset(side);
                 if (visited.contains(neighborPos)) continue;
                 visited.add(neighborPos);
-                if (current.getNeighbor(side) instanceof IPipeTile<?, ?> neighbor) {
+                if (current.getNeighbor(side) instanceof IPipeTile<?, ?>neighbor) {
                     queue.add(neighbor);
                 }
             }
