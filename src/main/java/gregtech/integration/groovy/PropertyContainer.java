@@ -17,6 +17,33 @@ import groovy.lang.DelegatesTo;
 
 public class PropertyContainer extends GroovyPropertyContainer {
 
+    private final GroovyHeatingCoilRegistry coilRegistry = new GroovyHeatingCoilRegistry();
+    private final GroovyStoneTypeRegistry stoneTypeRegistry = new GroovyStoneTypeRegistry();
+
+    public PropertyContainer() {
+        // Register the coils registry as a GrS property for reload support
+    }
+
+    /**
+     * Access the heating coils registry for adding/removing custom coils.
+     * <pre>{@code
+     * mods.gregtech.coils.add(blockstate('minecraft:diamond_block'), "diamond_coil", 12000, 16, 8, 8)
+     * }</pre>
+     */
+    public GroovyHeatingCoilRegistry getCoils() {
+        return coilRegistry;
+    }
+
+    /**
+     * Access the stone type registry for adding custom stone types for ore generation.
+     * <pre>{@code
+     * mods.gregtech.stoneType.add("custom_stone", blockstate('modid:block'), material('stone'), oreprefix('ore'))
+     * }</pre>
+     */
+    public GroovyStoneTypeRegistry getStoneType() {
+        return stoneTypeRegistry;
+    }
+
     public void materialEvent(EventPriority priority, @DelegatesTo(MaterialEvent.class) Closure<?> eventListener) {
         if (GroovyScriptModule.isCurrentlyRunning() &&
                 GroovyScript.getSandbox().getCurrentLoader() != LoadStage.PRE_INIT) {
@@ -43,5 +70,24 @@ public class PropertyContainer extends GroovyPropertyContainer {
 
     public void lateMaterialEvent(Closure<?> eventListener) {
         lateMaterialEvent(EventPriority.NORMAL, eventListener);
+    }
+
+    /**
+     * Create a new custom multiblock builder. Usage in GroovyScript:
+     * <pre>{@code
+     * mods.gregtech.multiblock("my_machine")
+     *     .recipeMap("assembler")
+     *     .pattern("XXX", "XXX", "XXX",
+     *              "XXX", "X#X", "XXX",
+     *              "XXX", "XSX", "XXX")
+     *     .casing("solid_steel")
+     *     .register()
+     * }</pre>
+     *
+     * @param name unique identifier for the multiblock
+     * @return a new GroovyMultiblockBuilder
+     */
+    public GroovyMultiblockBuilder multiblock(String name) {
+        return new GroovyMultiblockBuilder(name);
     }
 }

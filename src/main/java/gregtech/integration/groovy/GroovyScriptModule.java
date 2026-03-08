@@ -321,7 +321,29 @@ public class GroovyScriptModule extends IntegrationSubmodule implements GroovyPl
         ExpansionHelper.mixinMethod(PostMaterialEvent.class, GroovyExpansions.class, "toolBuilder");
         ExpansionHelper.mixinMethod(PostMaterialEvent.class, GroovyExpansions.class, "overrideToolBuilder");
         ExpansionHelper.mixinMethod(PostMaterialEvent.class, GroovyExpansions.class, "fluidBuilder");
+        ExpansionHelper.mixinMethod(MaterialEvent.class, GroovyExpansions.class, "fluidDataBuilder");
+        ExpansionHelper.mixinMethod(PostMaterialEvent.class, GroovyExpansions.class, "fluidDataBuilder");
         ExpansionHelper.mixinMethod(FluidBuilder.class, GroovyExpansions.class, "acidic");
+        ExpansionHelper.mixinMethod(RecipeBuilder.class, GroovyExpansions.class, "fluidPropertyInput");
+
+        // Preset fluid property input convenience methods on RecipeBuilder
+        ExpansionHelper.mixinMethod(RecipeBuilder.class, GroovyExpansions.class, "anyWaterInput");
+        ExpansionHelper.mixinMethod(RecipeBuilder.class, GroovyExpansions.class, "anyAcidInput");
+        ExpansionHelper.mixinMethod(RecipeBuilder.class, GroovyExpansions.class, "anyStrongAcidInput");
+        ExpansionHelper.mixinMethod(RecipeBuilder.class, GroovyExpansions.class, "anyCoolantInput");
+        ExpansionHelper.mixinMethod(RecipeBuilder.class, GroovyExpansions.class, "anyLubricantInput");
+        ExpansionHelper.mixinMethod(RecipeBuilder.class, GroovyExpansions.class, "anyConductiveFluidInput");
+        ExpansionHelper.mixinMethod(RecipeBuilder.class, GroovyExpansions.class, "anyInertGasInput");
+        ExpansionHelper.mixinMethod(RecipeBuilder.class, GroovyExpansions.class, "anySolventInput");
+
+        // Texture lookup object mapper for multiblock builder convenience
+        container.objectMapperBuilder("texture", gregtech.client.renderer.ICubeRenderer.class)
+                .parser(IObjectParser.wrapStringGetter(path ->
+                        gregtech.client.renderer.texture.Textures.CUBE_RENDERER_REGISTRY.get(path)))
+                .completerOfNamed(
+                        () -> gregtech.client.renderer.texture.Textures.CUBE_RENDERER_REGISTRY.keySet(),
+                        k -> k)
+                .register();
     }
 
     protected static boolean checkFrozen(String description) {

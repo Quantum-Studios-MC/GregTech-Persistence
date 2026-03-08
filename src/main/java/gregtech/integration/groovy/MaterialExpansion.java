@@ -7,6 +7,7 @@ import gregtech.api.unification.material.info.MaterialIconSet;
 import gregtech.api.unification.material.properties.BlastProperty;
 import gregtech.api.unification.material.properties.DustProperty;
 import gregtech.api.unification.material.properties.ExtraToolProperty;
+import gregtech.api.unification.material.properties.FluidDataProperty;
 import gregtech.api.unification.material.properties.FluidProperty;
 import gregtech.api.unification.material.properties.MaterialToolProperty;
 import gregtech.api.unification.material.properties.OreProperty;
@@ -243,5 +244,111 @@ public class MaterialExpansion {
             return prop.getOreMultiplier();
         } else logError(m, "get ore multiplier", "Ore");
         return 0;
+    }
+
+    ////////////////////////////////////
+    // Fluid Data Property //
+    ////////////////////////////////////
+
+    public static double fluidViscosity(Material m) {
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            return prop.getViscosity();
+        } else logError(m, "get the fluid viscosity", "FluidData");
+        return 1.0;
+    }
+
+    public static Material setFluidViscosity(Material m, double viscosity) {
+        if (checkFrozen("set fluid viscosity")) return m;
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            prop.setViscosity(viscosity);
+        } else logError(m, "set the fluid viscosity", "FluidData");
+        return m;
+    }
+
+    public static double fluidPH(Material m) {
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            return prop.getPH();
+        } else logError(m, "get the fluid pH", "FluidData");
+        return 7.0;
+    }
+
+    public static Material setFluidPH(Material m, double pH) {
+        if (checkFrozen("set fluid pH")) return m;
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            prop.setPH(pH);
+        } else logError(m, "set the fluid pH", "FluidData");
+        return m;
+    }
+
+    public static double fluidDensity(Material m) {
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            return prop.getDensity();
+        } else logError(m, "get the fluid density", "FluidData");
+        return 1.0;
+    }
+
+    public static Material setFluidDensity(Material m, double density) {
+        if (checkFrozen("set fluid density")) return m;
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            prop.setDensity(density);
+        } else logError(m, "set the fluid density", "FluidData");
+        return m;
+    }
+
+    public static double fluidHeatCapacity(Material m) {
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            return prop.getSpecificHeatCapacity();
+        } else logError(m, "get the fluid heat capacity", "FluidData");
+        return 4.186;
+    }
+
+    public static Material setFluidHeatCapacity(Material m, double heatCapacity) {
+        if (checkFrozen("set fluid heat capacity")) return m;
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            prop.setSpecificHeatCapacity(heatCapacity);
+        } else logError(m, "set the fluid heat capacity", "FluidData");
+        return m;
+    }
+
+    public static double fluidConductivity(Material m) {
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            return prop.getElectricalConductivity();
+        } else logError(m, "get the fluid conductivity", "FluidData");
+        return 0.0;
+    }
+
+    public static Material setFluidConductivity(Material m, double conductivity) {
+        if (checkFrozen("set fluid conductivity")) return m;
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            prop.setElectricalConductivity(conductivity);
+        } else logError(m, "set the fluid conductivity", "FluidData");
+        return m;
+    }
+
+    public static double fluidSurfaceTension(Material m) {
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            return prop.getSurfaceTension();
+        } else logError(m, "get the fluid surface tension", "FluidData");
+        return 72.8;
+    }
+
+    public static Material setFluidSurfaceTension(Material m, double surfaceTension) {
+        if (checkFrozen("set fluid surface tension")) return m;
+        FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+        if (prop != null) {
+            prop.setSurfaceTension(surfaceTension);
+        } else logError(m, "set the fluid surface tension", "FluidData");
+        return m;
     }
 }

@@ -9,6 +9,7 @@ import gregtech.api.unification.material.info.MaterialFlag;
 import gregtech.api.unification.material.info.MaterialIconSet;
 import gregtech.api.unification.material.properties.BlastProperty;
 import gregtech.api.unification.material.properties.ExtraToolProperty;
+import gregtech.api.unification.material.properties.FluidDataProperty;
 import gregtech.api.unification.material.properties.MaterialToolProperty;
 import gregtech.api.unification.stack.MaterialStack;
 
@@ -137,5 +138,49 @@ public class GroovyMaterialBuilderExpansion {
     public static Material.Builder overrideToolStats(Material.Builder builder, String toolId,
                                                      ExtraToolProperty.Builder overrideBuilder) {
         return builder.overrideToolStats(toolId, overrideBuilder.build());
+    }
+
+    /**
+     * Add a {@link FluidDataProperty} to this material using the builder.
+     * <p>
+     * Usage in GroovyScript:
+     * 
+     * <pre>
+     * builder.fluidData(1.002, 7.0, 4.186, 0.0055, 72.8, 1.0)
+     * </pre>
+     *
+     * @param viscosity              Viscosity in cP
+     * @param pH                     pH value
+     * @param specificHeatCapacity   Specific heat capacity in J/(g*K)
+     * @param electricalConductivity Electrical conductivity in S/m
+     * @param surfaceTension         Surface tension in mN/m
+     * @param density                Density in g/cm^3
+     */
+    public static Material.Builder fluidData(Material.Builder builder, double viscosity, double pH,
+                                             double specificHeatCapacity, double electricalConductivity,
+                                             double surfaceTension, double density) {
+        return builder.fluidData(viscosity, pH, specificHeatCapacity,
+                electricalConductivity, surfaceTension, density);
+    }
+
+    /**
+     * Add a {@link FluidDataProperty} to this material using a FluidDataProperty.Builder.
+     * <p>
+     * Usage in GroovyScript:
+     * 
+     * <pre>
+     * builder.fluidData(event.fluidDataBuilder().viscosity(1.002).pH(7.0).density(1.0).build())
+     * </pre>
+     */
+    public static Material.Builder fluidData(Material.Builder builder, FluidDataProperty fluidDataProperty) {
+        return builder.fluidData(fluidDataProperty);
+    }
+
+    /**
+     * Add a {@link FluidDataProperty} with just viscosity and pH (common case).
+     * Other values default to water-like.
+     */
+    public static Material.Builder fluidData(Material.Builder builder, double viscosity, double pH) {
+        return builder.fluidData(FluidDataProperty.Builder.of(viscosity, pH).build());
     }
 }

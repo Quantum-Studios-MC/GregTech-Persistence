@@ -35,7 +35,11 @@ public class GrSRecipeHelper {
         if (!recipe.getFluidInputs().isEmpty()) {
             builder.append("[");
             for (GTRecipeInput fluidIngredient : recipe.getFluidInputs()) {
-                builder.append(GroovyScriptCodeConverter.asGroovyCode(fluidIngredient.getInputFluidStack(), false));
+                if (fluidIngredient.getInputFluidStack() == null) {
+                    builder.append("/* property-based: ").append(fluidIngredient).append(" */");
+                } else {
+                    builder.append(GroovyScriptCodeConverter.asGroovyCode(fluidIngredient.getInputFluidStack(), false));
+                }
 
                 builder.append(", ");
             }

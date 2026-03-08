@@ -8,6 +8,7 @@ import gregtech.api.fluids.store.FluidStorageKeys;
 import gregtech.api.unification.material.Material;
 import gregtech.api.unification.material.properties.BlastProperty;
 import gregtech.api.unification.material.properties.DustProperty;
+import gregtech.api.unification.material.properties.FluidDataProperty;
 import gregtech.api.unification.material.properties.FluidPipeProperties;
 import gregtech.api.unification.material.properties.FluidProperty;
 import gregtech.api.unification.material.properties.GemProperty;
@@ -45,6 +46,10 @@ public class MaterialPropertyExpansion {
 
     public static boolean hasFluid(Material m) {
         return m.hasProperty(PropertyKey.FLUID);
+    }
+
+    public static boolean hasFluidData(Material m) {
+        return m.hasProperty(PropertyKey.FLUID_DATA);
     }
 
     public static boolean hasGem(Material m) {
@@ -351,5 +356,59 @@ public class MaterialPropertyExpansion {
     public static void addCables(Material m, int voltage, int baseAmperage, int lossPerBlock, boolean isSuperCon,
                                  int criticalTemp) {
         addWires(m, voltage, baseAmperage, lossPerBlock, isSuperCon, criticalTemp);
+    }
+
+    ////////////////////////////////////
+    // Fluid Data Property //
+    ////////////////////////////////////
+
+    /**
+     * Add a {@link FluidDataProperty} to a material with all parameters.
+     * <p>
+     * Usage in GroovyScript:
+     * 
+     * <pre>
+     * material.addFluidData(1.002, 7.0, 4.186, 0.0055, 72.8, 1.0)
+     * </pre>
+     */
+    public static void addFluidData(Material m, double viscosity, double pH, double specificHeatCapacity,
+                                    double electricalConductivity, double surfaceTension, double density) {
+        if (checkFrozen("add fluid data to a material")) return;
+        if (m.hasProperty(PropertyKey.FLUID_DATA)) {
+            FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+            prop.setViscosity(viscosity);
+            prop.setPH(pH);
+            prop.setSpecificHeatCapacity(specificHeatCapacity);
+            prop.setElectricalConductivity(electricalConductivity);
+            prop.setSurfaceTension(surfaceTension);
+            prop.setDensity(density);
+        } else {
+            m.setProperty(PropertyKey.FLUID_DATA,
+                    new FluidDataProperty(viscosity, pH, specificHeatCapacity,
+                            electricalConductivity, surfaceTension, density));
+        }
+    }
+
+    /**
+     * Add a {@link FluidDataProperty} to a material with just viscosity and pH.
+     * Other values default to water-like.
+     */
+    public static void addFluidData(Material m, double viscosity, double pH) {
+        if (checkFrozen("add fluid data to a material")) return;
+        if (m.hasProperty(PropertyKey.FLUID_DATA)) {
+            FluidDataProperty prop = m.getProperty(PropertyKey.FLUID_DATA);
+            prop.setViscosity(viscosity);
+            prop.setPH(pH);
+        } else {
+            m.setProperty(PropertyKey.FLUID_DATA, FluidDataProperty.Builder.of(viscosity, pH).build());
+        }
+    }
+
+    /**
+     * Add a {@link FluidDataProperty} to a material using a pre-built property.
+     */
+    public static void addFluidData(Material m, FluidDataProperty fluidDataProperty) {
+        if (checkFrozen("add fluid data to a material")) return;
+        m.setProperty(PropertyKey.FLUID_DATA, fluidDataProperty);
     }
 }
