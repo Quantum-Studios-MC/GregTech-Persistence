@@ -147,7 +147,7 @@ public class JustEnoughItemsModule extends IntegrationSubmodule implements IModP
         registry.addRecipeCategories(new OreByProductCategory(registry.getJeiHelpers().getGuiHelper()));
         registry.addRecipeCategories(new GTOreCategory(registry.getJeiHelpers().getGuiHelper()));
         registry.addRecipeCategories(new GTFluidVeinCategory(registry.getJeiHelpers().getGuiHelper()));
-        registry.addRecipeCategories(new MaterialTreeCategory(registry.getJeiHelpers().getGuiHelper()));
+        // Material Tree category removed - replaced by standalone MaterialTreeScreen (Shift+T)
     }
 
     @Override
@@ -163,7 +163,6 @@ public class JustEnoughItemsModule extends IntegrationSubmodule implements IModP
         transferHelper = jeiHelpers.recipeTransferHandlerHelper();
         modularUIGuiHandler.blacklistCategory(
                 IntCircuitCategory.UID,
-                MaterialTreeCategory.UID,
                 VanillaRecipeCategoryUid.INFORMATION,
                 VanillaRecipeCategoryUid.FUEL);
         registry.getRecipeTransferRegistry().addRecipeTransferHandler(modularUIGuiHandler,
@@ -242,13 +241,9 @@ public class JustEnoughItemsModule extends IntegrationSubmodule implements IModP
         }
 
         List<OreByProduct> oreByproductList = new ArrayList<>();
-        List<MaterialTree> materialTreeList = new ArrayList<>();
         for (Material material : GregTechAPI.materialManager.getRegisteredMaterials()) {
             if (material.hasProperty(PropertyKey.ORE)) {
                 oreByproductList.add(new OreByProduct(material));
-            }
-            if (material.hasProperty(PropertyKey.DUST)) {
-                materialTreeList.add(new MaterialTree(material));
             }
             if (material.hasFlag(GENERATE_BOLT_SCREW) && material.hasFlag(GENERATE_RING) &&
                     material.hasProperty(PropertyKey.TOOL)) {
@@ -273,8 +268,7 @@ public class JustEnoughItemsModule extends IntegrationSubmodule implements IModP
             registry.addRecipeCatalyst(machine[GTValues.LV].getStackForm(), OreByProductCategory.UID);
         }
 
-        // Material Tree
-        registry.addRecipes(materialTreeList, MaterialTreeCategory.UID);
+        // Material Tree - removed, replaced by standalone MaterialTreeScreen (Shift+T)
 
         // Ore Veins
         List<OreDepositDefinition> oreVeins = WorldGenRegistry.getOreDeposits();

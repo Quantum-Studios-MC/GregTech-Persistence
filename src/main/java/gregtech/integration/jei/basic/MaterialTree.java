@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.google.common.collect.ImmutableList;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IRecipeWrapper;
@@ -18,38 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MaterialTree implements IRecipeWrapper {
-
-    private final static ImmutableList<OrePrefix> PREFIXES = ImmutableList.of(
-            OrePrefix.dustTiny,
-            OrePrefix.dust,
-            OrePrefix.dustSmall,
-            OrePrefix.cableGtSingle,
-            OrePrefix.ingotHot,
-            OrePrefix.ingot,
-            OrePrefix.gem,
-            OrePrefix.block,
-            OrePrefix.wireGtSingle,
-            OrePrefix.stick,
-            OrePrefix.nugget,
-            OrePrefix.plate,
-            OrePrefix.wireFine,
-            OrePrefix.frameGt,
-            OrePrefix.round,
-            OrePrefix.pipeNormalFluid,
-            OrePrefix.pipeNormalItem,
-            OrePrefix.screw,
-            OrePrefix.bolt,
-            OrePrefix.gear,
-            OrePrefix.plateDouble,
-            OrePrefix.spring,
-            OrePrefix.stickLong,
-            OrePrefix.gearSmall,
-            OrePrefix.plateDense,
-            OrePrefix.springSmall,
-            OrePrefix.ring,
-            // fluid,
-            OrePrefix.lens,
-            OrePrefix.foil);
 
     private final List<List<ItemStack>> itemInputs = new ArrayList<>();
     private final List<List<FluidStack>> fluidInputs = new ArrayList<>();
@@ -64,7 +31,7 @@ public class MaterialTree implements IRecipeWrapper {
     public MaterialTree(Material material) {
         // adding an empty list to itemInputs/fluidInputs makes checking if a prefix exists later much easier
         List<ItemStack> inputDusts = new ArrayList<>();
-        for (OrePrefix prefix : PREFIXES) {
+        for (OrePrefix prefix : MaterialTreeRegistry.getPrefixes()) {
             inputDusts.add(OreDictUnifier.get(prefix, material));
         }
         for (ItemStack stack : inputDusts) {
