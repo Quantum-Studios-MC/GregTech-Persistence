@@ -63,14 +63,7 @@ public enum FluidPipeType implements IMaterialPipeType<FluidPipeProperties> {
 
     @Override
     public FluidPipeProperties modifyProperties(FluidPipeProperties baseProperties) {
-        return new FluidPipeProperties(
-                baseProperties.getMaxFluidTemperature(),
-                baseProperties.getThroughput() * capacityMultiplier,
-                baseProperties.isGasProof(),
-                baseProperties.isAcidProof(),
-                baseProperties.isCryoProof(),
-                baseProperties.isPlasmaProof(),
-                channels);
+        return baseProperties.copyWith(baseProperties.getThroughput() * capacityMultiplier, channels);
     }
 
     @Override

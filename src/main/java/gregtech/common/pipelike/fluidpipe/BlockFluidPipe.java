@@ -1,6 +1,7 @@
 package gregtech.common.pipelike.fluidpipe;
 
 import gregtech.api.items.toolitem.ToolClasses;
+import gregtech.api.items.toolitem.ToolHelper;
 import gregtech.api.pipenet.block.material.BlockMaterialPipe;
 import gregtech.api.pipenet.tile.IPipeTile;
 import gregtech.api.pipenet.tile.TileEntityPipeBase;
@@ -16,14 +17,18 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 
+import codechicken.lib.raytracer.CuboidRayTraceResult;
 import org.jetbrains.annotations.NotNull;
 
 public class BlockFluidPipe extends BlockMaterialPipe<FluidPipeType, FluidPipeProperties, WorldFluidPipeNet> {
@@ -83,16 +88,18 @@ public class BlockFluidPipe extends BlockMaterialPipe<FluidPipeType, FluidPipePr
         if (pipe instanceof TileEntityFluidPipeTickable && pipe.getFrameMaterial() == null &&
                 ((TileEntityFluidPipeTickable) pipe).getOffsetTimer() % 10 == 0) {
             if (entityIn instanceof EntityLivingBase) {
-                if (((TileEntityFluidPipeTickable) pipe).getFluidTanks().length > 1) {
-                    // apply temperature damage for the hottest and coldest pipe (multi fluid pipes)
+                TileEntityFluidPipeTickable tickable = (TileEntityFluidPipeTickable) pipe;
+                if (tickable.getFluidTanks().length > 1) {
                     int maxTemperature = Integer.MIN_VALUE;
                     int minTemperature = Integer.MAX_VALUE;
-                    for (FluidTank tank : ((TileEntityFluidPipeTickable) pipe).getFluidTanks()) {
+                    for (FluidTank tank : tickable.getFluidTanks()) {
                         if (tank.getFluid() != null && tank.getFluid().amount > 0) {
                             maxTemperature = Math.max(maxTemperature,
                                     tank.getFluid().getFluid().getTemperature(tank.getFluid()));
                             minTemperature = Math.min(minTemperature,
                                     tank.getFluid().getFluid().getTemperature(tank.getFluid()));
+                            tickable.applyElectricalConductivityDamage((EntityLivingBase) entityIn,
+                                    tank.getFluid());
                         }
                     }
                     if (maxTemperature != Integer.MIN_VALUE) {
@@ -102,11 +109,12 @@ public class BlockFluidPipe extends BlockMaterialPipe<FluidPipeType, FluidPipePr
                         EntityDamageUtil.applyTemperatureDamage((EntityLivingBase) entityIn, minTemperature, 1.0F, 5);
                     }
                 } else {
-                    FluidTank tank = ((TileEntityFluidPipeTickable) pipe).getFluidTanks()[0];
+                    FluidTank tank = tickable.getFluidTanks()[0];
                     if (tank.getFluid() != null && tank.getFluid().amount > 0) {
-                        // Apply temperature damage for the pipe (single fluid pipes)
                         EntityDamageUtil.applyTemperatureDamage((EntityLivingBase) entityIn,
                                 tank.getFluid().getFluid().getTemperature(), 1.0F, 5);
+                        tickable.applyElectricalConductivityDamage((EntityLivingBase) entityIn,
+                                tank.getFluid());
                     }
                 }
             }
@@ -115,6 +123,25 @@ public class BlockFluidPipe extends BlockMaterialPipe<FluidPipeType, FluidPipePr
 
     @Override
     public TileEntityPipeBase<FluidPipeType, FluidPipeProperties> createNewTileEntity(boolean supportsTicking) {
-        return new TileEntityFluidPipeTickable(); // fluid pipes are always ticking
+        return new TileEntityFluidPipeTickable();
+    }
+
+    @Override
+    public boolean onPipeActivated(World world, IBlockState state, BlockPos pos, EntityPlayer entityPlayer,
+                                   EnumHand hand, EnumFacing side, CuboidRayTraceResult hit,
+                                   IPipeTile<FluidPipeType, FluidPipeProperties> pipeTile) {
+        ItemStack heldItem = entityPlayer.getHeldItem(hand);
+        if (heldItem.getItem().getToolClasses(heldItem).contains(ToolClasses.PLUNGER)) {
+            if (pipeTile instanceof TileEntityFluidPipeTickable tickable && tickable.isClogged()) {
+                if (!world.isRemote) {
+                    tickable.repairIntegrity(0);
+                    world.playSound(null, pos, SoundEvents.ENTITY_SLIME_SQUISH, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                    ToolHelper.damageItem(heldItem, entityPlayer);
+                    ToolHelper.playToolSound(heldItem, entityPlayer);
+                }
+                return true;
+            }
+        }
+        return super.onPipeActivated(world, state, pos, entityPlayer, hand, side, hit, pipeTile);
     }
 }
